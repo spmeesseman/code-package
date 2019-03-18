@@ -1,0 +1,256 @@
+Perry Johnson Code Package
+
+
+Version 1.31.0.0
+February 11th, 2019
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB                                *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+********************************************************************************
+
+1.  Initial Release
+
+
+Version 1.31.1.0
+February 28th, 2019
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB                                *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+********************************************************************************
+
+1.  Updated to Visual Studio Code 1.31.1.
+
+2.  The included 'jshint' extension has been replaced by the 'eslint' 
+    extension for JavaScript linting.
+
+    If upgrading to this version from a previous install, the 
+    previously installed 'jshint' can be disabled or uninstalled. If
+    uninstalling,  first remove jshint from the node package set by 
+    running the following command in the VSCode integrated terminal:
+
+        npm uninstall -g jshint
+
+3.  The Subversion extension is now automatically enabled in the file
+    browser as an 'Enabled Proposed API', allowing it to decorate the
+    file entries.
+
+
+Version 1.31.1.1
+March 4th, 2019
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB                                *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+********************************************************************************
+
+1.  Removed extensions:
+
+        Ant Task Runner
+        Ant Tree Viewer
+        Beautify
+
+    Added extensions:
+
+        Quick Task
+        Task Runner
+        Workspace Sorter
+
+2.  Included sample ESLint configuration file at the following path:
+
+        %CODE_HOME%\nodejs\node_modules\eslint\.eslintrc.json
+
+    To include ESLint linting in a JavaScript project, simply copy the
+    configuration file to the project root folder and restart Code.
+
+
+Version 1.32.1.0
+March 13th, 2019
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB                                *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+********************************************************************************
+
+1.  Updated the following Code package components:
+
+        Ansicon
+        
+            Previous version:    187
+            Updated version:     188
+
+        NodeJS
+        
+            Previous version:    10.15.1
+            Updated version:     10.15.3
+
+        Visual Studio Code 
+        
+            Previous version:    1.31.1 (January 2019 R2)
+            Updated version:     1.32.1 (February 2019 R2)
+
+2.  Added extensions:
+
+        Google Chrome Debugger
+        Microsoft Edge Debugger
+
+3.  Added custom extension:
+
+        johnstoncode.svn-scm
+
+    Compiled with the following extra context menu commands when right 
+    clicking a file in the File Explorer:
+
+        Commit Selected
+        
+4.  This installer installs a portable version, whereas all data will
+    be located within the installation folder as opposed to being 
+    spread out over various user spcific directories.  The structure
+    is as follows:
+
+        data\
+            extensions\
+            user_data\
+
+
+Version 1.32.2.0
+March 15th, 2019
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB                                *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+********************************************************************************
+
+1.  Updated the following Code package components:
+
+        Visual Studio Code 
+        
+            Previous version:    1.32.1 (February 2019 R2)
+            Updated version:     1.32.2 (February 2019 R3)
+
+2.  Updated the custom SVN SCM extenstion with the following file
+    explorer context menu item:
+
+        Diff with HEAD
+
+    The explorer context menu actions added to the file explorer by
+    the custom extension build are as follows:
+
+        Commit Selected (CTRL+C)
+        Open Changes with HEAD
+
+3.  The following node module is now installed:
+
+        vsce
+
+    This module allows for the packaging of VSCode extensions into 
+    VSIX installer file format.
+
+
+Version 1.32.3.0
+March 18th, 2019
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB+                               *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+***    An Internet connection is required during installation to download and  *
+***    install Code extensions and required node modules.                      *
+***                                                                            *
+********************************************************************************
+
+1.  Added Visual Studio Code extensions:
+
+        christian-kohler.npm-intellisense
+        davidanson.vscode-markdownlint
+        eg2.vscode-npm-script
+        spmeesseman.svn-scm-ext
+
+    Removed Visual Studio Code extension:
+
+        plylrnsdy.run-as
+
+2.  Updated the Visual Studio Code package component:
+
+        Previous version:    1.32.2 (February 2019 R3)
+        Updated version:     1.32.3 (February 2019 R4)
+
+3.  Installer will now prompt user for whether or not to install Tortoise SVN.
+
+4.  Uninstaller will now prompt user for whether or not to uninstall Visual 
+    Studio Code user settings.
+
+5.  Uninstaller will now prompt user for whether or not to uninstall Tortoise 
+    SVN.
+
+6.  Removed the .NET developer pack installation package.  All .NET reference
+    files are now installed directly to:
+
+        [installdir]\sdks\net35
+        [installdir]\sdks\net40
+        [installdir]\sdks\net452
+        [installdir]\sdks\net461
+        [installdir]\sdks\net472
+
+7.  The following node modules were not being installed correctly:
+
+        typescript
+        vsce
+
+    This has been fixed.
+
+8.  The following was not being added to the system enviroments PATH variable
+    by the installer:
+
+        [installdir]\nodejs\node_modules\typescript\bin
+
+    This has been fixed.
+

@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<doc>
+	<assembly>
+		<name>cscompmgd</name>
+	</assembly>
+	<members>
+		<member name="N:Microsoft.CSharp">
+			<summary>The <see cref="N:Microsoft.CSharp"></see> namespace contains classes that support compilation and code generation using the C# language.</summary>
+		</member>
+	</members>
+</doc>

@@ -1,0 +1,16 @@
+{
+    "workbench.colorTheme": "Default Light+",
+    "workbench.iconTheme": "material-icon-theme",
+    "material-icon-theme.folders.color": "#d8c034",
+    "material-icon-theme.folders.theme": "classic",
+    "editor.fontSize": 13,
+    "files.exclude": {
+        "**/.sencha": true,
+        "**/.vs": true,
+        "**/cvs": true
+    },
+    "diffEditor.renderSideBySide": true,
+    "npm.enableScriptExplorer": true,
+    "npm.exclude":[ "**/ext/**", "**/packages/**", "**/.vscode-test/**", "**/build/**" ],
+    "svn.defaultCheckoutDirectory": "c:\\Projects"
+}

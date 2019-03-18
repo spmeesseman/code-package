@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<VisualStudioPropertySheet 
+	ProjectType="Visual C++" 
+	Version="8.00" 
+	Name="Dynamic Link to MFC">
+	<Tool 
+		Name="VCCLCompilerTool" 
+		PreprocessorDefinitions="_AFXDLL"/>
+	<Tool 
+		Name="VCResourceCompilerTool" 
+		PreprocessorDefinitions="_AFXDLL"/>
+</VisualStudioPropertySheet>

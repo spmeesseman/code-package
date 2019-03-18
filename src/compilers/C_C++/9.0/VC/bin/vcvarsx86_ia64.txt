@@ -1,0 +1,76 @@
+@if "%VSINSTALLDIR%"=="" goto error_no_VSINSTALLDIR
+@if "%VCINSTALLDIR%"=="" goto error_no_VCINSTALLDIR
+
+@echo Setting environment for using Microsoft Visual Studio 2008 Itanium cross tools.
+
+@call :GetWindowsSdkDir
+@call :GetWindowsSdkDirIA64
+
+@if not "%WindowsSdkDir%" == "" (
+	set "PATH=%WindowsSdkDir%bin;%PATH%"
+)
+
+@if not "%WindowsSdkDirIA64%" == "" (
+	set "INCLUDE=%WindowsSdkDirIA64%include;%INCLUDE%"
+	set "LIB=%WindowsSdkDirIA64%lib\ia64;%LIB%"
+)
+
+@rem
+@rem Root of Visual Studio IDE installed files.
+@rem
+@set DevEnvDir=%VSINSTALLDIR%\Common7\IDE
+
+@set PATH=%DevEnvDir%;%VCINSTALLDIR%\BIN\x86_ia64;%VCINSTALLDIR%\BIN;%VSINSTALLDIR%\Common7\Tools;%VSINSTALLDIR%\Common7\Tools\bin;%FrameworkDir%\%Framework35Version%;%FrameworkDir%\%Framework35Version%\Microsoft .NET Framework 3.5 (Pre-Release Version);%FrameworkDir%\%FrameworkVersion%;%VCINSTALLDIR%\VCPackages;%PATH%
+@set INCLUDE=%VCINSTALLDIR%\ATLMFC\INCLUDE;%VCINSTALLDIR%\INCLUDE;%INCLUDE%
+@set LIB=%VCINSTALLDIR%\ATLMFC\LIB\ia64;%VCINSTALLDIR%\LIB\ia64;%LIB%
+
+@set LIBPATH=%FrameworkDir%\%Framework35Version%;%FrameworkDir%\%FrameworkVersion%;%VCINSTALLDIR%\ATLMFC\LIB\ia64;%VCINSTALLDIR%\LIB\ia64;%LIBPATH%
+
+@goto end
+
+:GetWindowsSdkDir
+@call :GetWindowsSdkDirHelper HKLM > nul 2>&1
+@if errorlevel 1 call :GetWindowsSdkDirHelper HKCU > nul 2>&1
+@if errorlevel 1 echo WindowsSdkDir not found.
+@exit /B 0
+
+:GetWindowsSdkDirIA64
+@call :GetWindowsSdkDirIA64Helper HKLM > nul 2>&1
+@if errorlevel 1 call :GetWindowsSdkDirIA64Helper HKCU > nul 2>&1
+@if errorlevel 1 echo WindowsSdkDirIA64 not found.
+@exit /B 0
+
+:GetWindowsSdkDirHelper
+@SET WindowsSdkDir=
+@for /F "tokens=1,2*" %%i in ('reg query "%1\SOFTWARE\Microsoft\Microsoft SDKs\Windows" /v "CurrentInstallFolder"') DO (
+	if "%%i"=="CurrentInstallFolder" (
+		SET "WindowsSdkDir=%%k"
+	)
+)
+@if "%WindowsSdkDir%"=="" exit /B 1
+@exit /B 0
+
+:GetWindowsSdkDirIA64Helper
+@SET WindowsSdkDirIA64=
+@for /F "tokens=1,2*" %%i in ('reg query "%1\SOFTWARE\Wow6432Node\Microsoft\Microsoft SDKs\Windows" /v "CurrentIA64Folder"') DO (
+	if "%%i"=="CurrentIA64Folder" (
+		SET "WindowsSdkDirIA64=%%k"
+	)
+)
+@for /F "tokens=1,2*" %%i in ('reg query "%1\SOFTWARE\Microsoft\Microsoft SDKs\Windows" /v "CurrentIA64Folder"') DO (
+	if "%%i"=="CurrentIA64Folder" (
+		SET "WindowsSdkDirIA64=%%k"
+	)
+)
+@if "%WindowsSdkDirIA64%"=="" exit /B 1
+@exit /B 0
+
+:error_no_VSINSTALLDIR
+@echo ERROR: VSINSTALLDIR variable is not set. 
+@goto end
+
+:error_no_VCINSTALLDIR
+@echo ERROR: VCINSTALLDIR variable is not set. 
+@goto end
+
+:end

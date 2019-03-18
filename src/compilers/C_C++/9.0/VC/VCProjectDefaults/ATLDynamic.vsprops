@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<VisualStudioPropertySheet 
+	ProjectType="Visual C++" 
+	Version="8.00" 
+	Name="Dynamic Link to ATL">
+	<Tool 
+		Name="VCCLCompilerTool" 
+		PreprocessorDefinitions="_ATL_DLL"/>
+</VisualStudioPropertySheet>

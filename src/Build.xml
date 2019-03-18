@@ -1,0 +1,315 @@
+<?xml version="1.0"?>
+
+<!--
+**********************************************************************
+*                                                                    *
+*  This file provides the instructions to extract the files          *
+*  necessary for the application:                                    *
+*                                                                    *
+*     Eclipse                                                        *
+*                                                                    *
+**********************************************************************
+-->
+
+<!-- Define the project -->
+<project 
+   basedir="."
+   default="Extract">
+
+   <property environment="env"/>
+
+   <!-- Define property -->
+   <property 
+   	name="project_name" 
+   	value="Eclipse"/>
+	
+   <!-- Define property -->
+   <property 
+   	name="OutputDirectory" 
+   	value="..\build"/>
+   
+   <!-- Define target -->
+   <target name="init">
+
+      <!-- Create time stamp -->
+      <tstamp >
+         <format property="Create_Date" pattern="MM/dd/yyyy HH:mm:ss" locale="en"/>
+      </tstamp>
+
+      <!-- Display the startup message -->
+      <echo message="Building project : ${project_name}"/>
+
+      <!-- Display the startup message -->
+      <echo message="Date/Time        : ${Create_Date}"/>
+
+   </target>
+
+   <!-- Define target -->
+   <target name="Extract" depends="init">
+      
+      <!-- Delete target directory -->
+      <delete dir="${OutputDirectory}" />
+
+      <!-- Create target directory -->
+      <mkdir dir="${OutputDirectory}" />
+      
+      <!--
+      **********************************************************************
+      *                                                                    *
+      *  Extract files                                                     *
+      *                                                                    *
+      **********************************************************************
+      -->
+
+      
+      <!--
+      **********************************************************************
+      *                                                                    *
+      *  VSCode runtime                                                    *
+      *                                                                    *
+      **********************************************************************
+      -->
+
+      <!-- Unzip the files -->
+      
+      <unzip 
+         dest="${OutputDirectory}" 
+         overwrite="true"
+         src="vscode/VSCode-win32-x64.zip" >
+
+         <patternset>
+             <include name="*/**"/>
+         </patternset>
+         
+      </unzip>
+
+      <!--
+      **********************************************************************
+      *                                                                    *
+      *  C, C++ and C# Compilers                                           *
+      *                                                                    *
+      **********************************************************************
+      -->
+      
+      <copy todir="${OutputDirectory}/compilers">
+         
+         <fileset dir="compilers" />
+         
+      </copy>
+
+      
+      <!--
+      **********************************************************************
+      *                                                                    *
+      *  APACHE Ant                                                        *
+      *                                                                    *
+      **********************************************************************
+      -->
+      
+      <!-- Unzip the files -->
+      <unzip 
+         dest="${OutputDirectory}" 
+         overwrite="true"
+         src="ant/apache-ant-1.10.5-bin.zip" >
+
+         <patternset>
+             <include name="*/**"/>
+         </patternset>
+
+      </unzip>
+   	
+   	  <move file="${OutputDirectory}/apache-ant-1.10.5" tofile="${OutputDirectory}/ant"/>
+   	
+   	
+      <!--
+      **********************************************************************
+      *                                                                    *
+      *  Ansicon (for Ant)                                                 *
+      *                                                                    *
+      **********************************************************************
+      -->
+      
+      <!-- Unzip the files -->
+      <unzip 
+         dest="${OutputDirectory}/ansicon" 
+         overwrite="true"
+         src="ansicon/ansi188-bin.zip" >
+
+         <patternset>
+             <include name="*/**"/>
+         </patternset>
+
+      </unzip>   
+
+
+      <!--
+      **********************************************************************
+      *                                                                    *
+      *  Node JS                                                           *
+      *                                                                    *
+      **********************************************************************
+      -->
+    
+      <!-- Unzip the files -->
+      <unzip 
+         dest="${OutputDirectory}" 
+         overwrite="true"
+         src="nodejs/node-v10.15.3-win-x64.zip" >
+         <patternset>
+             <include name="*/**"/>
+         </patternset>
+      </unzip>
+   	
+      <move file="${OutputDirectory}/node-v10.15.3-win-x64" tofile="${OutputDirectory}/nodejs"/>
+	 
+   	
+      <!--
+      **********************************************************************
+      *                                                                    *
+      *  NullSoft Installer                                                *
+      *                                                                    *
+      **********************************************************************
+      -->
+      
+      <copy todir="${OutputDirectory}/nsis">
+      	<fileset dir="nsis" />
+      </copy>
+   	
+      
+      <!--
+      **********************************************************************
+      *                                                                    *
+      *  Tortoise SVN Installer                                            *
+      *                                                                    *
+      **********************************************************************
+      -->
+      
+      <copy todir="${OutputDirectory}">
+         <fileset dir="tortoisesvn" />
+      </copy>
+      
+      
+      <!--
+      **********************************************************************
+      *                                                                    *
+      *  SDK Files                                                         *
+      *                                                                    *
+      **********************************************************************
+      -->
+      
+      <copy todir="${OutputDirectory}/sdks">
+         <fileset dir="sdks" />
+      </copy>
+      
+      <!-- Unzip the files -->
+      <unzip 
+         dest="${OutputDirectory}/sdks/net472" 
+         overwrite="true"
+         src="dotnet/v4.7.2.zip" >
+         <patternset>
+             <include name="*/**"/>
+         </patternset>
+      </unzip>
+
+      <!-- Unzip the files -->
+      <unzip 
+         dest="${OutputDirectory}/sdks/net461" 
+         overwrite="true"
+         src="dotnet/v4.6.1.zip" >
+         <patternset>
+             <include name="*/**"/>
+         </patternset>
+      </unzip>
+
+      <!-- Unzip the files -->
+      <unzip 
+         dest="${OutputDirectory}/sdks/net452" 
+         overwrite="true"
+         src="dotnet/v4.5.2.zip" >
+         <patternset>
+             <include name="*/**"/>
+         </patternset>
+      </unzip>
+
+      <!-- Unzip the files -->
+      <unzip 
+         dest="${OutputDirectory}/sdks/net40" 
+         overwrite="true"
+         src="dotnet/v4.0.zip" >
+         <patternset>
+             <include name="*/**"/>
+         </patternset>
+      </unzip>
+
+      <!-- Unzip the files -->
+      <unzip 
+         dest="${OutputDirectory}/sdks/net35" 
+         overwrite="true"
+         src="dotnet/v3.5.zip" >
+         <patternset>
+             <include name="*/**"/>
+         </patternset>
+      </unzip>
+      
+      <!--
+      **********************************************************************
+      *                                                                    *
+      *  Sencha Files                                                      *
+      *                                                                    *
+      **********************************************************************
+      -->
+      
+<!--      
+      <copy todir="${OutputDirectory}/sencha">
+         
+         <fileset dir="sencha" />
+         
+      </copy>
+-->
+      
+
+      <!--
+      **********************************************************************
+      *                                                                    *
+      *  Extensions                                                        *
+      *                                                                    *
+      **********************************************************************
+      -->
+      <!--
+      <copy todir="${OutputDirectory}/extensions">
+               
+         <fileset dir="extensions" />
+       
+      </copy>
+      -->
+      
+      <!--
+      **********************************************************************
+      *                                                                    *
+      *  Custom scripts                                                    *
+      *                                                                    *
+      **********************************************************************
+      -->
+
+      <!--
+      <exec executable="cmd" dir="svn-scm-ext">
+         <arg line="/c npm install" />
+      </exec>
+
+      <exec executable="cmd" dir="svn-scm-ext">
+         <arg line="/c vsce package" />
+      </exec>
+
+      <move todir="${OutputDirectory}" overwrite="true">
+         <fileset dir="svn-scm-ext">
+            <include name="**/*.vsix"/>
+         </fileset>
+      </move>
+      -->
+      
+      <copy todir="${OutputDirectory}">
+         <fileset dir="custom" />
+      </copy>
+
+   </target>
+</project>
