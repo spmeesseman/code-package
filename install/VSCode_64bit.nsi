@@ -153,11 +153,11 @@ Section "Install"
    ; Custom files copy/move
    ExecWait '"$INSTDIR\copy_settings.bat"'
 
-   NSISdl::download https://go.microsoft.com/fwlink/?LinkId=874338 "$INSTDIR\NDP472-DevPack.exe"
-
+   inetc::get https://go.microsoft.com/fwlink/?LinkId=874338 "$INSTDIR\NDP472-DevPack.exe"
    ; .NET 4.72 development pack
    ExecWait '"$INSTDIR\NDP472-DevPack.exe" /passive /noreboot'
-   
+   Delete "$INSTDIR\NDP472-DevPack.exe"
+
       ; Add to PATH
    Push "$INSTDIR\ant\bin"
    Call AddToPath

@@ -201,7 +201,6 @@
          <fileset dir="sdks" />
       </copy>
       
-      <!-- Unzip the files -->
       <unzip 
          dest="${OutputDirectory}/sdks/net472" 
          overwrite="true"
@@ -211,7 +210,6 @@
          </patternset>
       </unzip>
 
-      <!-- Unzip the files -->
       <unzip 
          dest="${OutputDirectory}/sdks/net461" 
          overwrite="true"
@@ -221,7 +219,6 @@
          </patternset>
       </unzip>
 
-      <!-- Unzip the files -->
       <unzip 
          dest="${OutputDirectory}/sdks/net452" 
          overwrite="true"
@@ -231,7 +228,6 @@
          </patternset>
       </unzip>
 
-      <!-- Unzip the files -->
       <unzip 
          dest="${OutputDirectory}/sdks/net40" 
          overwrite="true"
@@ -241,7 +237,6 @@
          </patternset>
       </unzip>
 
-      <!-- Unzip the files -->
       <unzip 
          dest="${OutputDirectory}/sdks/net35" 
          overwrite="true"
