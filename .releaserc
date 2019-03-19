@@ -13,16 +13,13 @@
       }], 
       '@semantic-release/release-notes-generator', 
       '@semantic-release/changelog', 
-      '@semantic-release/npm', 
-      '@semantic-release/git'
-    ],
-    "prepare": [
-      "@semantic-release/npm",
+      ['@semantic-release/npm', 
       {
         "path": "@semantic-release/git",
         "assets": [
           "dist/**"
         ]
-      }
-    ],
+      }],
+      '@semantic-release/git'
+    ]
 }
