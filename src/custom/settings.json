@@ -3,7 +3,8 @@
     "workbench.iconTheme": "material-icon-theme",
     "material-icon-theme.folders.color": "#d8c034",
     "material-icon-theme.folders.theme": "classic",
-    "editor.fontSize": 13,
+    "window.zoomLevel": -0.5, 
+    "editor.fontSize": 14,
     "files.exclude": {
         "**/.sencha": true,
         "**/.vs": true,
