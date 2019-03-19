@@ -40,10 +40,10 @@
         }
     },
     {
-        "label": "Code (Deploy)",
+        "label": "Code (PJ Deploy)",
         "type": "shell",
         "command": "${env:CODE_HOME}\\ant\\bin\\ant.bat",
-        "args": [ "-logger", "org.apache.tools.ant.listener.AnsiColorLogger", "-f", "Deploy.xml", "DeployPackage"],
+        "args": [ "-logger", "org.apache.tools.ant.listener.AnsiColorLogger", "-f", "PJDeploy.xml", "DeployPackage"],
         // use options.cwd property if the Makefile is not in the project root ${workspaceRoot} dir
         "options": {
             "cwd": "install",
