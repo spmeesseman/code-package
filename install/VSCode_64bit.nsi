@@ -65,7 +65,7 @@ CRCCheck force
 Name "${APPLICATION_NAME} ${BUILD_LEVEL} 64-bit"
 
 ; Define the name of the output file
-OutFile "..\${INSTALL_FILE_NAME}"
+OutFile "dist\${INSTALL_FILE_NAME}"
 
 ; Show details of install
 ShowInstDetails show
