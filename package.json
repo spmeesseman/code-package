@@ -35,7 +35,6 @@
 		}
 	},
 	"release": {
-		"npmPublish": false,
 		"plugins": [
 			[
 				"@semantic-release/commit-analyzer",
@@ -54,7 +53,7 @@
 						{
 							"type": "style",
 							"release": "patch"
-						}
+						} 
 					],
 					"parserOpts": {
 						"noteKeywords": [
@@ -66,22 +65,10 @@
 			],
 			"@semantic-release/release-notes-generator",
 			"@semantic-release/changelog",
+			["@semantic-release/github", {
+				"assets": ["install/dist/**"]
+			}],
 			"@semantic-release/git"
-		],
-		"verifyConditions": [
-			"@semantic-release/github"
-		],
-		"prepare": [
-			"@semantic-release/npm",
-			{
-				"path": "@semantic-release/git",
-				"assets": [
-					"install/dist/**"
-				]
-			}
-		],
-		"publish": [
-			"@semantic-release/github"
 		]
 	}
 }
