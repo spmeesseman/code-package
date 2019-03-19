@@ -3,7 +3,7 @@
 	"displayName": "Code Package",
 	"description": "Bundled Code Package",
 	"publisher": "spmeesseman",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"icon": "images/subversion.png",
 	"homepage": "https://github.com/spmeesseman/codepackage/blob/master/README.md",
 	"repository": {
@@ -25,7 +25,7 @@
 	"scripts": {
 		"compile": "ant -logger org.apache.tools.ant.listener.AnsiColorLogger Extract",
 		"vscode:prepublish": "npm run compile",
-		"semantic-release": "semantic-release --no-ci --allow-same-version",
+		"semantic-release": "semantic-release --no-ci",
 		"semantic-release-dry": "semantic-release --dry-run",
 		"commit": "npx git-cz"
 	},
@@ -37,19 +37,35 @@
 	"release": {
 		"npmPublish": false,
 		"plugins": [
-			["@semantic-release/commit-analyzer", {
-			  "preset": "angular",
-			  "releaseRules": [
-				{"type": "docs", "scope":"README", "release": "patch"},
-				{"type": "refactor", "release": "patch"},
-				{"type": "style", "release": "patch"}
-			  ],
-			  "parserOpts": {
-				"noteKeywords": ["BREAKING CHANGE", "BREAKING CHANGES"]
-			  }
-			}], 
-			"@semantic-release/release-notes-generator", 
-			"@semantic-release/changelog", 
+			[
+				"@semantic-release/commit-analyzer",
+				{
+					"preset": "angular",
+					"releaseRules": [
+						{
+							"type": "docs",
+							"scope": "README",
+							"release": "patch"
+						},
+						{
+							"type": "refactor",
+							"release": "patch"
+						},
+						{
+							"type": "style",
+							"release": "patch"
+						}
+					],
+					"parserOpts": {
+						"noteKeywords": [
+							"BREAKING CHANGE",
+							"BREAKING CHANGES"
+						]
+					}
+				}
+			],
+			"@semantic-release/release-notes-generator",
+			"@semantic-release/changelog",
 			"@semantic-release/git"
 		],
 		"verifyConditions": [
