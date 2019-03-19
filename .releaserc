@@ -17,7 +17,7 @@
       {
         "path": "@semantic-release/git",
         "assets": [
-          "dist/**"
+          "install/dist/**"
         ]
       }],
       '@semantic-release/git'
