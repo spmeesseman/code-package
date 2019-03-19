@@ -25,7 +25,6 @@
 	"scripts": {
 		"compile": "ant -logger org.apache.tools.ant.listener.AnsiColorLogger Extract",
 		"vscode:prepublish": "npm run compile",
-		"publish": "npm publish",
 		"semantic-release": "semantic-release --no-ci --allow-same-version",
 		"semantic-release-dry": "semantic-release --dry-run",
 		"commit": "npx git-cz" 
