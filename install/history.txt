@@ -254,3 +254,48 @@ March 18th, 2019
 
     This has been fixed.
 
+
+Version 1.32.3.1
+March 20th, 2019
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB+                               *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+***    An Internet connection is required during installation to download and  *
+***    install Code extensions and required node modules.                      *
+***                                                                            *
+********************************************************************************
+
+1.  Added Visual Studio Code extensions:
+
+        beaugust.blamer-vs
+        eamodio.gitlens
+        donjayamanne.githistory
+        ms-vscode.azure-account
+        ms-azuretools.vscode-azureappservice
+        ms-azuretools.vscode-azurestorage
+
+2.  Installer now detects if TortoiseSVN is already installed, and skips the
+    TortoiseSVN installation if present.
+
+3.  Installer now downloads the .NET Developer Pack before installing it, this
+    package is no longer included in the installer itself, reducing the size of
+    the installer by 110MB.
+
+4.  The .NET redist libraries are now packaged in the sdks directory for
+    convenience:
+
+        sdks/net35
+        sdks/net40
+        sdks/net456
+        sdks/net461
+        sdks/net472
+

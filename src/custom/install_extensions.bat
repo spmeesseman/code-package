@@ -6,6 +6,7 @@ if "%1" == "" ( exit )
 
 "%~pd0\bin\code" %1 johnstoncode.svn-scm --force \
                     %1 spmeesseman.svn-scm-ext --force \
+                    %1 beaugust.blamer-vs --force \
                     %1 momoto.binary-viewer --force \
                     %1 ms-vscode.cpptools --force \
                     %1 ms-vscode.csharp --force \

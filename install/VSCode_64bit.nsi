@@ -9,10 +9,10 @@
 !define APPLICATION_NAME     "Code Package"
 
 ; Define build level
-!define BUILD_LEVEL          "1.32.3.0"
+!define BUILD_LEVEL          "1.32.3.1"
 
 ; Define install file name
-!define INSTALL_FILE_NAME    "CodePackageInstall64.exe"
+!define INSTALL_FILE_NAME    "CodePackage_x64.exe"
 
 ; Define uninstall file name
 !define UNINSTALL_FILE_NAME  "CodePackageUninstall.exe"
@@ -108,7 +108,7 @@ Section "Install"
    ;File /r ..\build\*.*
 
    ; Check if 'settings.json' exists in the target directory   
-   IfFileExists data\user-data\User\settings.json SETTINGS_FILE_ALREADY_EXISTS 0
+   IfFileExists "$INSTDIR\data\user-data\User\settings.json" SETTINGS_FILE_ALREADY_EXISTS 0
 
    ; Copy the file
    File /oname=data\user-data\User\settings.json ..\build\settings.json
@@ -116,25 +116,32 @@ Section "Install"
    SETTINGS_FILE_ALREADY_EXISTS:
 
    ; Check if 'keybindings.json' exists in the target directory   
-   IfFileExists $INSTDIR\data\user-data\User\keybindings.json KEYBINDINGS_FILE_ALREADY_EXISTS 0
+   IfFileExists "$INSTDIR\data\user-data\User\keybindings.json" KEYBINDINGS_FILE_ALREADY_EXISTS 0
 
    ; Copy the file
    File /oname=data\user-data\User\keybindings.json ..\build\keybindings.json
 
    KEYBINDINGS_FILE_ALREADY_EXISTS:
 
-   MessageBox MB_YESNO "Install Tortoise SVN?" IDYES true0 IDNO false0
-   true0:
-     ExecWait 'msiexec /i "$INSTDIR\TortoiseSVN-1.11.1.28492-x64-svn-1.11.1.msi" /passive /norestart INSTALLDIR="$INSTDIR\tortoisesvn" ADDLOCAL=ALL'
-   false0:
-   
+   ; Check to see if already installed
+   ReadRegStr $R0 HKLM "SOFTWARE\TortoiseSVN" "Directory"
+   IfFileExists "$R0\bin\svn.exe" TORTOISE_ALREADY_INSTALLED 0
+   ;IfFileExists "$INSTDIR\tortoisesvn\bin\svn.exe" TORTOISE_ALREADY_INSTALLED 0
+   ;MessageBox MB_YESNO "Install Tortoise SVN?" IDYES true0 IDNO false0
+   ;true0:
+   ExecWait 'msiexec /i "$INSTDIR\TortoiseSVN-1.11.1.28492-x64-svn-1.11.1.msi" /passive /norestart INSTALLDIR="$INSTDIR\tortoisesvn" ADDLOCAL=ALL'
+   TORTOISE_ALREADY_INSTALLED:
+   ;!echo "TortoiseSVN is already installed at $R0"
+   ;false0:
+   Delete "$INSTDIR\TortoiseSVN-1.11.1.28492-x64-svn-1.11.1.msi"
+
    ;ExecWait '"$INSTDIR\VSCodeSetup.exe" /SILENT /MERGETASKS="!runcode,addcontextmenufiles,addcontextmenufolders,associatewithfiles" /NORESTART /NOCANCEL /DIR="$INSTDIR"'
 
    ; Extensions
    ExecWait '"$INSTDIR\install_extensions.bat" --install-extension'
-   ; ExecWait '"$INSTDIR\enable_extensions_api.bat"'
-
+   
    ; Add 'johnstoncode.svn-scm' to enabledProposedApi list
+   ; ExecWait '"$INSTDIR\enable_extensions_api.bat"'
    ; < v 1.32
    Push '$INSTDIR\resources\app\product.json'
    Push '"ms-vsliveshare.vsliveshare"]'
@@ -152,9 +159,10 @@ Section "Install"
 
    ; Custom files copy/move
    ExecWait '"$INSTDIR\copy_settings.bat"'
+   Delete "$INSTDIR\copy_settings.bat"
 
-   inetc::get https://go.microsoft.com/fwlink/?LinkId=874338 "$INSTDIR\NDP472-DevPack.exe"
    ; .NET 4.72 development pack
+   inetc::get https://go.microsoft.com/fwlink/?LinkId=874338 "$INSTDIR\NDP472-DevPack.exe"
    ExecWait '"$INSTDIR\NDP472-DevPack.exe" /passive /noreboot'
    Delete "$INSTDIR\NDP472-DevPack.exe"
 
