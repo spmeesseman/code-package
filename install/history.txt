@@ -1,4 +1,4 @@
-Perry Johnson Code Package
+Visual Studio Code Package
 
 
 Version 1.31.0.0
