@@ -3,7 +3,7 @@
 	"displayName": "Code Package",
 	"description": "Bundled Code Package",
 	"publisher": "spmeesseman",
-	"version": "1.0.3",
+	"version": "1.0.5",
 	"icon": "images/subversion.png",
 	"homepage": "https://github.com/spmeesseman/code-package/blob/master/README.md",
 	"repository": {
