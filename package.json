@@ -16,6 +16,7 @@
 	"devDependencies": {
 		"@semantic-release/changelog": "^3.0.2",
 		"@semantic-release/git": "^7.0.8",
+		"@semantic-release/exec": "^3.3.0",
 		"commitizen": "^3.0.7",
 		"cz-conventional-changelog": "^2.1.0",
 		"semantic-release": "^15.13.3",
@@ -24,6 +25,8 @@
 	},
 	"scripts": {
 		"build": "ant -logger org.apache.tools.ant.listener.AnsiColorLogger -f src/build.xml Extract",
+		"create-installer": "install/Build.bat",
+		"pj-release": "ant -logger org.apache.tools.ant.listener.AnsiColorLogger -f install/PJDeploy.xml DeployPackage",
 		"semantic-release": "semantic-release --no-ci",
 		"semantic-release-dry": "semantic-release --dry-run"
 	},
@@ -51,7 +54,7 @@
 						{
 							"type": "style",
 							"release": "patch"
-						} 
+						}
 					],
 					"parserOpts": {
 						"noteKeywords": [
@@ -62,10 +65,26 @@
 				}
 			],
 			"@semantic-release/release-notes-generator",
-			"@semantic-release/changelog",
-			["@semantic-release/github", {
-				"assets": ["install/dist/**"]
-			}],
+			[
+				"@semantic-release/changelog",
+				{
+					"changelogTitle": "Change Log"
+				}
+			],
+			[
+				"@semantic-release/npm",
+				{
+					"npmPublish": false
+				}
+			],
+			[
+				"@semantic-release/github",
+				{
+					"assets": [
+						"install/dist/**"
+					]
+				}
+			],
 			"@semantic-release/git"
 		]
 	}

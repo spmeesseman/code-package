@@ -316,9 +316,7 @@ Section "Uninstall"
    ;SetShellVarContext "all"
 
    ExecWait '"$INSTDIR\NDP472-DevPack.exe" /uninstall /passive /noreboot'
-   
-   ;ExecWait '"$INSTDIR\nodejs\npm" uninstall -g jshint'
-   ; ExecWait '"$INSTDIR\install_jshint.bat" uninstall'
+
    ExecWait '"$INSTDIR\install_node_modules.bat" uninstall'
    
    ExecWait '"$INSTDIR\install_extensions.bat" --uninstall-extension'
