@@ -110,6 +110,8 @@ Section "Install"
    ; Check if 'settings.json' exists in the target directory   
    IfFileExists "$INSTDIR\data\user-data\User\settings.json" SETTINGS_FILE_ALREADY_EXISTS 0
 
+   ;https://vscode-update.azurewebsites.net/latest/win32-x64/stable
+   
    ; Copy the file
    File /oname=data\user-data\User\settings.json ..\build\settings.json
 
