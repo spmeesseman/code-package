@@ -91,12 +91,38 @@
       **********************************************************************
       -->
       
-      <copy todir="${OutputDirectory}/compilers">
-         
-         <fileset dir="compilers" />
-         
-      </copy>
+      <unzip 
+         dest="${OutputDirectory}/compilers/c_c++" 
+         overwrite="true"
+         src="compilers/c_c++/9.0.zip" >
 
+         <patternset>
+             <include name="*/**"/>
+         </patternset>
+
+      </unzip> 
+
+      <unzip 
+         dest="${OutputDirectory}/compilers/c#" 
+         overwrite="true"
+         src="compilers/c#/8.0.zip" >
+
+         <patternset>
+             <include name="*/**"/>
+         </patternset>
+
+      </unzip> 
+
+      <unzip 
+         dest="${OutputDirectory}/compilers/c#" 
+         overwrite="true"
+         src="compilers/c#/15.0.zip" >
+
+         <patternset>
+             <include name="*/**"/>
+         </patternset>
+
+      </unzip>   
       
       <!--
       **********************************************************************
