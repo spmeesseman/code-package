@@ -59,5 +59,24 @@
             "focus": false,
             "panel": "shared"
         }
+    },
+    {
+        "label": "Code (Sync)",
+        "type": "shell",
+        "command": "${env:CODE_HOME}\\ant\\bin\\ant.bat",
+        "args": [ "-logger", "org.apache.tools.ant.listener.AnsiColorLogger", "-f", "syncpj.xml", "-Dpjproj=\"..\\..\\Code\"", "copy_to"],
+        "options": {
+            "cwd": "script",
+            "shell": {
+                "executable": "${env:CODE_HOME}\\ansicon\\x64\\ansicon.exe"
+            }
+        },
+        "group": "build",
+        "presentation": {
+            "echo": true,
+            "reveal": "always",
+            "focus": false,
+            "panel": "shared"
+        }
     }]
 }
