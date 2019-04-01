@@ -282,7 +282,12 @@ March 20th, 2019
         ms-vscode.azure-account
         ms-azuretools.vscode-azureappservice
         ms-azuretools.vscode-azurestorage
+        spmeesseman.vscode-taskview
 
+    Removed Visual Studio Code extension:
+
+        sanaajani.taskrunnercode
+        
 2.  Installer now detects if TortoiseSVN is already installed, and skips the
     TortoiseSVN installation if present.
 

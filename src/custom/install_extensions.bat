@@ -4,8 +4,7 @@
 echo Command: %1
 if "%1" == "" ( exit )
 
-"%~pd0\bin\code" %1 spmeesseman.svn-scm-ext --force \
-                %1 beaugust.blamer-vs --force \
+"%~pd0\bin\code" %1 beaugust.blamer-vs --force \
                 %1 christian-kohler.npm-intellisense --force \
                 %1 davidanson.vscode-markdownlint --force \
                 %1 dbaeumer.vscode-eslint --force \
@@ -29,4 +28,5 @@ if "%1" == "" ( exit )
                 %1 msjsdiag.debugger-for-chrome --force \
                 %1 msjsdiag.debugger-for-edge --force \
                 %1 pkief.material-icon-theme --force \
-                %1 sanaajani.taskrunnercode --force
+                %1 spmeesseman.svn-scm-ext --force \
+                %1 spmeesseman.vsccode-taskview --force
