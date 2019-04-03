@@ -277,8 +277,9 @@ March 20th, 2019
 1.  Added Visual Studio Code extensions:
 
         beaugust.blamer-vs
-        eamodio.gitlens
         donjayamanne.githistory
+        eamodio.gitlens
+        esbenp.prettier-vscode
         ms-vscode.azure-account
         ms-azuretools.vscode-azureappservice
         ms-azuretools.vscode-azurestorage

@@ -11,6 +11,7 @@ if "%1" == "" ( exit )
                 %1 donjayamanne.githistory --force \
                 %1 dotjoshjohnson.xml --force \
                 %1 eamodio.gitlens --force \
+                %1 esbenp.prettier-vscode \
                 %1 eg2.vscode-npm-script --force \
                 %1 hookyqr.beautify --force \
                 %1 idleberg.nsis --force \
