@@ -13,5 +13,11 @@
     "diffEditor.renderSideBySide": true,
     "npm.enableScriptExplorer": true,
     "npm.exclude":[ "**/ext/**", "**/packages/**", "**/.vscode-test/**", "**/build/**" ],
-    "svn.defaultCheckoutDirectory": "c:\\Projects"
+    "svn.defaultCheckoutDirectory": "c:\\Projects",
+    "taskExplorer.enableSideBar": true,
+    "taskExplorer.pathToAnsicon": "c:\\code\\ansicon\\x64\\ansicon.exe",
+    "taskExplorer.pathToAnt": "c:\\code\\ant\\bin\\ant.bat",
+    "taskExplorer.includeAnt": [
+        "**/*.xml"
+    ]
 }
