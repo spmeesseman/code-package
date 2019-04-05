@@ -13,21 +13,21 @@
 <project 
    basedir="."
    default="DeployPackage" 
-   name="Code">
+   name="Code Package">
 
    <!-- Define the description -->
    <description>
-      Code Deployment
+      Code Package Deployment
    </description>
 
    <!-- Define property names and values -->
    <property 
       name="version" 
-      value="1.32.2.0"/>
+      value="1.33.0.1"/>
    
    <property 
       name="project_name" 
-      value="Code"/>
+      value="Code Package"/>
    
    <!--
    **********************************************************************
@@ -133,8 +133,8 @@
            to the target directory -->
 		<copy todir="${target_path1}" verbose="true" >
          <resources>
-            <file file="..\CodePackageInstall64.exe" />
-            <file file="..\install\history.txt" />
+            <file file="dist/CodePackage_x64.exe" />
+            <file file="history.txt" />
          </resources>
       </copy>
 
@@ -155,7 +155,7 @@
       <exec executable="powershell" dir=".">
          <arg line="-ExecutionPolicy bypass" />
          <arg line="-File ExtractReleaseHistory.ps1" />
-         <arg line="-i Dist\history.txt -o CurrentVersionChanges.html -n 1 -p &quot;${project_name}&quot; -v &quot;${version}&quot;" />   
+         <arg line="-i history.txt -o CurrentVersionChanges.html -n 1 -p &quot;${project_name}&quot; -v &quot;${version}&quot;" />   
       </exec>
 
       <!-- Define the mail task -->

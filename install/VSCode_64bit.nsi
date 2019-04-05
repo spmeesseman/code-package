@@ -9,7 +9,7 @@
 !define APPLICATION_NAME     "Code Package"
 
 ; Define build level
-!define BUILD_LEVEL          "1.32.3.1"
+!define BUILD_LEVEL          "1.33.0.1"
 
 ; Define install file name
 !define INSTALL_FILE_NAME    "CodePackage_x64.exe"
@@ -125,6 +125,12 @@ Section "Install"
 
    KEYBINDINGS_FILE_ALREADY_EXISTS:
 
+   ; VSCode
+   inetc::get "https://update.code.visualstudio.com/latest/win32-x64-archive/stable" "$INSTDIR\VSCode.zip"
+   ;ExecWait '"$INSTDIR\VSCode.exe" /SILENT /MERGETASKS="!runcode,addcontextmenufiles,addcontextmenufolders,associatewithfiles" /NORESTART /NOCANCEL /SUPPRESSMSGBOXES /DIR="$INSTDIR"'
+   nsisunz::Unzip "$INSTDIR\VSCode.zip" "$INSTDIR"
+   Delete "$INSTDIR\VSCode.zip"
+
    ; Check to see if already installed
    ReadRegStr $R0 HKLM "SOFTWARE\TortoiseSVN" "Directory"
    IfFileExists "$R0\bin\svn.exe" TORTOISE_ALREADY_INSTALLED 0
@@ -136,8 +142,6 @@ Section "Install"
    ;!echo "TortoiseSVN is already installed at $R0"
    ;false0:
    Delete "$INSTDIR\TortoiseSVN-1.11.1.28492-x64-svn-1.11.1.msi"
-
-   ;ExecWait '"$INSTDIR\VSCodeSetup.exe" /SILENT /MERGETASKS="!runcode,addcontextmenufiles,addcontextmenufolders,associatewithfiles" /NORESTART /NOCANCEL /DIR="$INSTDIR"'
 
    ; Extensions
    ExecWait '"$INSTDIR\install_extensions.bat" --install-extension'
@@ -292,8 +296,8 @@ Section "Install"
    SetShellVarContext "all"
 
    ; Create Desktop shortcut
-   CreateShortCut "$DESKTOP\Code.lnk" \
-                  "$INSTDIR\code.exe"
+   ;CreateShortCut "$DESKTOP\Code.lnk" \
+   ;               "$INSTDIR\code.exe"
 
    ;Create uninstall file
    WriteUninstaller "$INSTDIR\${UNINSTALL_FILE_NAME}"
@@ -342,13 +346,14 @@ Section "Uninstall"
      RMDir /r "$INSTDIR\data"
    false1:
    
+   ; uninstall vscode
+   ;ExecWait '"$INSTDIR\unins000.exe" /SILENT /SUPPRESSMSGBOXES'
+   
    MessageBox MB_YESNO "Uninstall Tortoise SVN?" IDYES true2 IDNO false2
    true2:
      ExecWait 'msiexec /x "$INSTDIR\TortoiseSVN-1.11.1.28492-x64-svn-1.11.1.msi" /passive REBOOT=ReallySuppress MSIRESTARTMANAGERCONTROL=Disable'
      RMDir /r "$INSTDIR\tortoisesvn"
    false2:
- 
-   ;ExecWait '"$INSTDIR\unins000.exe" /SILENT'
 
    Push "$INSTDIR\ant\bin"
    Call un.RemoveFromPath
