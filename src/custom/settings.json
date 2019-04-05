@@ -19,5 +19,13 @@
     "taskExplorer.pathToAnt": "c:\\code\\ant\\bin\\ant.bat",
     "taskExplorer.includeAnt": [
         "**/*.xml"
+    ],
+    "taskExplorer.exclude": [
+        "**/ext/**",
+        "**/packages/**",
+        "**/.vscode-test/**",
+        "**/test/**",
+        "**/build/**",
+        "**/sdks/**"
     ]
 }
