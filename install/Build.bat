@@ -11,6 +11,7 @@ rem "..\doc\Code Installation.docx"
 rem Edit the Setup script
 notepad VSCode_64bit.nsi
 
+mkdir dist
 mkdir ..\build
 mkdir ..\build\data
 mkdir ..\build\data\extensions
@@ -18,7 +19,7 @@ mkdir ..\build\data\user-data
 mkdir ..\build\data\user-data\User
 
 rem Compile the Setup script
-%CODE_HOME%\nsis\makensis VSCode_64bit.nsi
+..\src\nsis\makensis VSCode_64bit.nsi
 
 rem Remove the build directory, leaving this around after building
 rem the installer causes some issues with task scanning in VSCode
