@@ -2,14 +2,16 @@
 @echo off
 cd %~dp0
 
-rem Edit the History
-rem notepad history.txt
+if "%1" == "--edit-files" (
+    rem Edit the History
+    notepad history.txt
 
-rem Edit the Installation document
-rem "..\doc\Code Installation.docx"
+    rem Edit the Installation document
+    rem "..\doc\Code Installation.docx"
 
-rem Edit the Setup script
-rem notepad VSCode_64bit.nsi
+    rem Edit the Setup script
+    notepad VSCode_64bit.nsi
+)
 
 mkdir dist
 mkdir ..\build
