@@ -103,6 +103,9 @@ jobs:
   #        CODECOV_TOKEN: $(codecovToken)
   - job: Release
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    dependsOn:
+    - Windows
+    #- Linux
     pool:
       name: Hosted Ubuntu 1604
       demands: npm
