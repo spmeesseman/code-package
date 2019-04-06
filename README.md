@@ -7,7 +7,7 @@
 [![Dependencies Status](https://david-dm.org/spmeesseman/code-package/status.svg)](https://david-dm.org/spmeesseman/code-package)
 [![DevDependencies Status](https://david-dm.org/spmeesseman/code-package/dev-status.svg)](https://david-dm.org/spmeesseman/code-package?type=dev)
 
-> Bundles Visual Studio Code with several 3rd party libraries and development tools.
+> Bundles several 3rd party libraries and development tools to be used within the Visual Sudio Code IDE.  The latest version of VSCode and the .NET 4.72 Targeting Pack are downloaded and installed by the installer.
 
 ## Installing Visual Studio Code Updates
 
