@@ -20,8 +20,7 @@
 		"commitizen": "^3.0.7",
 		"cz-conventional-changelog": "^2.1.0",
 		"semantic-release": "^15.13.3",
-		"@types/node": "^10.12.21",
-		"@types/mocha": "^2.2.42"
+		"@types/node": "^10.12.21"
 	},
 	"scripts": {
 		"build": "src\\Build.bat",
