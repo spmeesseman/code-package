@@ -7,19 +7,28 @@
 [![Dependencies Status](https://david-dm.org/spmeesseman/code-package/status.svg)](https://david-dm.org/spmeesseman/code-package)
 [![DevDependencies Status](https://david-dm.org/spmeesseman/code-package/dev-status.svg)](https://david-dm.org/spmeesseman/code-package?type=dev)
 
-> This extension bundles Visual Studio Code with several 3rd party libraries and development tools.
+> Bundles Visual Studio Code with several 3rd party libraries and development tools.
 
-## Redistributables
+## Redistributed Software (included)
 
-This package contains the following redistributed software:
-|Redistributable|Version|Method|
-|-|-|-|
-|Tortoise SVN|1.11.1|Local|
-|Apache Ant|1.10.5|Local|
-|Ansicon|1.88|Local|
-|NodeJS|10.15.3|Local|
-|VSCode|Latest|Online|
-|.NET Targeting Pack|4.72|Online|
+The following software is redistributed locally by code-package:
+
+|Redistributable|Version|Method|License|
+|-|-|-|-|
+|Tortoise SVN|1.11.1|Local|GPL|
+|Apache Ant|1.10.5|Local|Apache 2.0|
+|Ansicon|1.88|Local|Jason Hood|
+|NodeJS|10.15.3|Local|Node.js|
+
+## Remote/Downloaded Software (non-redistributed)
+
+The following software is not included and redistributed locally within code-package, but they are downloaded inline and installed:
+
+|Redistributable|Version|Method|License|
+|-|-|-|-|
+|VSCode|Latest|Online|Microsft VSCode|
+|VSCode Extensions|Latest|Online|N/A|
+|.NET Targeting Pack|4.72|Online|Microsoft|
 
 ## Feedback & Contributing
 
