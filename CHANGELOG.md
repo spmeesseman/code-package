@@ -1,5 +1,12 @@
 Change Log
 
+## [1.0.7](https://github.com/spmeesseman/code-package/compare/v1.0.6...v1.0.7) (2019-04-06)
+
+
+### Bug Fixes
+
+* uninstaller does not remove net472 devpack or tortoise if user selects remove ([95865bd](https://github.com/spmeesseman/code-package/commit/95865bd))
+
 ## [1.0.6](https://github.com/spmeesseman/code-package/compare/v1.0.5...v1.0.6) (2019-04-06)
 
 
