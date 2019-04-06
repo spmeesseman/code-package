@@ -9,6 +9,10 @@
 
 > Bundles Visual Studio Code with several 3rd party libraries and development tools.
 
+## Installing Visual Studio Code Updates
+
+This package downloads and installs VSCode using the zip archive.  To update Visual Studio Code, simply extract the new version's zip archive over top of the base Code Package installation.  Do not use the VSCode installer.
+
 ## Redistributed Software (included)
 
 The following software is redistributed locally by code-package:
@@ -22,7 +26,7 @@ The following software is redistributed locally by code-package:
 
 ## Remote/Downloaded Software (non-redistributed)
 
-The following software is not included and redistributed locally within code-package, but they are downloaded inline and installed:
+The following software is not included and redistributed locally within code-package, but downloaded inline and installed:
 
 |Redistributable|Version|Method|License|
 |-|-|-|-|
@@ -36,9 +40,4 @@ The following software is not included and redistributed locally within code-pac
   [Issues](https://github.com/spmeesseman/code-package/issues)
 * Feel free to submit
   [pull requests](https://github.com/spmeesseman/code-package/pulls)
-
-## Features
-
-* Bundled Visual Studio Code development environment
-
-## [Contributors](https://github.com/spmeesseman/code-package/graphs/contributors)
+* [Contributors](https://github.com/spmeesseman/code-package/graphs/contributors)
