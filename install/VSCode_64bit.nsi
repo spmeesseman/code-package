@@ -141,7 +141,7 @@ Section "Install"
    TORTOISE_ALREADY_INSTALLED:
    ;!echo "TortoiseSVN is already installed at $R0"
    ;false0:
-   Delete "$INSTDIR\TortoiseSVN-1.11.1.28492-x64-svn-1.11.1.msi"
+   ;Delete "$INSTDIR\TortoiseSVN-1.11.1.28492-x64-svn-1.11.1.msi"
 
    ; Extensions
    ExecWait '"$INSTDIR\install_extensions.bat" --install-extension'
@@ -170,7 +170,6 @@ Section "Install"
    ; .NET 4.72 development pack
    inetc::get https://go.microsoft.com/fwlink/?LinkId=874338 "$INSTDIR\NDP472-DevPack.exe"
    ExecWait '"$INSTDIR\NDP472-DevPack.exe" /passive /noreboot'
-   Delete "$INSTDIR\NDP472-DevPack.exe"
 
       ; Add to PATH
    Push "$INSTDIR\ant\bin"
@@ -321,8 +320,6 @@ Section "Uninstall"
    ; Set context to 'All Users'
    ;SetShellVarContext "all"
 
-   ExecWait '"$INSTDIR\NDP472-DevPack.exe" /uninstall /passive /noreboot'
-
    ExecWait '"$INSTDIR\install_node_modules.bat" uninstall'
    
    ExecWait '"$INSTDIR\install_extensions.bat" --uninstall-extension'
@@ -354,6 +351,11 @@ Section "Uninstall"
      ExecWait 'msiexec /x "$INSTDIR\TortoiseSVN-1.11.1.28492-x64-svn-1.11.1.msi" /passive REBOOT=ReallySuppress MSIRESTARTMANAGERCONTROL=Disable'
      RMDir /r "$INSTDIR\tortoisesvn"
    false2:
+
+   
+   ;IfFileExists "$INSTDIR\NDP472-DevPack.exe" DEVPACK_UNINSTALLED 0
+      ExecWait '"$INSTDIR\NDP472-DevPack.exe" /uninstall /passive /noreboot'
+   ;DEVPACK_UNINSTALLED:
 
    Push "$INSTDIR\ant\bin"
    Call un.RemoveFromPath
