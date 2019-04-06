@@ -39,7 +39,7 @@ jobs:
         inputs:
           verbose: false
       - task: Npm@1
-        displayName: 'Compile sources'
+        displayName: 'Prepare installer contents'
         inputs:
           command: custom
           verbose: true
@@ -119,7 +119,7 @@ jobs:
         inputs:
           verbose: false
       - task: Npm@1
-        displayName: 'Compile sources'
+        displayName: 'Prepare installer contents'
         inputs:
           command: custom
           verbose: true
@@ -130,11 +130,6 @@ jobs:
           command: custom
           verbose: true
           customCommand: 'run build-installer'
-      - script: |
-          set -e
-          /usr/bin/Xvfb :10 -ac >> /tmp/Xvfb.out 2>&1 &
-          disown -ar
-        displayName: 'Start xvfb'
       - task: Npm@1
         displayName: 'Run semantic-release'
         inputs:

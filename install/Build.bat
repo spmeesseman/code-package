@@ -3,13 +3,13 @@
 cd %~dp0
 
 rem Edit the History
-notepad history.txt
+rem notepad history.txt
 
 rem Edit the Installation document
 rem "..\doc\Code Installation.docx"
 
 rem Edit the Setup script
-notepad VSCode_64bit.nsi
+rem notepad VSCode_64bit.nsi
 
 mkdir dist
 mkdir ..\build
