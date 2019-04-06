@@ -9,11 +9,17 @@
 
 > This extension bundles Visual Studio Code with several 3rd party libraries and development tools.
 
-## Credits
+## Redistributables
 
-## Work in progress
-
-## Next Up
+This package contains the following redistributed software:
+|Redistributable|Version|Method|
+|-|-|-|
+|Tortoise SVN|1.11.1|Local|
+|Apache Ant|1.10.5|Local|
+|Ansicon|1.88|Local|
+|NodeJS|10.15.3|Local|
+|VSCode|Latest|Online|
+|.NET Targeting Pack|4.72|Online|
 
 ## Feedback & Contributing
 
