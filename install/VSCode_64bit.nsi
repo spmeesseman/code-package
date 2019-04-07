@@ -104,7 +104,7 @@ Section "Install"
    SetOutPath "$INSTDIR"
    
    ; VSCODE BASE (latest/current version)
-   MessageBox MB_OKCANCEL "Microsoft VS Code will be downloaded and installed.\n\nBy continuing you are agreeing to Microsoft licensing terms." IDOK vscodetrue IDCANCEL vscodefalse
+   MessageBox MB_OKCANCEL "Microsoft VS Code will be downloaded and installed.$\n$\nBy continuing you are agreeing to Microsoft licensing terms." IDOK vscodetrue IDCANCEL vscodefalse
    vscodefalse:
       RMDir "$INSTDIR" ; Don't remove if not empty (/r)
       Abort
@@ -115,7 +115,7 @@ Section "Install"
    Delete "$INSTDIR\VSCode.zip"
 
    ; .NET 4.72 DEVELOPMENT PACK
-   MessageBox MB_YESNO "Install .NET 4.72 Development Pack?  By clicking yes you are agreeing to Microsoft licensing terms." IDYES net472true IDNO net472false
+   MessageBox MB_YESNO "Install .NET 4.72 Development Pack?$\n$\nBy clicking yes you are agreeing to Microsoft licensing terms." IDYES net472true IDNO net472false
    net472true:
       inetc::get https://go.microsoft.com/fwlink/?LinkId=874338 "$INSTDIR\NDP472-DevPack.exe"
       ExecWait '"$INSTDIR\NDP472-DevPack.exe" /passive /noreboot'
