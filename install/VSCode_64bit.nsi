@@ -102,190 +102,158 @@ Section "Install"
 
    ; Specify the output path
    SetOutPath "$INSTDIR"
-  
-   ; Specify the files to extract
-   File /r /x settings.json /x keybindings.json ..\build\*.*
-   ;File /r ..\build\*.*
-
-   ; Check if 'settings.json' exists in the target directory   
-   IfFileExists "$INSTDIR\data\user-data\User\settings.json" SETTINGS_FILE_ALREADY_EXISTS 0
-
-   ;https://vscode-update.azurewebsites.net/latest/win32-x64/stable
    
-   ; Copy the file
-   File /oname=data\user-data\User\settings.json ..\build\settings.json
-
-   SETTINGS_FILE_ALREADY_EXISTS:
-
-   ; Check if 'keybindings.json' exists in the target directory   
-   IfFileExists "$INSTDIR\data\user-data\User\keybindings.json" KEYBINDINGS_FILE_ALREADY_EXISTS 0
-
-   ; Copy the file
-   File /oname=data\user-data\User\keybindings.json ..\build\keybindings.json
-
-   KEYBINDINGS_FILE_ALREADY_EXISTS:
-
-   ; VSCode
+   ; VSCODE BASE (latest/current version)
+   MessageBox MB_OKCANCEL "Microsoft VS Code will be downloaded and installed.\n\nBy continuing you are agreeing to Microsoft licensing terms." IDOK vscodetrue IDCANCEL vscodefalse
+   vscodefalse:
+      RMDir "$INSTDIR" ; Don't remove if not empty (/r)
+      Abort
+   vscodetrue:
    inetc::get "https://update.code.visualstudio.com/latest/win32-x64-archive/stable" "$INSTDIR\VSCode.zip"
    ;ExecWait '"$INSTDIR\VSCode.exe" /SILENT /MERGETASKS="!runcode,addcontextmenufiles,addcontextmenufolders,associatewithfiles" /NORESTART /NOCANCEL /SUPPRESSMSGBOXES /DIR="$INSTDIR"'
    nsisunz::Unzip "$INSTDIR\VSCode.zip" "$INSTDIR"
    Delete "$INSTDIR\VSCode.zip"
 
-   ; Check to see if already installed
-   ReadRegStr $R0 HKLM "SOFTWARE\TortoiseSVN" "Directory"
+   ; .NET 4.72 DEVELOPMENT PACK
+   MessageBox MB_YESNO "Install .NET 4.72 Development Pack?  By clicking yes you are agreeing to Microsoft licensing terms." IDYES net472true IDNO net472false
+   net472true:
+      inetc::get https://go.microsoft.com/fwlink/?LinkId=874338 "$INSTDIR\NDP472-DevPack.exe"
+      ExecWait '"$INSTDIR\NDP472-DevPack.exe" /passive /noreboot'
+   net472false:
+
+   ; TORTOISE SVN
+   ReadRegStr $R0 HKLM "SOFTWARE\TortoiseSVN" "Directory"  ; Check to see if already installed
    IfFileExists "$R0\bin\svn.exe" TORTOISE_ALREADY_INSTALLED 0
-   ;IfFileExists "$INSTDIR\tortoisesvn\bin\svn.exe" TORTOISE_ALREADY_INSTALLED 0
-   ;MessageBox MB_YESNO "Install Tortoise SVN?" IDYES true0 IDNO false0
-   ;true0:
    ExecWait 'msiexec /i "$INSTDIR\TortoiseSVN-1.11.1.28492-x64-svn-1.11.1.msi" /passive /norestart INSTALLDIR="$INSTDIR\tortoisesvn" ADDLOCAL=ALL'
    TORTOISE_ALREADY_INSTALLED:
-   ;!echo "TortoiseSVN is already installed at $R0"
-   ;false0:
-   ;Delete "$INSTDIR\TortoiseSVN-1.11.1.28492-x64-svn-1.11.1.msi"
 
-   ; Extensions
+   ; EXTRACT THE LOCAL INSTALLER FILES - DON'T OVERWRITE SETTINGS.JSON
+   File /r /x settings.json /x keybindings.json ..\build\*.*
+
+   ; SETTINGS.JSON
+   ; Check if 'settings.json' exists in the target directory   
+   IfFileExists "$INSTDIR\data\user-data\User\settings.json" SETTINGS_FILE_ALREADY_EXISTS 0
+   ; Copy the file
+   File /oname=data\user-data\User\settings.json ..\build\settings.json
+   ; replace c:\code in settings.json with actual install dir
+   Push "$INSTDIR\data\user-data\User\settings.json"
+   Push "c:\Code" 
+   Push "$INSTDIR"
+   Call ReplaceInFile
+   SETTINGS_FILE_ALREADY_EXISTS:
+
+   ; EXTENSIONS
    ExecWait '"$INSTDIR\install_extensions.bat" --install-extension'
-   
-   ; Add 'johnstoncode.svn-scm' to enabledProposedApi list
-   ; ExecWait '"$INSTDIR\enable_extensions_api.bat"'
-   ; < v 1.32
-   Push '$INSTDIR\resources\app\product.json'
+   ; Add 'johnstoncode.svn-scm' to enabledProposedApi list in subversion exension, this enabled the file explorer decorations
+   Push '$INSTDIR\resources\app\product.json'   ; < v 1.32
    Push '"ms-vsliveshare.vsliveshare"]'
    Push '"ms-vsliveshare.vsliveshare", "johnstoncode.svn-scm"]'
    Call ReplaceInFile
-   ; >= V 1.32
-   Push '$INSTDIR\resources\app\product.json'
+   Push '$INSTDIR\resources\app\product.json'   ; >= V 1.32
    Push '"atlassian.atlascode"]'
    Push '"atlassian.atlascode", "johnstoncode.svn-scm"]'
    Call ReplaceInFile
 
-   ; Node modules
+   ; GLOBAL NODE MODULES
    ; ExecWait 'cmd.exe "$INSTDIR\nodejs\npm" install -g eslint'
    ExecWait '"$INSTDIR\install_node_modules.bat" install'
 
-   ; Custom files copy/move
+   ; CUSTOM FILES STUFF
    ExecWait '"$INSTDIR\copy_settings.bat"'
    Delete "$INSTDIR\copy_settings.bat"
 
-   ; .NET 4.72 development pack
-   inetc::get https://go.microsoft.com/fwlink/?LinkId=874338 "$INSTDIR\NDP472-DevPack.exe"
-   ExecWait '"$INSTDIR\NDP472-DevPack.exe" /passive /noreboot'
-
-      ; Add to PATH
+   ; ADD TO PATH ENVIRONMENT VARIABLE
    Push "$INSTDIR\ant\bin"
    Call AddToPath
-
    Push "$INSTDIR\nodejs"
    Call AddToPath
-
    Push "$INSTDIR\nsis"
    Call AddToPath
-
    Push "$INSTDIR\nodejs\node_modules\typescript\bin"
    Call AddToPath
-
    Push "$INSTDIR\bin"
    Call AddToPath
    
-   ; Add to environment
+   ; ADD CUSTOM VARIABLES TO ENVIRONMENT
    Push "ANT_HOME"
    Push "$INSTDIR\ant"
    Call AddToEnvVar
-   
    Push "CODE_HOME"
    Push "$INSTDIR"
    Call AddToEnvVar
    
-   ;Registry
-
+   ; ADD REGISTRY KEYS - VSCODE WINDOWS EXPLORER CONTEXT MENUS
    WriteRegStr   HKCR                                                                                      \
                  "*\shell\Open with VS Code"                                                               \
                  ""                                                                                        \
                  "Edit with VS Code"     
-
    WriteRegStr   HKCR                                                                                      \
                  "*\shell\Open with VS Code"                                                               \
                  "Icon"                                                                                    \
                  "$INSTDIR\Code.exe,0"     
-
    WriteRegStr   HKCR                                                                                      \
                  "*\shell\Open with VS Code\command"                                                       \
                  ""                                                                                        \
                  '"$INSTDIR\Code.exe" "%1"'     
-
    WriteRegStr   HKCR                                                                                      \
                  "Directory\shell\vscode"                                                                  \
                  ""                                                                                        \
                  "Open Folder as VS Code Project"     
-
    WriteRegStr   HKCR                                                                                      \
                  "Directory\shell\vscode"                                                                  \
                  "Icon"                                                                                    \
                  "$INSTDIR\Code.exe,0"     
-
    WriteRegStr   HKCR                                                                                      \
                  "Directory\shell\vscode\command"                                                          \
                  ""                                                                                        \
                  '"$INSTDIR\Code.exe" "%1"'     
-
    WriteRegStr   HKCR                                                                                      \
                  "Directory\Background\shell\vscode"                                                       \
                  ""                                                                                        \
                  "Open Folder as VS Code Project"     
-
    WriteRegStr   HKCR                                                                                      \
                  "Directory\Background\shell\vscode"                                                       \
                  "Icon"                                                                                    \
                  "$INSTDIR\Code.exe,0"     
-
    WriteRegStr   HKCR                                                                                      \
                  "Directory\Background\shell\vscode\command"                                               \
                  ""                                                                                        \
                  '"$INSTDIR\Code.exe" "%V"'     
 
-   ; Write information to registry so the program can be removed from
-   ; the 'Add/Remove Programs' control panel applet.
-
+   ; ADD REGISTRY KEYS - ADD/REMOVE PROGRAMS
+   ; Write information to registry so the program can be removed from the 'Add/Remove Programs' control panel
    WriteRegStr   HKLM                                                                                        \
                  "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"                   \
                  "DisplayIcon"                                                                               \
                  "$INSTDIR\code.exe"               
- 
    WriteRegStr   HKLM                                                                                        \
                  "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"                   \
                  "DisplayName"                                                                               \
-                 "${APPLICATION_NAME}"
-                
+                 "${APPLICATION_NAME}"         
    WriteRegStr   HKLM                                                                                        \
                  "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"                   \
                  "DisplayVersion"                                                                            \
                  "${BUILD_LEVEL}"
-
    WriteRegDWORD HKLM                                                                                        \
                  "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"                   \
                  "EstimatedSize"                                                                             \
                  1259000
-
    WriteRegStr   HKLM                                                                                        \
                  "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"                   \
                  "InstallLocation"                                                                           \
                  "$INSTDIR"
-
    WriteRegDWORD HKLM                                                                                        \
                  "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"                   \
                  "NoModify"                                                                                  \
                  1
-
    WriteRegDWORD HKLM                                                                                        \
                  "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"                   \
                  "NoRepair"                                                                                  \
                  1
-
    WriteRegStr   HKLM                                                                                        \
                  "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"                   \
                  "Publisher"                                                                                 \
                  "Perry Johnson & Associates"
-
    WriteRegStr   HKLM                                                                                        \
                  "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"                   \
                  "UninstallString"                                                                           \
@@ -295,8 +263,7 @@ Section "Install"
    SetShellVarContext "all"
 
    ; Create Desktop shortcut
-   ;CreateShortCut "$DESKTOP\Code.lnk" \
-   ;               "$INSTDIR\code.exe"
+   CreateShortCut "$DESKTOP\Code.lnk" "$INSTDIR\code.exe"
 
    ;Create uninstall file
    WriteUninstaller "$INSTDIR\${UNINSTALL_FILE_NAME}"
@@ -320,10 +287,13 @@ Section "Uninstall"
    ; Set context to 'All Users'
    ;SetShellVarContext "all"
 
+   ; GLOBAL NODE MODULES
    ExecWait '"$INSTDIR\install_node_modules.bat" uninstall'
    
+   ; EXTENSIONS
    ExecWait '"$INSTDIR\install_extensions.bat" --uninstall-extension'
 
+   ; REMOVE LOCAL INSTALLATON DIRS FROM SETUP
    RMDir /r "$INSTDIR\data\extensions"
    RMDir /r "$INSTDIR\ant"
    RMDir /r "$INSTDIR\ansicon"
@@ -331,13 +301,13 @@ Section "Uninstall"
    RMDir /r "$INSTDIR\nodejs"
    RMDir /r "$INSTDIR\nsis"
    RMDir /r "$INSTDIR\sdks"
-
    RMDir /r "$INSTDIR\bin"
    RMDir /r "$INSTDIR\locales"
    RMDir /r "$INSTDIR\resources"
    RMDir /r "$INSTDIR\tools"
    Delete "$INSTDIR\*.*"
 
+   ; DELETE USER SETTINGS IF USER SAYS ITS OK
    MessageBox MB_YESNO "Delete user settings?" IDYES true1 IDNO false1
    true1:
      RMDir /r "$INSTDIR\data"
@@ -346,36 +316,33 @@ Section "Uninstall"
    ; uninstall vscode
    ;ExecWait '"$INSTDIR\unins000.exe" /SILENT /SUPPRESSMSGBOXES'
    
+   ; UNINSTALL TORTOISE SVN IF USER SAYS ITS OK
    MessageBox MB_YESNO "Uninstall Tortoise SVN?" IDYES true2 IDNO false2
    true2:
      ExecWait 'msiexec /x "$INSTDIR\TortoiseSVN-1.11.1.28492-x64-svn-1.11.1.msi" /passive REBOOT=ReallySuppress MSIRESTARTMANAGERCONTROL=Disable'
      RMDir /r "$INSTDIR\tortoisesvn"
    false2:
 
-   
-   ;IfFileExists "$INSTDIR\NDP472-DevPack.exe" DEVPACK_UNINSTALLED 0
+   ; UNINSTALL .NET472 DEV PACK
+   IfFileExists "$INSTDIR\NDP472-DevPack.exe" 0 DEVPACK_UNINSTALLED
       ExecWait '"$INSTDIR\NDP472-DevPack.exe" /uninstall /passive /noreboot'
-   ;DEVPACK_UNINSTALLED:
+   DEVPACK_UNINSTALLED:
 
+   ; REMOVE VARIABLES FROM PATH ENVIRONMENT VARIABLE
    Push "$INSTDIR\ant\bin"
    Call un.RemoveFromPath
-
    Push "$INSTDIR\nodejs"
    Call un.RemoveFromPath
-
    Push "$INSTDIR\nodejs\node_modules\typescript\bin"
    Call un.RemoveFromPath
-
    Push "$INSTDIR\bin"
    Call un.RemoveFromPath
-   
    Push "$INSTDIR\nsis"
    Call un.RemoveFromPath
-
+   ; REMOVE CUSTOM ENVIRONMENT VARIABLES
    Push "ANT_HOME"
    Push "$INSTDIR\ant"
    Call un.RemoveFromEnvVar
-   
    Push "CODE_HOME"
    Push "$INSTDIR"
    Call un.RemoveFromEnvVar
@@ -383,13 +350,13 @@ Section "Uninstall"
    ; Delete the desktop shortcut
    Delete "$DESKTOP\Code.lnk"
 
-   ; Delete Uninstall registry key information
+   ; DELETE REGISTRY KEYS
    DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"
-
    DeleteRegKey HKCR "*\shell\Open with VS Code"
    DeleteRegKey HKCR "Directory\shell\vscode"
    DeleteRegKey HKCR "Directory\Background\shell\vscode"
 
+   ; THIS WILL ONLY REMOVE THE BASE DIR IF IT IS EMPTY
    RMDir "$INSTDIR"
 
 SectionEnd
