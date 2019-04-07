@@ -1,7 +1,7 @@
 Visual Studio Code Package
 
 
-Version 1.31.0.0
+Version 1.0.0
 February 11th, 2019
 -------------------------------------------------------------------------------
 ********************************************************************************
@@ -20,7 +20,7 @@ February 11th, 2019
 1.  Initial Release
 
 
-Version 1.31.1.0
+Version 1.0.1
 February 28th, 2019
 -------------------------------------------------------------------------------
 ********************************************************************************
@@ -53,7 +53,7 @@ February 28th, 2019
     file entries.
 
 
-Version 1.31.1.1
+Version 1.0.2
 March 4th, 2019
 -------------------------------------------------------------------------------
 ********************************************************************************
@@ -89,7 +89,7 @@ March 4th, 2019
     configuration file to the project root folder and restart Code.
 
 
-Version 1.32.1.0
+Version 1.0.3
 March 13th, 2019
 -------------------------------------------------------------------------------
 ********************************************************************************
@@ -146,7 +146,7 @@ March 13th, 2019
             user_data\
 
 
-Version 1.32.2.0
+Version 1.0.4
 March 15th, 2019
 -------------------------------------------------------------------------------
 ********************************************************************************
@@ -188,7 +188,7 @@ March 15th, 2019
     VSIX installer file format.
 
 
-Version 1.32.3.0
+Version 1.0.5
 March 18th, 2019
 -------------------------------------------------------------------------------
 ********************************************************************************
@@ -255,7 +255,7 @@ March 18th, 2019
     This has been fixed.
 
 
-Version 1.33.0.0
+Version 1.0.6
 April 5th, 2019
 -------------------------------------------------------------------------------
 ********************************************************************************
@@ -311,7 +311,7 @@ April 5th, 2019
     manually.
 
 
-Version 1.33.0.1
+Version 1.0.7
 April 5th, 2019
 -------------------------------------------------------------------------------
 ********************************************************************************
@@ -330,7 +330,7 @@ April 5th, 2019
 ***                                                                            *
 ********************************************************************************
 
-1.  Extension installation was brokwn in the last release, this has been fixed.
+1.  Extension installation was broken in the last release, this has been fixed.
 
 2.  Installer now downloads the latest version of Visual Studio Code before 
     installing it, this package is no longer included in the installer itself, 
@@ -338,4 +338,72 @@ April 5th, 2019
     
     The installer will always install the newest/latest release of VS Code, 
     regardless of when the installation is performed.
+
+
+Version 1.0.8
+April 6th, 2019
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB+                               *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+***    An Internet connection is required during installation to download and  *
+***    install Code extensions and required node modules.                      *
+***                                                                            *
+********************************************************************************
+
+1.  Test Version.  Do not use.
+
+
+Version 1.1.0
+April 8th, 2019
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB+                               *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+***    An Internet connection is required during installation to download and  *
+***    install Code extensions and required node modules.                      *
+***                                                                            *
+********************************************************************************
+
+1.  Updated the following package components:
+
+        Python
+        
+            Previous version:    3.7.3
+            Updated version:     N/A
+
+2.  Added Visual Studio Code extensions:
+
+        fabiospampinato.vscode-todo-plus
+        ms-python.python
+
+3.  Installer now prompts user to agree to Microsoft license prior to 
+    downloading and installing the following package components:
+
+        Visual Studio Code
+        .NET Targeting Pack 4.7.2
+
+    If the user rejects the license for VS Code, the installer exits without
+    performing an installation.
+
+4.  Uninstallation of both the .NET 4.72 Targeting Pack and Tortoise SVN was 
+    broken in the last release.
+    
+    This has been fixed.
 
