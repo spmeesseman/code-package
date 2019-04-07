@@ -1,0 +1,11 @@
+python37.zip
+.
+
+# Uncomment to run site.main() automatically
+#import site
+
+c:\Code\python
+c:\Code\python\DLLs
+c:\Code\python\lib
+c:\Code\python\lib\plat-win
+c:\Code\python\lib\site-packages
