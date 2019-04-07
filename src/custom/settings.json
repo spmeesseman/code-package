@@ -15,8 +15,9 @@
     "npm.exclude":[ "**/ext/**", "**/packages/**", "**/.vscode-test/**", "**/build/**" ],
     "svn.defaultCheckoutDirectory": "c:\\Projects",
     "taskExplorer.enableSideBar": true,
-    "taskExplorer.pathToAnsicon": "c:\\code\\ansicon\\x64\\ansicon.exe",
-    "taskExplorer.pathToAnt": "c:\\code\\ant\\bin\\ant.bat",
+    "taskExplorer.pathToAnsicon": "c:\\Code\\ansicon\\x64\\ansicon.exe",
+    "taskExplorer.pathToAnt": "c:\\Code\\ant\\bin\\ant.bat",
+    "taskExplorer.pathToNsis": "c:\\Code\\nsis\\nsis.exe",
     "taskExplorer.includeAnt": [
         "**/*.xml"
     ],
