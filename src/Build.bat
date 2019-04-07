@@ -51,6 +51,19 @@ move /Y %OutputDirectory%\node-v10.15.3-win-x64 %OutputDirectory%\nodejs
 
 rem **********************************************************************
 rem *                                                                    *
+rem *  Python                                                            *
+rem *                                                                    *
+rem **********************************************************************
+
+..\script\7za.exe e -tzip python/python-3.7.3-embed-amd64.zip -o%OutputDirectory%\python -r -spf
+move %OutputDirectory%\python\python37._pth %OutputDirectory%\python\python37._pth.save
+copy /Y python\python37._pth %OutputDirectory%\python
+copy /Y python\install_pip.bat %OutputDirectory%\python
+copy /Y python\get-pip.py %OutputDirectory%\python
+
+
+rem **********************************************************************
+rem *                                                                    *
 rem *  NullSoft Installer                                                *
 rem *                                                                    *
 rem **********************************************************************
