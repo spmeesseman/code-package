@@ -1,10 +1,9 @@
 {
-	"name": "codepackage",
+	"name": "code-package",
 	"displayName": "Code Package",
 	"description": "Bundled Code Package",
 	"publisher": "spmeesseman",
 	"version": "1.0.8",
-	"icon": "images/subversion.png",
 	"homepage": "https://github.com/spmeesseman/code-package/blob/master/README.md",
 	"repository": {
 		"type": "git",
@@ -15,12 +14,13 @@
 	},
 	"devDependencies": {
 		"@semantic-release/changelog": "^3.0.2",
-		"@semantic-release/git": "^7.0.8",
 		"@semantic-release/exec": "^3.3.0",
+		"@semantic-release/git": "^7.0.8",
+		"@types/node": "^11.13.0",
 		"commitizen": "^3.0.7",
+		"conventional-changelog-spm": "^1.1.3",
 		"cz-conventional-changelog": "^2.1.0",
-		"semantic-release": "^15.13.3",
-		"@types/node": "^11.13.0"
+		"semantic-release": "^15.13.3"
 	},
 	"scripts": {
 		"build": "src\\Build.bat",
@@ -33,53 +33,5 @@
 		"commitizen": {
 			"path": "cz-conventional-changelog"
 		}
-	},
-	"release": {
-		"preset": "angular",
-		"plugins": [
-			[
-				"@semantic-release/commit-analyzer",
-				{
-					"releaseRules": [
-						{
-							"type": "refactor",
-							"release": "patch"
-						},
-						{
-							"type": "style",
-							"release": "patch"
-						}
-					],
-					"parserOpts": {
-						"noteKeywords": [
-							"BREAKING CHANGE",
-							"BREAKING CHANGES"
-						]
-					}
-				}
-			],
-			"@semantic-release/release-notes-generator",
-			[
-				"@semantic-release/changelog",
-				{
-					"changelogTitle": "Change Log"
-				}
-			],
-			[
-				"@semantic-release/npm",
-				{
-					"npmPublish": false
-				}
-			],
-			[
-				"@semantic-release/github",
-				{
-					"assets": [
-						"install/dist/**"
-					]
-				}
-			],
-			"@semantic-release/git"
-		]
 	}
 }

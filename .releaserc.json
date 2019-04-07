@@ -1,0 +1,59 @@
+{
+		"plugins": [
+			[
+				"@semantic-release/commit-analyzer",
+				{
+          "preset": "spm",
+					"releaseRules": [
+						{
+							"type": "refactor",
+							"release": "patch"
+						},
+						{
+							"type": "style",
+							"release": "patch"
+						}
+					],
+					"parserOpts": {
+						"noteKeywords": [
+							"BREAKING CHANGE",
+							"BREAKING CHANGES"
+						]
+					}
+				}
+			],
+			[
+				"@semantic-release/release-notes-generator",
+				{
+				  "preset": "spm",
+				  "parserOpts": {
+					"noteKeywords": ["BREAKING CHANGE", "BREAKING CHANGES"]
+				  },
+				  "writerOpts": {
+					"commitsSort": ["subject", "scope"]
+				  }
+				}
+			],
+			[
+				"@semantic-release/changelog",
+				{
+					"changelogTitle": "Change Log"
+				}
+			],
+			[
+				"@semantic-release/npm",
+				{
+					"npmPublish": false
+				}
+			],
+			[
+				"@semantic-release/github",
+				{
+					"assets": [
+						"install/dist/**"
+					]
+				}
+			],
+			"@semantic-release/git"
+		]
+}
