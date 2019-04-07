@@ -9,7 +9,7 @@
 !define APPLICATION_NAME     "Code Package"
 
 ; Define build level
-!define BUILD_LEVEL          "1.0.7"
+!define BUILD_LEVEL          "1.0.9"
 
 ; Define install file name
 !define INSTALL_FILE_NAME    "CodePackage_x64.exe"
@@ -24,7 +24,7 @@
 ; Define MUI_HEADERPAGE to display a custom bitmap
 !define MUI_ICON "code.ico"
 !define MUI_HEADERIMAGE 
-!define MUI_HEADERIMAGE_BITMAP "pja24bit.bmp"
+!define MUI_HEADERIMAGE_BITMAP "installerhdr.bmp"
 
 ; Set context to 'All Users'
 !define ALL_USERS
@@ -161,12 +161,24 @@ Section "Install"
    ; ExecWait 'cmd.exe "$INSTDIR\nodejs\npm" install -g eslint'
    ExecWait '"$INSTDIR\install_node_modules.bat" install'
 
+   ; PYTHON PIP
+   Push "$INSTDIR\python\python37._pth" ; replace c:\Code with actual install dir
+   Push "c:\Code" 
+   Push "$INSTDIR"
+   Call ReplaceInFile
+   ExecWait '"$INSTDIR\python\install_pip.bat"' ; install pip
+   Delete "$INSTDIR\python\install_pip.bat"
+
    ; CUSTOM FILES STUFF
    ExecWait '"$INSTDIR\copy_settings.bat"'
    Delete "$INSTDIR\copy_settings.bat"
 
    ; ADD TO PATH ENVIRONMENT VARIABLE
    Push "$INSTDIR\ant\bin"
+   Call AddToPath
+   Push "$INSTDIR\python"
+   Call AddToPath
+   Push "$INSTDIR\python\Scripts"
    Call AddToPath
    Push "$INSTDIR\nodejs"
    Call AddToPath
@@ -184,7 +196,10 @@ Section "Install"
    Push "CODE_HOME"
    Push "$INSTDIR"
    Call AddToEnvVar
-   
+   Push "PYTHONPATH"
+   Push "$INSTDIR\python;$INSTDIR\DLLs;$INSTDIR\lib;$INSTDIR\lib\plat-win;$INSTDIR\lib\site-packages"
+   Call AddToEnvVar
+
    ; ADD REGISTRY KEYS - VSCODE WINDOWS EXPLORER CONTEXT MENUS
    WriteRegStr   HKCR                                                                                      \
                  "*\shell\Open with VS Code"                                                               \
@@ -334,6 +349,10 @@ Section "Uninstall"
    ; REMOVE VARIABLES FROM PATH ENVIRONMENT VARIABLE
    Push "$INSTDIR\ant\bin"
    Call un.RemoveFromPath
+   Push "$INSTDIR\python"
+   Call un.RemoveFromPath
+   Push "$INSTDIR\python\scripts"
+   Call un.RemoveFromPath
    Push "$INSTDIR\nodejs"
    Call un.RemoveFromPath
    Push "$INSTDIR\nodejs\node_modules\typescript\bin"
@@ -348,6 +367,9 @@ Section "Uninstall"
    Call un.RemoveFromEnvVar
    Push "CODE_HOME"
    Push "$INSTDIR"
+   Call un.RemoveFromEnvVar
+   Push "PYTHONPATH"
+   Push "$INSTDIR\python;$INSTDIR\DLLs;$INSTDIR\lib;$INSTDIR\lib\plat-win;$INSTDIR\lib\site-packages"
    Call un.RemoveFromEnvVar
    
    ; Delete the desktop shortcut
