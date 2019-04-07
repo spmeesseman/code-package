@@ -124,7 +124,10 @@ Section "Install"
    ; TORTOISE SVN
    ReadRegStr $R0 HKLM "SOFTWARE\TortoiseSVN" "Directory"  ; Check to see if already installed
    IfFileExists "$R0\bin\svn.exe" TORTOISE_ALREADY_INSTALLED 0
-   ExecWait 'msiexec /i "$INSTDIR\TortoiseSVN-1.11.1.28492-x64-svn-1.11.1.msi" /passive /norestart INSTALLDIR="$INSTDIR\tortoisesvn" ADDLOCAL=ALL'
+      MessageBox MB_YESNO "Install TortoiseSVN and Subversion command line tools?" IDYES svntrue IDNO svnfalse
+      svntrue:
+         ExecWait 'msiexec /i "$INSTDIR\TortoiseSVN-1.11.1.28492-x64-svn-1.11.1.msi" /passive /norestart INSTALLDIR="$INSTDIR\tortoisesvn" ADDLOCAL=ALL'
+      svnfalse:
    TORTOISE_ALREADY_INSTALLED:
 
    ; EXTRACT THE LOCAL INSTALLER FILES - DON'T OVERWRITE SETTINGS.JSON
