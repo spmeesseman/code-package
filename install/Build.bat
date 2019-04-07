@@ -13,6 +13,13 @@ if "%1" == "--edit-files" (
     notepad VSCode_64bit.nsi
 )
 
+if "%1" == "--pj" (
+    copy /Y VSCode_64bit.nsi VSCode_64bit.nsi.tmp
+    rem use pj header
+    cscript //B ..\script\substitute.vbs installerhdr.bmp pja24bit.bmp VSCode_64bit.nsi > VSCode_64bit.nsi.new
+    move /Y VSCode_64bit.nsi.new VSCode_64bit.nsi
+)
+
 mkdir dist
 mkdir ..\build
 mkdir ..\build\data
@@ -20,9 +27,23 @@ mkdir ..\build\data\extensions
 mkdir ..\build\data\user-data
 mkdir ..\build\data\user-data\User
 
+rem update version to package.json
+for /f %%i in ('..\build\nodejs\node -e "console.log(require('../package.json').version);"') do set version=%%i
+echo Current package.json version is %version%
+rem set /p newversion=Enter the new version #: 
+
+rem echo New version is %newversion%
+rem cscript //B ..\script\substitute.vbs installerhdr.bmp pja24bit.bmp VSCode_64bit.nsi > VSCode_64bit.nsi.new
+rem copy /Y VSCode_64bit.nsi.new VSCode_64bit.nsi
+rem del /Q VSCode_64bit.nsi.new
+
 rem Compile the Setup script
 ..\src\nsis\makensis VSCode_64bit.nsi
 
 rem Remove the build directory, leaving this around after building
 rem the installer causes some issues with task scanning in VSCode
 rem rmdir /Q /S ..\build
+
+if "%1" == "--pj" (
+    move /Y VSCode_64bit.nsi.tmp VSCode_64bit.nsi
+)
