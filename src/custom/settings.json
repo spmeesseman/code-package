@@ -17,7 +17,8 @@
     "taskExplorer.enableSideBar": true,
     "taskExplorer.pathToAnsicon": "c:\\Code\\ansicon\\x64\\ansicon.exe",
     "taskExplorer.pathToAnt": "c:\\Code\\ant\\bin\\ant.bat",
-    "taskExplorer.pathToNsis": "c:\\Code\\nsis\\nsis.exe",
+    "taskExplorer.pathToNsis": "c:\\Code\\nsis\\nsis.exe",,
+    "python.pythonPath": "c:\\Code\\python\\python.exe",
     "taskExplorer.includeAnt": [
         "**/*.xml"
     ],
