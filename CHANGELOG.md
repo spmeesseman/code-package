@@ -1,5 +1,12 @@
 Change Log
 
+## [1.0.8](https://github.com/spmeesseman/code-package/compare/v1.0.7...v1.0.8) (2019-04-07)
+
+
+### Bug Fixes
+
+* **build:** newline in message boxes displaying slash n ([35d26c3](https://github.com/spmeesseman/code-package/commit/35d26c3))
+
 ## [1.0.7](https://github.com/spmeesseman/code-package/compare/v1.0.6...v1.0.7) (2019-04-06)
 
 
