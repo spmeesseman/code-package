@@ -340,7 +340,7 @@ April 5th, 2019
     regardless of when the installation is performed.
 
 
-Version 1.0.8
+Version 1.1.0
 April 6th, 2019
 -------------------------------------------------------------------------------
 ********************************************************************************
@@ -362,7 +362,7 @@ April 6th, 2019
 1.  Test Version.  Do not use.
 
 
-Version 1.2.0
+Version 1.2.1
 April 8th, 2019
 -------------------------------------------------------------------------------
 ********************************************************************************
@@ -387,6 +387,11 @@ April 8th, 2019
         
             Previous version:    N/A
             Updated version:     2.21.0
+
+        NSIS
+        
+            Previous version:    3.01
+            Updated version:     3.04
 
         Python
         
