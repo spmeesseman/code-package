@@ -146,7 +146,7 @@ Section "Install"
       Push "C:\Program Files\Git" 
       Push "$INSTDIR\git"
       Call ReplaceInFile
-      ExecWait '"$INSTDIR\GitSetup.exe" /SILENT /SUPPRESSMSGBOXES /NOCANCEL /NORESTART /SP- /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS /LOADINF="$INSTDIR\git.inf" /DIR="$INSTDIR"'
+      ExecWait '"$INSTDIR\GitSetup.exe" /SILENT /SUPPRESSMSGBOXES /NOCANCEL /NORESTART /SP- /LOADINF="$INSTDIR\git.inf" /DIR="$INSTDIR"'
    gitfalse:                         
    GIT_ALREADY_INSTALLED:
    Delete "$INSTDIR\git.inf"
