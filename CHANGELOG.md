@@ -1,5 +1,23 @@
 Change Log
 
+## [1.2.1](https://github.com/spmeesseman/code-package/compare/v1.2.0...v1.2.1) (2019-04-08)
+
+
+### Build System
+
+* **nsis:** increment to next semantiv version ([ef826eb](https://github.com/spmeesseman/code-package/commit/ef826eb))
+
+
+### Code Refactoring
+
+* auto enable git auto fetch setting ([618d22f](https://github.com/spmeesseman/code-package/commit/618d22f))
+
+
+### Documentation
+
+* **readme:** small update to test ci trigger ([8d7a849](https://github.com/spmeesseman/code-package/commit/8d7a849))
+* **readme:** update software distribution tables [skip ci] ([80fc547](https://github.com/spmeesseman/code-package/commit/80fc547))
+
 # [1.2.0](https://github.com/spmeesseman/code-package/compare/v1.1.0...v1.2.0) (2019-04-08)
 
 
