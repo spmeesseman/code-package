@@ -1,5 +1,42 @@
 Change Log
 
+# [1.1.0](https://github.com/spmeesseman/code-package/compare/v1.0.8...v1.1.0) (2019-04-08)
+
+
+### Bug Fixes
+
+* **2:** uninstall of tortoisesvn and .net 472 dev pack.  invalid pythonpath ([c1f4b12](https://github.com/spmeesseman/code-package/commit/c1f4b12))
+
+
+### Build System
+
+* **npm:** add custom tasks for pj build ([a662c5a](https://github.com/spmeesseman/code-package/commit/a662c5a))
+* add helper scripts ([f932a75](https://github.com/spmeesseman/code-package/commit/f932a75))
+* **sript:** add pythin extraction ([9740a76](https://github.com/spmeesseman/code-package/commit/9740a76))
+* **nsis:** custom actions for pj build ([f938ef3](https://github.com/spmeesseman/code-package/commit/f938ef3))
+* **npm:** move semantic rlease config to releaserc.json, rename to code-package ([b9d6665](https://github.com/spmeesseman/code-package/commit/b9d6665))
+* **nsis:** publisher replace for pj build ([ef86cab](https://github.com/spmeesseman/code-package/commit/ef86cab))
+* **installer:** update header image to 24bit no color space info ([e6dd1be](https://github.com/spmeesseman/code-package/commit/e6dd1be))
+* **nsis:** update script for pythin installation ([175206f](https://github.com/spmeesseman/code-package/commit/175206f))
+* **nsis:** update version # to next semantic version ([1e7af11](https://github.com/spmeesseman/code-package/commit/1e7af11))
+
+
+### Code Refactoring
+
+* **vscode:** add new extensions todo+ and python ([2e6e03c](https://github.com/spmeesseman/code-package/commit/2e6e03c))
+* **installer:** new header image ([35e8b47](https://github.com/spmeesseman/code-package/commit/35e8b47))
+
+
+### Documentation
+
+* **history:** update Issue 4 ([fe08949](https://github.com/spmeesseman/code-package/commit/fe08949))
+* **history:** updated version info ([1f52e8f](https://github.com/spmeesseman/code-package/commit/1f52e8f))
+
+
+### Features
+
+* add python package ([a590be5](https://github.com/spmeesseman/code-package/commit/a590be5))
+
 ## [1.0.8](https://github.com/spmeesseman/code-package/compare/v1.0.7...v1.0.8) (2019-04-07)
 
 
