@@ -7,32 +7,34 @@
 [![Dependencies Status](https://david-dm.org/spmeesseman/code-package/status.svg)](https://david-dm.org/spmeesseman/code-package)
 [![DevDependencies Status](https://david-dm.org/spmeesseman/code-package/dev-status.svg)](https://david-dm.org/spmeesseman/code-package?type=dev) [![Greenkeeper badge](https://badges.greenkeeper.io/spmeesseman/code-package.svg)](https://greenkeeper.io/)
 
-> Bundles several 3rd party libraries and development tools to be used within the Visual Sudio Code IDE.  The latest version of VSCode and the .NET 4.72 Targeting Pack are downloaded and installed by the installer.
+> Bundles several 3rd party libraries and development tools to be used within the Visual Sudio Code IDE.
 
 ## Installing Visual Studio Code Updates
 
-This package downloads and installs VSCode using the zip archive.  To update Visual Studio Code, simply extract the new version's zip archive over top of the base Code Package installation.  Do not use the VSCode installer.
+This package downloads and installs the latest version VSCode at the time of installation, using the zip archive.  To update Visual Studio Code when new versions are released, simply extract the new version's zip archive over top of the base Code Package installation.  Do not use the VSCode executable installer.
 
 ## Redistributed Software (included)
 
 The following software is redistributed locally by code-package:
 
-|Redistributable|Version|Method|License|
-|-|-|-|-|
-|Tortoise SVN|1.11.1|Local|GPL|
-|Apache Ant|1.10.5|Local|Apache 2.0|
-|Ansicon|1.88|Local|Jason Hood|
-|NodeJS|10.15.3|Local|Node.js|
+|Redistributable|Version|Method|License|Required|
+|-|-|-|-|-|
+|Tortoise SVN|1.11.1|Local|GPLv2|No|
+|Apache Ant|1.10.5|Local|Apache 2.0|Yes|
+|Ansicon|1.88|Local|Jason Hood|Yes|
+|NodeJS|10.15.3|Local|Node.js|Yes|
+|Python|3.7.3|Local|GPL-compatible|Yes|
 
 ## Remote/Downloaded Software (non-redistributed)
 
-The following software is not included and redistributed locally within code-package, but downloaded inline and installed:
+The following software is not included and is not redistributed locally within code-package, but downloaded inline and installed at the user's discretion:
 
-|Redistributable|Version|Method|License|
-|-|-|-|-|
-|VSCode|Latest|Online|Microsft VSCode|
-|VSCode Extensions|Latest|Online|N/A|
-|.NET Targeting Pack|4.72|Online|Microsoft|
+|Redistributable|Version|Method|License|Required|
+|-|-|-|-|-|
+|VSCode|Latest|Online|Microsft VSCode|Yes|
+|VSCode Extensions|Latest|Online|N/A|Yes|
+|.NET Targeting Pack|4.72|Online|Microsoft|No|
+|Git for Windows|2.21.0|Online|GPLv2|No|
 
 ## Feedback & Contributing
 
