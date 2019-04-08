@@ -7,7 +7,7 @@
 [![Dependencies Status](https://david-dm.org/spmeesseman/code-package/status.svg)](https://david-dm.org/spmeesseman/code-package)
 [![DevDependencies Status](https://david-dm.org/spmeesseman/code-package/dev-status.svg)](https://david-dm.org/spmeesseman/code-package?type=dev) [![Greenkeeper badge](https://badges.greenkeeper.io/spmeesseman/code-package.svg)](https://greenkeeper.io/)
 
-> Bundles several 3rd party libraries and development tools to be used within the Visual Sudio Code IDE.
+> Bundles several 3rd party libraries and development tools to be used within the Visual Sudio Code IDE.  Install and go!
 
 ## Installing Visual Studio Code Updates
 
