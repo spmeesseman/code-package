@@ -1,5 +1,23 @@
 Change Log
 
+# [1.2.0](https://github.com/spmeesseman/code-package/compare/v1.1.0...v1.2.0) (2019-04-08)
+
+
+### Build System
+
+* **git:** fix silent installer option ([1013066](https://github.com/spmeesseman/code-package/commit/1013066))
+* **nsis:** increment to next semantic version ([9f41ac5](https://github.com/spmeesseman/code-package/commit/9f41ac5))
+
+
+### Documentation
+
+* **history:** update with git install ([8358f42](https://github.com/spmeesseman/code-package/commit/8358f42))
+
+
+### Features
+
+* add git ([80771ef](https://github.com/spmeesseman/code-package/commit/80771ef))
+
 # [1.1.0](https://github.com/spmeesseman/code-package/compare/v1.0.8...v1.1.0) (2019-04-08)
 
 
