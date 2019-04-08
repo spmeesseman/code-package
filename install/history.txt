@@ -362,7 +362,7 @@ April 6th, 2019
 1.  Test Version.  Do not use.
 
 
-Version 1.1.0
+Version 1.2.0
 April 8th, 2019
 -------------------------------------------------------------------------------
 ********************************************************************************
@@ -383,10 +383,18 @@ April 8th, 2019
 
 1.  Updated the following package components:
 
+        Git
+        
+            Previous version:    N/A
+            Updated version:     2.21.0
+
         Python
         
-            Previous version:    3.7.3
-            Updated version:     N/A
+            Previous version:    N/A
+            Updated version:     3.7.3
+
+    The Git package is downloaded by the installer.  The Python package is local 
+    in the installer.
 
 2.  Added Visual Studio Code extensions:
 
