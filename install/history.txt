@@ -402,8 +402,8 @@ April 8th, 2019
     If the user rejects the license for VS Code, the installer exits without
     performing an installation.
 
-4.  Uninstallation of both the .NET 4.72 Targeting Pack and Tortoise SVN was 
-    broken in the last release.
+4.  Uninstallation of both the .NET 4.72 SDK and Tortoise SVN were broken in the 
+    last release.
     
     This has been fixed.
 
