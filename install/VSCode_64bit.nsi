@@ -160,6 +160,17 @@ Section "Install"
    svnfalse:                         
    TORTOISE_ALREADY_INSTALLED:
 
+   ; NSIS
+   SetRegView 32
+   ReadRegStr $R0 HKLM "SOFTWARE\NSIS" "Default"  ; Check to see if already installed
+   IfFileExists "$R0\makensis.exe" NSIS_ALREADY_INSTALLED 0
+   MessageBox MB_YESNO "Install Nullsoft Scriptable Installer (NSIS) v3.04?" IDYES nsistrue IDNO nsisfalse
+   nsistrue:
+      ExecWait 'nsis-3.04-setup.exe /SD /D="$INSTDIR\nsis"'
+   nsisfalse:                         
+   NSIS_ALREADY_INSTALLED:
+   SetRegView 64
+   
    ; EXTENSIONS
    ExecWait '"$INSTDIR\install_extensions.bat" --install-extension'
    ; Add 'johnstoncode.svn-scm' to enabledProposedApi list in subversion exension, this enabled the file explorer decorations
@@ -333,7 +344,6 @@ Section "Uninstall"
    RMDir /r "$INSTDIR\ansicon"
    RMDir /r "$INSTDIR\compilers"
    RMDir /r "$INSTDIR\nodejs"
-   RMDir /r "$INSTDIR\nsis"
    RMDir /r "$INSTDIR\python"
    RMDir /r "$INSTDIR\sdks"
    RMDir /r "$INSTDIR\bin"
@@ -369,6 +379,13 @@ Section "Uninstall"
       ExecWait '"$INSTDIR\NDP472-DevPack.exe" /uninstall /passive /noreboot'
    DEVPACK_UNINSTALLED:
 
+   ; UNINSTALL NSIS
+   IfFileExists "$INSTDIR\uninst-nsis.exe" 0 NSIS_UNINSTALLED
+      ExecWait '"$INSTDIR\uninst-nsis.exe" /S'
+   NSIS_UNINSTALLED:
+   RMDir /r "$INSTDIR\nsis"
+
+   ; REMOVE LEFTOVER SETUP FILES
    Delete "$INSTDIR\*.*"
    
    ; REMOVE VARIABLES FROM PATH ENVIRONMENT VARIABLE
