@@ -102,7 +102,22 @@ Section "Install"
 
    ; Specify the output path
    SetOutPath "$INSTDIR"
-   
+
+   ; EXTRACT THE LOCAL INSTALLER FILES - DON'T OVERWRITE SETTINGS.JSON
+   File /r /x settings.json /x keybindings.json ..\build\*.*
+
+   ; SETTINGS.JSON
+   ; Check if 'settings.json' exists in the target directory   
+   IfFileExists "$INSTDIR\data\user-data\User\settings.json" SETTINGS_FILE_ALREADY_EXISTS 0
+   ; Copy the file
+   File /oname=data\user-data\User\settings.json ..\build\settings.json
+   ; replace c:\code in settings.json with actual install dir
+   Push "$INSTDIR\data\user-data\User\settings.json"
+   Push "c:\Code" 
+   Push "$INSTDIR"
+   Call ReplaceInFile
+   SETTINGS_FILE_ALREADY_EXISTS:
+
    ; VSCODE BASE (latest/current version)
    MessageBox MB_OKCANCEL "Microsoft VS Code will be downloaded and installed.$\n$\nBy continuing you are agreeing to Microsoft licensing terms." IDOK vscodetrue IDCANCEL vscodefalse
    vscodefalse:
@@ -124,26 +139,11 @@ Section "Install"
    ; TORTOISE SVN
    ReadRegStr $R0 HKLM "SOFTWARE\TortoiseSVN" "Directory"  ; Check to see if already installed
    IfFileExists "$R0\bin\svn.exe" TORTOISE_ALREADY_INSTALLED 0
-      MessageBox MB_YESNO "Install TortoiseSVN and Subversion command line tools?" IDYES svntrue IDNO svnfalse
-      svntrue:
-         ExecWait 'msiexec /i "$INSTDIR\TortoiseSVN-1.11.1.28492-x64-svn-1.11.1.msi" /passive /norestart INSTALLDIR="$INSTDIR\tortoisesvn" ADDLOCAL=ALL'
-      svnfalse:
+   MessageBox MB_YESNO "Install TortoiseSVN and Subversion command line tools?" IDYES svntrue IDNO svnfalse
+   svntrue:
+      ExecWait 'msiexec /i "$INSTDIR\TortoiseSVN-1.11.1.28492-x64-svn-1.11.1.msi" /passive /norestart INSTALLDIR="$INSTDIR\tortoisesvn" ADDLOCAL=ALL'
+   svnfalse:                         
    TORTOISE_ALREADY_INSTALLED:
-
-   ; EXTRACT THE LOCAL INSTALLER FILES - DON'T OVERWRITE SETTINGS.JSON
-   File /r /x settings.json /x keybindings.json ..\build\*.*
-
-   ; SETTINGS.JSON
-   ; Check if 'settings.json' exists in the target directory   
-   IfFileExists "$INSTDIR\data\user-data\User\settings.json" SETTINGS_FILE_ALREADY_EXISTS 0
-   ; Copy the file
-   File /oname=data\user-data\User\settings.json ..\build\settings.json
-   ; replace c:\code in settings.json with actual install dir
-   Push "$INSTDIR\data\user-data\User\settings.json"
-   Push "c:\Code" 
-   Push "$INSTDIR"
-   Call ReplaceInFile
-   SETTINGS_FILE_ALREADY_EXISTS:
 
    ; EXTENSIONS
    ExecWait '"$INSTDIR\install_extensions.bat" --install-extension'
@@ -168,6 +168,7 @@ Section "Install"
    Call ReplaceInFile
    ExecWait '"$INSTDIR\python\install_pip.bat"' ; install pip
    Delete "$INSTDIR\python\install_pip.bat"
+   Delete "$INSTDIR\python\python37._pth" ; this was a tmp setup in the installer for setting PATH in this env
 
    ; CUSTOM FILES STUFF
    ExecWait '"$INSTDIR\copy_settings.bat"'
@@ -197,7 +198,7 @@ Section "Install"
    Push "$INSTDIR"
    Call AddToEnvVar
    Push "PYTHONPATH"
-   Push "$INSTDIR\python;$INSTDIR\DLLs;$INSTDIR\lib;$INSTDIR\lib\plat-win;$INSTDIR\lib\site-packages"
+   Push "$INSTDIR\python;$INSTDIR\python\DLLs;$INSTDIR\python\lib;$INSTDIR\python\lib\plat-win;$INSTDIR\python\lib\site-packages;$INSTDIR\python\Scripts"
    Call AddToEnvVar
 
    ; ADD REGISTRY KEYS - VSCODE WINDOWS EXPLORER CONTEXT MENUS
@@ -271,7 +272,7 @@ Section "Install"
    WriteRegStr   HKLM                                                                                        \
                  "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"                   \
                  "Publisher"                                                                                 \
-                 "Perry Johnson & Associates"
+                 "Scott Meesseman"
    WriteRegStr   HKLM                                                                                        \
                  "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"                   \
                  "UninstallString"                                                                           \
@@ -318,13 +319,13 @@ Section "Uninstall"
    RMDir /r "$INSTDIR\compilers"
    RMDir /r "$INSTDIR\nodejs"
    RMDir /r "$INSTDIR\nsis"
+   RMDir /r "$INSTDIR\python"
    RMDir /r "$INSTDIR\sdks"
    RMDir /r "$INSTDIR\bin"
    RMDir /r "$INSTDIR\locales"
    RMDir /r "$INSTDIR\resources"
    RMDir /r "$INSTDIR\tools"
-   Delete "$INSTDIR\*.*"
-
+   
    ; DELETE USER SETTINGS IF USER SAYS ITS OK
    MessageBox MB_YESNO "Delete user settings?" IDYES true1 IDNO false1
    true1:
@@ -346,6 +347,8 @@ Section "Uninstall"
       ExecWait '"$INSTDIR\NDP472-DevPack.exe" /uninstall /passive /noreboot'
    DEVPACK_UNINSTALLED:
 
+   Delete "$INSTDIR\*.*"
+   
    ; REMOVE VARIABLES FROM PATH ENVIRONMENT VARIABLE
    Push "$INSTDIR\ant\bin"
    Call un.RemoveFromPath
@@ -362,6 +365,7 @@ Section "Uninstall"
    Push "$INSTDIR\nsis"
    Call un.RemoveFromPath
    ; REMOVE CUSTOM ENVIRONMENT VARIABLES
+   ; TODO - This only sets var to empty string, want to delete var
    Push "ANT_HOME"
    Push "$INSTDIR\ant"
    Call un.RemoveFromEnvVar
@@ -369,7 +373,7 @@ Section "Uninstall"
    Push "$INSTDIR"
    Call un.RemoveFromEnvVar
    Push "PYTHONPATH"
-   Push "$INSTDIR\python;$INSTDIR\DLLs;$INSTDIR\lib;$INSTDIR\lib\plat-win;$INSTDIR\lib\site-packages"
+   Push "$INSTDIR\python;$INSTDIR\python\DLLs;$INSTDIR\python\lib;$INSTDIR\python\lib\plat-win;$INSTDIR\python\lib\site-packages;$INSTDIR\python\Scripts"
    Call un.RemoveFromEnvVar
    
    ; Delete the desktop shortcut
