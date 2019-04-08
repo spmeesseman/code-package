@@ -119,7 +119,7 @@ Section "Install"
    SETTINGS_FILE_ALREADY_EXISTS:
 
    ; VSCODE BASE (latest/current version)
-   MessageBox MB_OKCANCEL "Microsoft VS Code will be downloaded and installed.$\n$\nBy continuing you are agreeing to Microsoft licensing terms." IDOK vscodetrue IDCANCEL vscodefalse
+   MessageBox MB_OKCANCEL "The latest version of Microsoft VS Code needs to be installed.$\n$\nBy continuing you are agreeing to Microsoft licensing terms." IDOK vscodetrue IDCANCEL vscodefalse
    vscodefalse:
       RMDir "$INSTDIR" ; Don't remove if not empty (/r)
       Abort
@@ -136,10 +136,25 @@ Section "Install"
       ExecWait '"$INSTDIR\NDP472-DevPack.exe" /passive /noreboot'
    net472false:
 
+   ; GIT
+   ReadRegStr $R0 HKLM "SOFTWARE\GitForWindows" "InstallPath"  ; Check to see if already installed
+   IfFileExists "$R0\bin\git.exe" GIT_ALREADY_INSTALLED 0
+   MessageBox MB_YESNO "Install Git v2.21.0?" IDYES gittrue IDNO gitfalse
+   gittrue:
+      inetc::get https://github.com/git-for-windows/git/releases/download/v2.21.0.windows.1/Git-2.21.0-64-bit.exe "$INSTDIR\GitSetup.exe"
+      Push "$INSTDIR\git.inf"     ; copy install dir to inf file
+      Push "C:\Program Files\Git" 
+      Push "$INSTDIR\git"
+      Call ReplaceInFile
+      ExecWait '"$INSTDIR\GitSetup.exe" /SILENT /SUPPRESSMSGBOXES /NOCANCEL /NORESTART /SP- /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS /LOADINF="$INSTDIR\git.inf" /DIR="$INSTDIR"'
+   gitfalse:                         
+   GIT_ALREADY_INSTALLED:
+   Delete "$INSTDIR\git.inf"
+
    ; TORTOISE SVN
    ReadRegStr $R0 HKLM "SOFTWARE\TortoiseSVN" "Directory"  ; Check to see if already installed
    IfFileExists "$R0\bin\svn.exe" TORTOISE_ALREADY_INSTALLED 0
-   MessageBox MB_YESNO "Install TortoiseSVN and Subversion command line tools?" IDYES svntrue IDNO svnfalse
+   MessageBox MB_YESNO "Install TortoiseSVN v1.11.1 and Subversion command line tools?" IDYES svntrue IDNO svnfalse
    svntrue:
       ExecWait 'msiexec /i "$INSTDIR\TortoiseSVN-1.11.1.28492-x64-svn-1.11.1.msi" /passive /norestart INSTALLDIR="$INSTDIR\tortoisesvn" ADDLOCAL=ALL'
    svnfalse:                         
@@ -335,7 +350,14 @@ Section "Uninstall"
    ; uninstall vscode
    ;ExecWait '"$INSTDIR\unins000.exe" /SILENT /SUPPRESSMSGBOXES'
    
-   ; UNINSTALL TORTOISE SVN IF USER SAYS ITS OK
+   ; UNINSTALL GIT IF USER SAYS ITS OK
+   MessageBox MB_YESNO "Uninstall Git?" IDYES true0 IDNO false0
+   true0:
+     ExecWait '"$INSTDIR\git\unins000.exe" /SILENT /SUPPRESSMSGBOXES'
+     RMDir /r "$INSTDIR\git"
+   false0:
+
+   ; UNINSTALL TORTOISESVN IF USER SAYS ITS OK
    MessageBox MB_YESNO "Uninstall Tortoise SVN?" IDYES true2 IDNO false2
    true2:
      ExecWait 'msiexec /x "$INSTDIR\TortoiseSVN-1.11.1.28492-x64-svn-1.11.1.msi" /passive REBOOT=ReallySuppress MSIRESTARTMANAGERCONTROL=Disable'
