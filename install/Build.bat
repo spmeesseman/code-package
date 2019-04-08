@@ -17,7 +17,9 @@ if "%1" == "--pj" (
     copy /Y VSCode_64bit.nsi VSCode_64bit.nsi.tmp
     rem use pj header
     cscript //B ..\script\substitute.vbs installerhdr.bmp pja24bit.bmp VSCode_64bit.nsi > VSCode_64bit.nsi.new
-    move /Y VSCode_64bit.nsi.new VSCode_64bit.nsi
+    cscript //B ..\script\substitute.vbs "Scott Meesseman" "Perry Johnson & Associates" VSCode_64bit.nsi.new > VSCode_64bit.nsi.new2
+    move /Y VSCode_64bit.nsi.new2 VSCode_64bit.nsi
+    del /Q VSCode_64bit.nsi.new
 )
 
 mkdir dist
