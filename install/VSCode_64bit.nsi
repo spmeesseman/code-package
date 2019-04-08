@@ -344,6 +344,7 @@ Section "Uninstall"
    RMDir /r "$INSTDIR\ansicon"
    RMDir /r "$INSTDIR\compilers"
    RMDir /r "$INSTDIR\nodejs"
+   RMDir /r "$INSTDIR\nsis"
    RMDir /r "$INSTDIR\python"
    RMDir /r "$INSTDIR\sdks"
    RMDir /r "$INSTDIR\bin"
@@ -379,13 +380,6 @@ Section "Uninstall"
       ExecWait '"$INSTDIR\NDP472-DevPack.exe" /uninstall /passive /noreboot'
    DEVPACK_UNINSTALLED:
 
-   ; UNINSTALL NSIS
-   IfFileExists "$INSTDIR\uninst-nsis.exe" 0 NSIS_UNINSTALLED
-      ExecWait '"$INSTDIR\uninst-nsis.exe" /S'
-   NSIS_UNINSTALLED:
-   RMDir /r "$INSTDIR\nsis"
-
-   ; REMOVE LEFTOVER SETUP FILES
    Delete "$INSTDIR\*.*"
    
    ; REMOVE VARIABLES FROM PATH ENVIRONMENT VARIABLE
