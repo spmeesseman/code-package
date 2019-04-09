@@ -193,9 +193,12 @@ Section "Install"
    Push "$INSTDIR"
    Call ReplaceInFile
    ExecWait '"$INSTDIR\python\install_pip.bat"' ; install pip
+   ExecWait '"$INSTDIR\python\install_pylint.bat"' ; install pylint
    Delete "$INSTDIR\python\install_pip.bat"
+   Delete "$INSTDIR\python\install_pylint.bat"
    Delete "$INSTDIR\python\python37._pth" ; this was a tmp setup in the installer for setting PATH in this env
-
+   ;Rename "$INSTDIR\python\python37._pth.save" "$INSTDIR\python\python37._pth" ; replace with default file
+   
    ; CUSTOM FILES STUFF
    ExecWait '"$INSTDIR\copy_settings.bat"'
    Delete "$INSTDIR\copy_settings.bat"
