@@ -114,6 +114,7 @@ Section "Install"
       RMDir "$INSTDIR" ; Don't remove if not empty (/r)
       Abort
    vscodetrue:
+   ;NSISdl::download ${GitDownloadUrl} "$INSTDIR\VSCode.exe"
    inetc::get ${CodeDownloadUrl} "$INSTDIR\VSCode.zip"
    ; 'OK' when sucessful
    Pop $Status
@@ -151,7 +152,7 @@ Section "Install"
    ; EXTRACT THE LOCAL INSTALLER FILES - DON'T OVERWRITE SETTINGS.JSON
    SetOutPath "$INSTDIR\insiders"
    File /r /x settings.json ..\build\*.*
-   inetc::get /RESUME /NOCANCEL ${CodeInsidersDownloadUrl} "$INSTDIR\VSCodeInsiders.zip"
+   inetc::get ${CodeInsidersDownloadUrl} "$INSTDIR\VSCodeInsiders.zip"
    ;StrCpy $Status inetc::get "https://update.code.visualstudio.com/latest/win32-x64-archive/insiders" "$INSTDIR\VSCodeInsiders.zip"
    ; 'OK' when sucessful
    Pop $Status
@@ -181,7 +182,7 @@ Section "Install"
    ; .NET 4.72 DEVELOPMENT PACK
    MessageBox MB_YESNO "Install .NET 4.72 Development Pack?$\n$\nBy clicking yes you are agreeing to Microsoft licensing terms." IDYES net472true IDNO net472false
    net472true:
-      inetc::get /RESUME /NOCANCEL ${Net472DownloadUrl} "$INSTDIR\NDP472-DevPack.exe"
+      inetc::get ${Net472DownloadUrl} "$INSTDIR\NDP472-DevPack.exe"
       ; 'OK' when sucessful
       Pop $Status
       StrCmp $Status "OK" 0 net472false
@@ -193,7 +194,8 @@ Section "Install"
    IfFileExists "$R0\bin\git.exe" GIT_ALREADY_INSTALLED 0
    MessageBox MB_YESNO "Install Git v2.21.0?" IDYES gittrue IDNO gitfalse
    gittrue:
-      inetc::get /RESUME /NOCANCEL ${GitDownloadUrl} "$INSTDIR\GitSetup.exe"
+      ; NSISdl::download ${GitDownloadUrl} "$INSTDIR\GitSetup.exe"
+      inetc::get ${GitDownloadUrl} "$INSTDIR\GitSetup.exe"
       ; 'OK' when sucessful
       Pop $Status
       StrCmp $Status "OK" 0 gitfalse
