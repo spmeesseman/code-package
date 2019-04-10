@@ -9,7 +9,7 @@
 !define APPLICATION_NAME     "Code Package"
 
 ; Define build level
-!define BUILD_LEVEL          "1.2.1"
+!define BUILD_LEVEL          "1.2.2"
 
 ; Define install file name
 !define INSTALL_FILE_NAME    "CodePackage_x64.exe"
@@ -135,14 +135,14 @@ Section "Install"
    
    ; SETTINGS.JSON
    ; Check if 'settings.json' exists in the target directory   
-   IfFileExists "$INSTDIR\data\user-data\User\settings.json" SETTINGS_FILE_ALREADY_EXISTS 0
-   ;IfFileExists "$PROFILE\.vscode\User\settings.json" SETTINGS_FILE_ALREADY_EXISTS 0
+   ;IfFileExists "$INSTDIR\data\user-data\User\settings.json" SETTINGS_FILE_ALREADY_EXISTS 0
+   IfFileExists "$APPDATA\Roaming\Code\User\settings.json" SETTINGS_FILE_ALREADY_EXISTS 0
    ; Copy the file
-   File /oname=data\user-data\User\settings.json ..\build\settings.json
-   ;File /oname="$PROFILE\.vscode\User\settings.json" ..\build\settings.json
+   ;File /oname=data\user-data\User\settings.json ..\build\settings.json
+   File /oname=$APPDATA\Roaming\Code\User\settings.json ..\build\settings.json
    ; replace c:\code in settings.json with actual install dir
-   Push "$INSTDIR\data\user-data\User\settings.json"
-   ;Push "$PROFILE\.vscode\User\settings.json"
+   ;Push "$INSTDIR\data\user-data\User\settings.json"
+   Push "$APPDATA\Roaming\Code\User\settings.json"
    Push "c:\Code" 
    Push "$INSTDIR"
    Call ReplaceInFile
@@ -153,8 +153,8 @@ Section "Install"
    MessageBox MB_YESNO "Install Code Insiders Edition?$\n$\nBy installing you are agreeing to Microsoft licensing terms." IDYES vscodeinstrue IDNO vscodeinsfalse
    vscodeinstrue:
    ; EXTRACT THE LOCAL INSTALLER FILES - DON'T OVERWRITE SETTINGS.JSON
-   SetOutPath "$INSTDIR\insiders"
-   File /r /x settings.json ..\build\*.*
+   ;SetOutPath "$INSTDIR\insiders"
+   ;File /r /x settings.json ..\build\*.*
    inetc::get ${CodeInsidersDownloadUrl} "$INSTDIR\VSCodeInsiders.zip"
    ; 'OK' when sucessful
    Pop $Status
@@ -165,17 +165,17 @@ Section "Install"
    Pop $Status
    ; SETTINGS.JSON
    ; Check if 'settings.json' exists in the target directory   
-   IfFileExists "$INSTDIR\insiders\data\user-data\User\settings.json" SETTINGS2_FILE_ALREADY_EXISTS 0
+   ;IfFileExists "$INSTDIR\insiders\data\user-data\User\settings.json" SETTINGS2_FILE_ALREADY_EXISTS 0
    ; Copy the file
-   File /oname=insiders\data\user-data\User\settings.json ..\build\settings.json
+   ;File /oname=insiders\data\user-data\User\settings.json ..\build\settings.json
    ; replace c:\code in settings.json with actual install dir
-   Push "$INSTDIR\insiders\data\user-data\User\settings.json"
-   Push "c:\Code" 
-   Push "$INSTDIR\insiders"
-   Call ReplaceInFile
+   ;Push "$INSTDIR\insiders\data\user-data\User\settings.json"
+   ;Push "c:\Code" 
+   ;Push "$INSTDIR\insiders"
+   ;Call ReplaceInFile
    StrCpy $InsidersInstalled "YES"
-   SetOutPath "$INSTDIR"
-   SETTINGS2_FILE_ALREADY_EXISTS:
+   ;SetOutPath "$INSTDIR"
+   ;SETTINGS2_FILE_ALREADY_EXISTS:
    ;CreateShortCut "$INSTDIR\insiders\data" "$INSTDIR\data"
    CreateShortCut "$DESKTOP\Code Insiders.lnk" "$INSTDIR\insiders\Code - Insiders.exe"
    Delete "$INSTDIR\VSCodeInsiders.zip"
@@ -434,11 +434,11 @@ Section "Uninstall"
    RMDir /r "$INSTDIR\tools"
    
    ; DELETE USER SETTINGS IF USER SAYS ITS OK
-   MessageBox MB_YESNO "Delete user settings?" IDYES true1 IDNO false1
+   MessageBox MB_YESNO "Delete user settings and cache?" IDYES true1 IDNO false1
    true1:
-     RMDir /r "$INSTDIR\data"
-     ;RMDir /r "$PROFILE\.vscode"
-     ;RMDir /r "$APPDATA\Roaming\Code"
+     ;RMDir /r "$INSTDIR\data"
+     RMDir /r "$PROFILE\.vscode"
+     RMDir /r "$APPDATA\Roaming\Code"
    false1:
    
    ; uninstall vscode
@@ -446,6 +446,8 @@ Section "Uninstall"
    ;ExecWait '"$INSTDIR\unins000.exe" /SILENT /SUPPRESSMSGBOXES'
    
    ; UNINSTALL GIT IF USER SAYS ITS OK
+   ReadRegStr $R0 HKLM "SOFTWARE\GitForWindows" "InstallPath"  ; Check to see if already installed
+   IfFileExists "$R0\bin\git.exe" 0 false0
    MessageBox MB_YESNO "Uninstall Git?" IDYES true0 IDNO false0
    true0:
      ExecWait '"$INSTDIR\git\unins000.exe" /SILENT /SUPPRESSMSGBOXES'
@@ -453,6 +455,8 @@ Section "Uninstall"
    false0:
 
    ; UNINSTALL TORTOISESVN IF USER SAYS ITS OK
+   ReadRegStr $R0 HKLM "SOFTWARE\TortoiseSVN" "Directory"  ; Check to see if already installed
+   IfFileExists "$R0\bin\svn.exe" 0 false2
    MessageBox MB_YESNO "Uninstall Tortoise SVN?" IDYES true2 IDNO false2
    true2:
      ExecWait 'msiexec /x "$INSTDIR\TortoiseSVN-1.11.1.28492-x64-svn-1.11.1.msi" /passive REBOOT=ReallySuppress MSIRESTARTMANAGERCONTROL=Disable'
