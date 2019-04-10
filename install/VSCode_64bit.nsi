@@ -29,6 +29,12 @@
 ; Set context to 'All Users'
 !define ALL_USERS
 
+!define CodeDownloadUrl "https://update.code.visualstudio.com/latest/win32-x64-archive/stable"
+!define CodeInsidersDownloadUrl "https://update.code.visualstudio.com/latest/win32-x64-archive/insiders"
+!define GitDownloadUrl "https://github.com/git-for-windows/git/releases/download/v2.21.0.windows.1/Git-2.21.0-64-bit.exe"
+!define Net472DownloadUrl "https://go.microsoft.com/fwlink/?LinkId=874338"
+
+
 ;*********************************************************************
 ;*                                                                   *
 ;*   Include                                                         *
@@ -47,6 +53,8 @@
 ;*                                                                   * 
 ;*********************************************************************
 
+Var Status
+Var InsidersInstalled
 
 ;*********************************************************************
 ;*                                                                   *
@@ -97,15 +105,33 @@ ShowUninstDetails show
 
 Section "Install"
 
-   ; Explicitly set the registry view to be 64 bits
    SetRegView 64
-
-   ; Specify the output path
    SetOutPath "$INSTDIR"
 
-   ; EXTRACT THE LOCAL INSTALLER FILES - DON'T OVERWRITE SETTINGS.JSON
-   File /r /x settings.json /x keybindings.json ..\build\*.*
+   ; VSCODE BASE (latest/current version)
+   MessageBox MB_OKCANCEL "The latest version of Microsoft VS Code needs to be installed.$\n$\nBy continuing you are agreeing to Microsoft licensing terms." IDOK vscodetrue IDCANCEL vscodefalse
+   vscodefalse:
+      RMDir "$INSTDIR" ; Don't remove if not empty (/r)
+      Abort
+   vscodetrue:
+   inetc::get ${CodeDownloadUrl} "$INSTDIR\VSCode.zip"
+   ; 'OK' when sucessful
+   Pop $Status
+   ;StrCpy $Status "OK"
+   StrCmp $Status "OK" status0_success 0
+      RMDir "$INSTDIR" ; Don't remove if not empty (/r)
+      Abort
+   status0_success:
+   ;ExecWait '"$INSTDIR\VSCode.exe" /SILENT /MERGETASKS="!runcode,addcontextmenufiles,addcontextmenufolders,associatewithfiles" /NORESTART /NOCANCEL /SUPPRESSMSGBOXES /DIR="$INSTDIR"'
+   nsisunz::Unzip "$INSTDIR\VSCode.zip" "$INSTDIR"
+   ; 'success' when sucessful
+   Pop $Status
+   CreateShortCut "$DESKTOP\Code.lnk" "$INSTDIR\code.exe"
+   Delete "$INSTDIR\VSCode.zip"
 
+   ; EXTRACT THE LOCAL INSTALLER FILES - DON'T OVERWRITE SETTINGS.JSON
+   File /r /x settings.json ..\build\*.*
+   
    ; SETTINGS.JSON
    ; Check if 'settings.json' exists in the target directory   
    IfFileExists "$INSTDIR\data\user-data\User\settings.json" SETTINGS_FILE_ALREADY_EXISTS 0
@@ -118,21 +144,47 @@ Section "Install"
    Call ReplaceInFile
    SETTINGS_FILE_ALREADY_EXISTS:
 
-   ; VSCODE BASE (latest/current version)
-   MessageBox MB_OKCANCEL "The latest version of Microsoft VS Code needs to be installed.$\n$\nBy continuing you are agreeing to Microsoft licensing terms." IDOK vscodetrue IDCANCEL vscodefalse
-   vscodefalse:
-      RMDir "$INSTDIR" ; Don't remove if not empty (/r)
-      Abort
-   vscodetrue:
-   inetc::get "https://update.code.visualstudio.com/latest/win32-x64-archive/stable" "$INSTDIR\VSCode.zip"
+   ; VSCODE INSIDERS (latest/current version)
+   StrCpy $InsidersInstalled "NO"
+   MessageBox MB_YESNO "Install Code Insiders Edition?$\n$\nBy installing you are agreeing to Microsoft licensing terms." IDYES vscodeinstrue IDNO vscodeinsfalse
+   vscodeinstrue:
+   ; EXTRACT THE LOCAL INSTALLER FILES - DON'T OVERWRITE SETTINGS.JSON
+   SetOutPath "$INSTDIR\insiders"
+   File /r /x settings.json ..\build\*.*
+   inetc::get /RESUME /NOCANCEL ${CodeInsidersDownloadUrl} "$INSTDIR\VSCodeInsiders.zip"
+   ;StrCpy $Status inetc::get "https://update.code.visualstudio.com/latest/win32-x64-archive/insiders" "$INSTDIR\VSCodeInsiders.zip"
+   ; 'OK' when sucessful
+   Pop $Status
+   StrCmp $Status "OK" 0 vscodeinsfalse
    ;ExecWait '"$INSTDIR\VSCode.exe" /SILENT /MERGETASKS="!runcode,addcontextmenufiles,addcontextmenufolders,associatewithfiles" /NORESTART /NOCANCEL /SUPPRESSMSGBOXES /DIR="$INSTDIR"'
-   nsisunz::Unzip "$INSTDIR\VSCode.zip" "$INSTDIR"
-   Delete "$INSTDIR\VSCode.zip"
+   ; 'success' when sucessful
+   nsisunz::Unzip "$INSTDIR\VSCodeInsiders.zip" "$INSTDIR\insiders"
+   Pop $Status
+   ; SETTINGS.JSON
+   ; Check if 'settings.json' exists in the target directory   
+   IfFileExists "$INSTDIR\insiders\data\user-data\User\settings.json" SETTINGS2_FILE_ALREADY_EXISTS 0
+   ; Copy the file
+   File /oname=insiders\data\user-data\User\settings.json ..\build\settings.json
+   ; replace c:\code in settings.json with actual install dir
+   Push "$INSTDIR\insiders\data\user-data\User\settings.json"
+   Push "c:\Code" 
+   Push "$INSTDIR\insiders"
+   Call ReplaceInFile
+   StrCpy $InsidersInstalled "YES"
+   SetOutPath "$INSTDIR"
+   SETTINGS2_FILE_ALREADY_EXISTS:
+   ;CreateShortCut "$INSTDIR\insiders\data" "$INSTDIR\data"
+   CreateShortCut "$DESKTOP\Code Insiders.lnk" "$INSTDIR\insiders\Code - Insiders.exe"
+   Delete "$INSTDIR\VSCodeInsiders.zip"
+   vscodeinsfalse:
 
    ; .NET 4.72 DEVELOPMENT PACK
    MessageBox MB_YESNO "Install .NET 4.72 Development Pack?$\n$\nBy clicking yes you are agreeing to Microsoft licensing terms." IDYES net472true IDNO net472false
    net472true:
-      inetc::get https://go.microsoft.com/fwlink/?LinkId=874338 "$INSTDIR\NDP472-DevPack.exe"
+      inetc::get /RESUME /NOCANCEL ${Net472DownloadUrl} "$INSTDIR\NDP472-DevPack.exe"
+      ; 'OK' when sucessful
+      Pop $Status
+      StrCmp $Status "OK" 0 net472false
       ExecWait '"$INSTDIR\NDP472-DevPack.exe" /passive /noreboot'
    net472false:
 
@@ -141,7 +193,10 @@ Section "Install"
    IfFileExists "$R0\bin\git.exe" GIT_ALREADY_INSTALLED 0
    MessageBox MB_YESNO "Install Git v2.21.0?" IDYES gittrue IDNO gitfalse
    gittrue:
-      inetc::get https://github.com/git-for-windows/git/releases/download/v2.21.0.windows.1/Git-2.21.0-64-bit.exe "$INSTDIR\GitSetup.exe"
+      inetc::get /RESUME /NOCANCEL ${GitDownloadUrl} "$INSTDIR\GitSetup.exe"
+      ; 'OK' when sucessful
+      Pop $Status
+      StrCmp $Status "OK" 0 gitfalse
       Push "$INSTDIR\git.inf"     ; copy install dir to inf file
       Push "C:\Program Files\Git" 
       Push "$INSTDIR\git"
@@ -161,15 +216,15 @@ Section "Install"
    TORTOISE_ALREADY_INSTALLED:
 
    ; NSIS
-   SetRegView 32
-   ReadRegStr $R0 HKLM "SOFTWARE\NSIS" "Default"  ; Check to see if already installed
-   IfFileExists "$R0\makensis.exe" NSIS_ALREADY_INSTALLED 0
-   MessageBox MB_YESNO "Install Nullsoft Scriptable Installer (NSIS) v3.04?" IDYES nsistrue IDNO nsisfalse
-   nsistrue:
-      ExecWait 'nsis-3.04-setup.exe /SD /D="$INSTDIR\nsis"'
-   nsisfalse:                         
-   NSIS_ALREADY_INSTALLED:
-   SetRegView 64
+   ;SetRegView 32
+   ;ReadRegStr $R0 HKLM "SOFTWARE\NSIS" "Default"  ; Check to see if already installed
+   ;IfFileExists "$R0\makensis.exe" NSIS_ALREADY_INSTALLED 0
+   ;MessageBox MB_YESNO "Install Nullsoft Scriptable Installer (NSIS) v3.04?" IDYES nsistrue IDNO nsisfalse
+   ;nsistrue:
+   ;   ExecWait 'nsis-3.04-setup.exe /SD /D="$INSTDIR\nsis"'
+   ;nsisfalse:                         
+   ;NSIS_ALREADY_INSTALLED:
+   ;SetRegView 64
    
    ; EXTENSIONS
    ExecWait '"$INSTDIR\install_extensions.bat" --install-extension'
@@ -183,9 +238,24 @@ Section "Install"
    Push '"atlassian.atlascode", "johnstoncode.svn-scm"]'
    Call ReplaceInFile
 
+   StrCmp $InsidersInstalled "YES" 0 insiders_extensions_done
+   ExecWait '"$INSTDIR\insiders\install_extensions.bat" --install-extension'
+   ; Add 'johnstoncode.svn-scm' to enabledProposedApi list in subversion exension, this enabled the file explorer decorations
+   Push '$INSTDIR\insiders\resources\app\product.json'   ; < v 1.32
+   Push '"ms-vsliveshare.vsliveshare"]'
+   Push '"ms-vsliveshare.vsliveshare", "johnstoncode.svn-scm"]'
+   Call ReplaceInFile
+   Push '$INSTDIR\insiders\resources\app\product.json'   ; >= V 1.32
+   Push '"atlassian.atlascode"]'
+   Push '"atlassian.atlascode", "johnstoncode.svn-scm"]'
+   insiders_extensions_done:
+
    ; GLOBAL NODE MODULES
    ; ExecWait 'cmd.exe "$INSTDIR\nodejs\npm" install -g eslint'
    ExecWait '"$INSTDIR\install_node_modules.bat" install'
+   StrCmp $InsidersInstalled "YES" 0 insiders_nodemodules_done
+   ExecWait '"$INSTDIR\insiders\install_node_modules.bat" install'
+   insiders_nodemodules_done:
 
    ; PYTHON PIP
    Push "$INSTDIR\python\python37._pth" ; replace c:\Code with actual install dir
@@ -310,9 +380,6 @@ Section "Install"
    ; Set context to 'All Users'
    SetShellVarContext "all"
 
-   ; Create Desktop shortcut
-   CreateShortCut "$DESKTOP\Code.lnk" "$INSTDIR\code.exe"
-
    ;Create uninstall file
    WriteUninstaller "$INSTDIR\${UNINSTALL_FILE_NAME}"
 
@@ -337,15 +404,22 @@ Section "Uninstall"
 
    ; GLOBAL NODE MODULES
    ExecWait '"$INSTDIR\install_node_modules.bat" uninstall'
-   
+   IfFileExists "$INSTDIR\insiders\install_node_modules.bat" 0 nodemodules_done
+   ExecWait '"$INSTDIR\insiders\install_node_modules.bat" uninstall'
+   nodemodules_done:
+
    ; EXTENSIONS
    ExecWait '"$INSTDIR\install_extensions.bat" --uninstall-extension'
+   IfFileExists "$INSTDIR\insiders\install_extensions.bat" 0 extensions_done
+   ExecWait '"$INSTDIR\insiders\install_extensions.bat" --uninstall-extension'
+   extensions_done:
 
    ; REMOVE LOCAL INSTALLATON DIRS FROM SETUP
    RMDir /r "$INSTDIR\data\extensions"
    RMDir /r "$INSTDIR\ant"
    RMDir /r "$INSTDIR\ansicon"
    RMDir /r "$INSTDIR\compilers"
+   RMDir /r "$INSTDIR\insiders"
    RMDir /r "$INSTDIR\nodejs"
    RMDir /r "$INSTDIR\nsis"
    RMDir /r "$INSTDIR\python"
@@ -439,6 +513,28 @@ Function .onInit
 
    ; Specify default directory
    StrCpy $INSTDIR "c:\Code"
+
+   SetRegView 64
+   ReadRegStr $R0 HKLM \
+   "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}" \
+   "UninstallString"
+   StrCmp $R0 "" done
+   
+   MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION \
+   "${APPLICATION_NAME} is already installed. $\n$\nClick `OK` to remove the \
+   previous version or `Cancel` to cancel this upgrade." \
+   IDOK uninst
+   Abort
+ 
+   ;Run the uninstaller
+   uninst:
+   ClearErrors
+   ;Do not copy the uninstaller to a temp file
+   ExecWait '$R0 _?=$INSTDIR'
+   ;Exec $R0 ; supposedly lets uninstaller remove itself
+   IfErrors 0 done
+      ; need to delete uninstaller here?
+   done:
 
 FunctionEnd
 
