@@ -130,16 +130,19 @@ Section "Install"
    CreateShortCut "$DESKTOP\Code.lnk" "$INSTDIR\code.exe"
    Delete "$INSTDIR\VSCode.zip"
 
-   ; EXTRACT THE LOCAL INSTALLER FILES - DON'T OVERWRITE SETTINGS.JSON
+   ; EXTRACT THE LOCAL INSTALLER FILES - WITHOUT SETTINGS.JSON
    File /r /x settings.json ..\build\*.*
    
    ; SETTINGS.JSON
    ; Check if 'settings.json' exists in the target directory   
    IfFileExists "$INSTDIR\data\user-data\User\settings.json" SETTINGS_FILE_ALREADY_EXISTS 0
+   ;IfFileExists "$PROFILE\.vscode\User\settings.json" SETTINGS_FILE_ALREADY_EXISTS 0
    ; Copy the file
    File /oname=data\user-data\User\settings.json ..\build\settings.json
+   ;File /oname="$PROFILE\.vscode\User\settings.json" ..\build\settings.json
    ; replace c:\code in settings.json with actual install dir
    Push "$INSTDIR\data\user-data\User\settings.json"
+   ;Push "$PROFILE\.vscode\User\settings.json"
    Push "c:\Code" 
    Push "$INSTDIR"
    Call ReplaceInFile
@@ -153,7 +156,6 @@ Section "Install"
    SetOutPath "$INSTDIR\insiders"
    File /r /x settings.json ..\build\*.*
    inetc::get ${CodeInsidersDownloadUrl} "$INSTDIR\VSCodeInsiders.zip"
-   ;StrCpy $Status inetc::get "https://update.code.visualstudio.com/latest/win32-x64-archive/insiders" "$INSTDIR\VSCodeInsiders.zip"
    ; 'OK' when sucessful
    Pop $Status
    StrCmp $Status "OK" 0 vscodeinsfalse
@@ -435,9 +437,12 @@ Section "Uninstall"
    MessageBox MB_YESNO "Delete user settings?" IDYES true1 IDNO false1
    true1:
      RMDir /r "$INSTDIR\data"
+     ;RMDir /r "$PROFILE\.vscode"
+     ;RMDir /r "$APPDATA\Roaming\Code"
    false1:
    
    ; uninstall vscode
+   ; uninstaller for vscode exe installer
    ;ExecWait '"$INSTDIR\unins000.exe" /SILENT /SUPPRESSMSGBOXES'
    
    ; UNINSTALL GIT IF USER SAYS ITS OK
