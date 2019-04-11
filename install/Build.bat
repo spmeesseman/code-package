@@ -33,11 +33,9 @@ rem update version to package.json
 for /f %%i in ('..\build\nodejs\node -e "console.log(require('../package.json').version);"') do set version=%%i
 echo Current package.json version is %version%
 rem set /p newversion=Enter the new version #: 
-
 rem echo New version is %newversion%
-rem cscript //B ..\script\substitute.vbs installerhdr.bmp pja24bit.bmp VSCode_64bit.nsi > VSCode_64bit.nsi.new
-rem copy /Y VSCode_64bit.nsi.new VSCode_64bit.nsi
-rem del /Q VSCode_64bit.nsi.new
+rem cscript //B ..\script\substitute.vbs %version% %newversion% VSCode_64bit.nsi > VSCode_64bit.nsi.new
+rem move /Y VSCode_64bit.nsi.new VSCode_64bit.nsi
 
 rem Compile the Setup script
 ..\src\nsis\makensis VSCode_64bit.nsi
