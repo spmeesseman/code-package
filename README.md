@@ -5,7 +5,7 @@
 [![Average time to resolve an issue](https://isitmaintained.com/badge/resolution/spmeesseman/code-package.svg)](https://isitmaintained.com/project/spmeesseman/code-package "Average time to resolve an issue")
 [![Percentage of issues still open](https://isitmaintained.com/badge/open/spmeesseman/code-package.svg)](https://isitmaintained.com/project/spmeesseman/code-package "Percentage of issues still open")
 [![Dependencies Status](https://david-dm.org/spmeesseman/code-package/status.svg)](https://david-dm.org/spmeesseman/code-package)
-[![DevDependencies Status](https://david-dm.org/spmeesseman/code-package/dev-status.svg)](https://david-dm.org/spmeesseman/code-package?type=dev) [![Greenkeeper badge](https://badges.greenkeeper.io/spmeesseman/code-package.svg)](https://greenkeeper.io/)
+[![DevDependencies Status](https://david-dm.org/spmeesseman/code-package/dev-status.svg)](https://david-dm.org/spmeesseman/code-package?type=dev) [![Greenkeeper badge](https://badges.greenkeeper.io/spmeesseman/code-package.svg)](https://greenkeeper.io/) [![Greenkeeper badge](https://badges.greenkeeper.io/spmeesseman/code-package.svg?token=d5ee317b562beed19aaa376b57290da1622c76d687092eb10b1d301dbdbbfb1b&ts=1555022335792)](https://greenkeeper.io/)
 
 > Bundles several 3rd party libraries and development tools to be used within the Visual Sudio Code IDE.  Install and go!
 
