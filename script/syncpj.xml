@@ -16,11 +16,9 @@
              <include name="**\*"/>
              <exclude name="**\build\**"/>
              <exclude name="**\.svn\**"/>
-             <exclude name="**\script\**"/>
              <exclude name="**\dep\**"/>
              <exclude name="**\obj\**"/>
              <exclude name="**\.vs\**"/>
-             <exclude name="syncpj.xml"/>
          </fileset>
      </copy>
 
@@ -34,13 +32,13 @@
             <fileset dir="${base}">
                 <include name="**\*"/>
                 <exclude name="**\build\**"/>
-                <exclude name="**\script\**"/>
                 <exclude name="**\dep\**"/>
                 <exclude name="**\obj\**"/>
                 <exclude name="**\.vs\**"/>
                 <exclude name="**\node_modules\**"/>
-                <exclude name="syncpj.xml"/>
+                <exclude name="**\syncpj.xml"/>
                 <exclude name="package.json"/>
+                <exclude name="azure-pipelines.yml"/>
                 <exclude name="CHANGELOG.md"/>
                 <exclude name="README.md"/>
                 <exclude name="LICENSE.txt"/>
