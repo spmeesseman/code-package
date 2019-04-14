@@ -9,7 +9,7 @@
 !define APPLICATION_NAME     "Code Package"
 
 ; Define build level
-!define BUILD_LEVEL          "1.2.2"
+!define BUILD_LEVEL          "1.3.0"
 
 ; Define install file name
 !define INSTALL_FILE_NAME    "CodePackage_x64.exe"
@@ -136,13 +136,13 @@ Section "Install"
    ; SETTINGS.JSON
    ; Check if 'settings.json' exists in the target directory   
    ;IfFileExists "$INSTDIR\data\user-data\User\settings.json" SETTINGS_FILE_ALREADY_EXISTS 0
-   IfFileExists "$APPDATA\Roaming\Code\User\settings.json" SETTINGS_FILE_ALREADY_EXISTS 0
+   IfFileExists "$APPDATA\Code\User\settings.json" SETTINGS_FILE_ALREADY_EXISTS 0
    ; Copy the file
    ;File /oname=data\user-data\User\settings.json ..\build\settings.json
-   File /oname=$APPDATA\Roaming\Code\User\settings.json ..\build\settings.json
+   File /oname=$APPDATA\Code\User\settings.json ..\build\settings.json
    ; replace c:\code in settings.json with actual install dir
    ;Push "$INSTDIR\data\user-data\User\settings.json"
-   Push "$APPDATA\Roaming\Code\User\settings.json"
+   Push "$APPDATA\Code\User\settings.json"
    Push "c:\Code" 
    Push "$INSTDIR"
    Call ReplaceInFile
@@ -242,17 +242,17 @@ Section "Install"
    Push '"atlassian.atlascode", "johnstoncode.svn-scm"]'
    Call ReplaceInFile
 
-   StrCmp $InsidersInstalled "YES" 0 insiders_extensions_done
-   ExecWait '"$INSTDIR\insiders\install_extensions.bat" --install-extension'
+   ;StrCmp $InsidersInstalled "YES" 0 insiders_extensions_done
+   ;ExecWait '"$INSTDIR\insiders\install_extensions.bat" --install-extension'
    ; Add 'johnstoncode.svn-scm' to enabledProposedApi list in subversion exension, this enabled the file explorer decorations
-   Push '$INSTDIR\insiders\resources\app\product.json'   ; < v 1.32
-   Push '"ms-vsliveshare.vsliveshare"]'
-   Push '"ms-vsliveshare.vsliveshare", "johnstoncode.svn-scm"]'
-   Call ReplaceInFile
-   Push '$INSTDIR\insiders\resources\app\product.json'   ; >= V 1.32
-   Push '"atlassian.atlascode"]'
-   Push '"atlassian.atlascode", "johnstoncode.svn-scm"]'
-   insiders_extensions_done:
+   ;Push '$INSTDIR\insiders\resources\app\product.json'   ; < v 1.32
+   ;Push '"ms-vsliveshare.vsliveshare"]'
+   ;Push '"ms-vsliveshare.vsliveshare", "johnstoncode.svn-scm"]'
+   ;Call ReplaceInFile
+   ;Push '$INSTDIR\insiders\resources\app\product.json'   ; >= V 1.32
+   ;Push '"atlassian.atlascode"]'
+   ;Push '"atlassian.atlascode", "johnstoncode.svn-scm"]'
+   ;insiders_extensions_done:
 
    ; GLOBAL NODE MODULES
    ; ExecWait 'cmd.exe "$INSTDIR\nodejs\npm" install -g eslint'
@@ -279,6 +279,8 @@ Section "Install"
 
    ; ADD TO PATH ENVIRONMENT VARIABLE
    Push "$INSTDIR\ant\bin"
+   Call AddToPath
+   Push "$INSTDIR\gradle\bin"
    Call AddToPath
    Push "$INSTDIR\python"
    Call AddToPath
@@ -416,6 +418,7 @@ Section "Uninstall"
    ExecWait '"$INSTDIR\install_extensions.bat" --uninstall-extension'
    IfFileExists "$INSTDIR\insiders\install_extensions.bat" 0 extensions_done
    ExecWait '"$INSTDIR\insiders\install_extensions.bat" --uninstall-extension'
+   RMDir /r "$PROFILE\.vscode\extensions"
    extensions_done:
 
    ; REMOVE LOCAL INSTALLATON DIRS FROM SETUP
@@ -424,6 +427,7 @@ Section "Uninstall"
    RMDir /r "$INSTDIR\ansicon"
    RMDir /r "$INSTDIR\compilers"
    RMDir /r "$INSTDIR\insiders"
+   RMDir /r "$INSTDIR\gradle"
    RMDir /r "$INSTDIR\nodejs"
    RMDir /r "$INSTDIR\nsis"
    RMDir /r "$INSTDIR\python"
@@ -438,7 +442,7 @@ Section "Uninstall"
    true1:
      ;RMDir /r "$INSTDIR\data"
      RMDir /r "$PROFILE\.vscode"
-     RMDir /r "$APPDATA\Roaming\Code"
+     RMDir /r "$APPDATA\Code"
    false1:
    
    ; uninstall vscode
@@ -472,6 +476,8 @@ Section "Uninstall"
    
    ; REMOVE VARIABLES FROM PATH ENVIRONMENT VARIABLE
    Push "$INSTDIR\ant\bin"
+   Call un.RemoveFromPath
+   Push "$INSTDIR\gradle\bin"
    Call un.RemoveFromPath
    Push "$INSTDIR\python"
    Call un.RemoveFromPath
