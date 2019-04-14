@@ -17,17 +17,22 @@
         }
     },
     {
+        "label": "Code (PJ Installer)",
+        "type": "shell",
+        "command": "${workspaceFolder}\\install\\Build.bat",
+        "args": [ "--edit-files", "--pj" ],
+        "group": "build",
+        "presentation": {
+            "echo": true,
+            "reveal": "always",
+            "focus": false,
+            "panel": "shared"
+        }
+    },
+    {
         "label": "Code (Build)",
         "type": "shell",
-        "command": "${env:CODE_HOME}\\ant\\bin\\ant.bat",
-        "args": [ "-logger", "org.apache.tools.ant.listener.AnsiColorLogger", "Extract" ],
-        // use options.cwd property if the Makefile is not in the project root ${workspaceRoot} dir
-        "options": {
-            "cwd": "src",
-            "shell": {
-                "executable": "${env:CODE_HOME}\\ansicon\\x64\\ansicon.exe"
-            }
-        },
+        "command": "${workspaceFolder}\\src\\Build.bat",
         // start the build without prompting for task selection, use "group": "build" otherwise
         "group": {
             "kind": "build",
