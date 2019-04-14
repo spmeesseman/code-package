@@ -1,4 +1,13 @@
 {
+    "beautify.language": {
+        "js": {
+          "type": ["javascript", "json", "typescript"],
+          "filename": [".jshintrc", ".jsbeautifyrc"],
+          "ext": ["js", "json", "ts" ]
+        },
+        "css": ["css", "scss"],
+        "html": ["htm", "html"]
+    },
     "html": {
         "allowed_file_extensions": ["htm", "html", "xhtml", "shtml", "xml", "svg", "dust"],
         "brace_style": "collapse",

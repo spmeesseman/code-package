@@ -421,8 +421,9 @@ April 8th, 2019
     This has been fixed.
 
 
+
 Version 1.2.2
-April 12th, 2019
+April 15th, 2019
 -------------------------------------------------------------------------------
 ********************************************************************************
 ***                                                                            *
@@ -451,6 +452,10 @@ April 12th, 2019
 
         humao.rest-client
         spmeesseman.vscode-vslauncher
+        
+    Removed Visual Studio Code extensions:
+
+        lkytal.quicktask
 
 3.  Previously the instalation used a "thumbdrive" setup where all extensions,
     user settings, and cached data were kept in a data directory within the Code
