@@ -1,5 +1,47 @@
 Change Log
 
+# [1.3.0](https://github.com/spmeesseman/code-package/compare/v1.2.1...v1.3.0) (2019-04-14)
+
+
+### Bug Fixes
+
+* **nsis:** installer wipes out path.  package large string version of nsis (8096 bytes as compared to 1024) ([9106a61](https://github.com/spmeesseman/code-package/commit/9106a61))
+
+
+### Build System
+
+* **nsis:** add commeted lines back for possible switch back to user data directories instead of thumbnail method [skip ci] ([b6811a7](https://github.com/spmeesseman/code-package/commit/b6811a7))
+* **package:** add nsis v3.04 files [skip ci] ([b8167d0](https://github.com/spmeesseman/code-package/commit/b8167d0))
+* **python:** auto install pylint [skip ci] ([ceb458b](https://github.com/spmeesseman/code-package/commit/ceb458b))
+* **nsis:** cleanup [skip ci] ([aa33d14](https://github.com/spmeesseman/code-package/commit/aa33d14))
+* **nsis:** cleanup, error checks on downloads, check previous installs, add code insiders optional download [skip ci] ([9b376f5](https://github.com/spmeesseman/code-package/commit/9b376f5))
+* final changes for 1.3 installer, fix settings.json copy ([cda0a1c](https://github.com/spmeesseman/code-package/commit/cda0a1c))
+* **package:** final nsis3.04 touch up add files not included in installer [skip ci] ([5f085fd](https://github.com/spmeesseman/code-package/commit/5f085fd))
+* fix build task build file updated to batch file from ant ([2628107](https://github.com/spmeesseman/code-package/commit/2628107))
+* **vscode:** include vscode-vsauncher extension ([2dde439](https://github.com/spmeesseman/code-package/commit/2dde439))
+* **nsis:** set scipt back to nsis file set from installer [skip ci] ([abf4d23](https://github.com/spmeesseman/code-package/commit/abf4d23))
+* **pj:** update info [skip ci] ([61bc705](https://github.com/spmeesseman/code-package/commit/61bc705))
+
+
+### Code Refactoring
+
+* add extension humao.rest-client ([9f1495b](https://github.com/spmeesseman/code-package/commit/9f1495b))
+* add/remove extensions ([3365b04](https://github.com/spmeesseman/code-package/commit/3365b04))
+* **settings:** change to user directory settings from thumbnail settings. ([9ab49ec](https://github.com/spmeesseman/code-package/commit/9ab49ec))
+
+
+### Documentation
+
+* **history:** add 1.2.2 info ([2fc966a](https://github.com/spmeesseman/code-package/commit/2fc966a))
+* **readme:** add Greenkeeper badge ([0853448](https://github.com/spmeesseman/code-package/commit/0853448))
+* **readme:** update gk badge [skip ci] ([ce4795d](https://github.com/spmeesseman/code-package/commit/ce4795d))
+* **history:** update to 1.3.0 info ([00ebfaa](https://github.com/spmeesseman/code-package/commit/00ebfaa))
+
+
+### Features
+
+* add gradle package ([a57047b](https://github.com/spmeesseman/code-package/commit/a57047b))
+
 ## [1.2.1](https://github.com/spmeesseman/code-package/compare/v1.2.0...v1.2.1) (2019-04-08)
 
 
