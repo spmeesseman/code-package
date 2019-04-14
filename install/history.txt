@@ -420,3 +420,35 @@ April 8th, 2019
     
     This has been fixed.
 
+
+
+Version 1.2.2
+April 15th, 2019
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB+                               *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+***    An Internet connection is required during installation to download and  *
+***    install Code extensions and required node modules.                      *
+***                                                                            *
+********************************************************************************
+
+1.  Added Visual Studio Code extensions:
+
+        tht13.html-preview-vscode
+        spmeesseman.vscode-vslauncher
+
+    Removed Visual Studio Code extensions:
+
+        lkytal.quicktask
+
+2.  Using user directories
+
