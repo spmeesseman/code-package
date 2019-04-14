@@ -29,7 +29,6 @@ rem **********************************************************************
 move /Y %OutputDirectory%\apache-ant-1.10.5 %OutputDirectory%\ant
 
 
-
 rem **********************************************************************
 rem *                                                                    *
 rem *  Ansicon (for Ant)                                                 *
@@ -37,6 +36,16 @@ rem *                                                                    *
 rem **********************************************************************
 
 ..\script\7za.exe e -tzip ansicon/ansi188-bin.zip -o%OutputDirectory%\ansicon -r -spf
+
+
+rem **********************************************************************
+rem *                                                                    *
+rem *  Gradle                                                            *
+rem *                                                                    *
+rem **********************************************************************
+
+..\script\7za.exe e -tzip gradle/gradle-5.3.1-bin.zip -o%OutputDirectory% -r -spf
+move /Y %OutputDirectory%\gradle-5.3.1 %OutputDirectory%\gradle
 
 
 rem **********************************************************************
