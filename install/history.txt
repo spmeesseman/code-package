@@ -422,7 +422,7 @@ April 8th, 2019
 
 
 
-Version 1.2.2
+Version 1.3.0
 April 15th, 2019
 -------------------------------------------------------------------------------
 ********************************************************************************
@@ -443,6 +443,16 @@ April 15th, 2019
 
 1.  Updated the following package components:
 
+        Code Insiders
+        
+            Previous version:    N/A
+            Updated version:     Always current
+
+        Gradle
+        
+            Previous version:    N/A
+            Updated version:     5.3.1
+            
         NSIS
         
             Previous version:    3.04
@@ -452,10 +462,12 @@ April 15th, 2019
 
         humao.rest-client
         spmeesseman.vscode-vslauncher
+        tht13.html-preview-vscode
         
     Removed Visual Studio Code extensions:
 
         lkytal.quicktask
+        ms-vscode.powershell
 
 3.  Previously the instalation used a "thumbdrive" setup where all extensions,
     user settings, and cached data were kept in a data directory within the Code
@@ -464,7 +476,7 @@ April 15th, 2019
     This has been changed, this data will now be kept in the default VSCode 
     locations in the Windows User directories:
 
-        {USERAPPDATA}\Romaing\Code
+        {USERAPPDATA}\Roaming\Code
         {USERPROFILE}\.vscode
 
     This will allow multiple Code installs and side installs of Code Insiders to
