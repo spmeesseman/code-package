@@ -132,21 +132,6 @@ Section "Install"
 
    ; EXTRACT THE LOCAL INSTALLER FILES - WITHOUT SETTINGS.JSON
    File /r /x settings.json ..\build\*.*
-   
-   ; SETTINGS.JSON
-   ; Check if 'settings.json' exists in the target directory   
-   ;IfFileExists "$INSTDIR\data\user-data\User\settings.json" SETTINGS_FILE_ALREADY_EXISTS 0
-   IfFileExists "$APPDATA\Code\User\settings.json" SETTINGS_FILE_ALREADY_EXISTS 0
-   ; Copy the file
-   ;File /oname=data\user-data\User\settings.json ..\build\settings.json
-   File /oname=$APPDATA\Code\User\settings.json ..\build\settings.json
-   ; replace c:\code in settings.json with actual install dir
-   ;Push "$INSTDIR\data\user-data\User\settings.json"
-   Push "$APPDATA\Code\User\settings.json"
-   Push "c:\Code" 
-   Push "$INSTDIR"
-   Call ReplaceInFile
-   SETTINGS_FILE_ALREADY_EXISTS:
 
    ; VSCODE INSIDERS (latest/current version)
    StrCpy $InsidersInstalled "NO"
@@ -161,6 +146,7 @@ Section "Install"
    StrCmp $Status "OK" 0 vscodeinsfalse
    ;ExecWait '"$INSTDIR\VSCode.exe" /SILENT /MERGETASKS="!runcode,addcontextmenufiles,addcontextmenufolders,associatewithfiles" /NORESTART /NOCANCEL /SUPPRESSMSGBOXES /DIR="$INSTDIR"'
    ; 'success' when sucessful
+   CreateDirectory "$INSTDIR\insiders"
    nsisunz::Unzip "$INSTDIR\VSCodeInsiders.zip" "$INSTDIR\insiders"
    Pop $Status
    ; SETTINGS.JSON
@@ -272,6 +258,23 @@ Section "Install"
    Delete "$INSTDIR\python\install_pylint.bat"
    Delete "$INSTDIR\python\python37._pth" ; this was a tmp setup in the installer for setting PATH in this env
    ;Rename "$INSTDIR\python\python37._pth.save" "$INSTDIR\python\python37._pth" ; replace with default file
+   
+   ; SETTINGS.JSON
+   ; Check if 'settings.json' exists in the target directory   
+   ;IfFileExists "$INSTDIR\data\user-data\User\settings.json" SETTINGS_FILE_ALREADY_EXISTS 0
+   IfFileExists "$APPDATA\Code\User\settings.json" SETTINGS_FILE_ALREADY_EXISTS 0
+   ; Copy the file
+   ;File /oname=data\user-data\User\settings.json ..\build\settings.json
+   CreateDirectory "$APPDATA\Code"
+   CreateDirectory "$APPDATA\Code\User"
+   File /oname=$APPDATA\Code\User\settings.json ..\build\settings.json
+   ; replace c:\code in settings.json with actual install dir
+   ;Push "$INSTDIR\data\user-data\User\settings.json"
+   Push "$APPDATA\Code\User\settings.json"
+   Push "c:\Code" 
+   Push "$INSTDIR"
+   Call ReplaceInFile
+   SETTINGS_FILE_ALREADY_EXISTS:
    
    ; CUSTOM FILES STUFF
    ExecWait '"$INSTDIR\copy_settings.bat"'
@@ -418,11 +421,10 @@ Section "Uninstall"
    ExecWait '"$INSTDIR\install_extensions.bat" --uninstall-extension'
    IfFileExists "$INSTDIR\insiders\install_extensions.bat" 0 extensions_done
    ExecWait '"$INSTDIR\insiders\install_extensions.bat" --uninstall-extension'
-   RMDir /r "$PROFILE\.vscode\extensions"
    extensions_done:
-
+   RMDir /r "$PROFILE\.vscode\extensions"
+   
    ; REMOVE LOCAL INSTALLATON DIRS FROM SETUP
-   RMDir /r "$INSTDIR\data\extensions"
    RMDir /r "$INSTDIR\ant"
    RMDir /r "$INSTDIR\ansicon"
    RMDir /r "$INSTDIR\compilers"
