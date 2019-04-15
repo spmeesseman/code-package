@@ -9,7 +9,7 @@
 !define APPLICATION_NAME     "Code Package"
 
 ; Define build level
-!define BUILD_LEVEL          "1.3.1"
+!define BUILD_LEVEL          "1.3.2"
 
 ; Define install file name
 !define INSTALL_FILE_NAME    "CodePackage_x64.exe"
@@ -30,7 +30,7 @@
 !define ALL_USERS
 
 !define CodeDownloadUrl "https://update.code.visualstudio.com/latest/win32-x64-archive/stable"
-!define CodeInsiderDownloadUrl "https://update.code.visualstudio.com/latest/win32-x64-archive/insider"
+!define CodeInsidersDownloadUrl "https://update.code.visualstudio.com/latest/win32-x64-archive/insider"
 !define GitDownloadUrl "https://github.com/git-for-windows/git/releases/download/v2.21.0.windows.1/Git-2.21.0-64-bit.exe"
 !define Net472DownloadUrl "https://go.microsoft.com/fwlink/?LinkId=874338"
 
@@ -54,7 +54,7 @@
 ;*********************************************************************
 
 Var Status
-Var InsiderInstalled
+Var InsidersInstalled
 
 ;*********************************************************************
 ;*                                                                   *
@@ -133,38 +133,38 @@ Section "Install"
    ; EXTRACT THE LOCAL INSTALLER FILES - WITHOUT SETTINGS.JSON
    File /r /x settings.json ..\build\*.*
 
-   ; VSCODE Insider (latest/current version)
-   StrCpy $InsiderInstalled "NO"
-   MessageBox MB_YESNO "Install Code Insider Edition?$\n$\nBy installing you are agreeing to Microsoft licensing terms." IDYES vscodeinstrue IDNO vscodeinsfalse
+   ; VSCODE Insiders (latest/current version)
+   StrCpy $InsidersInstalled "NO"
+   MessageBox MB_YESNO "Install Code Insiders Edition?$\n$\nBy installing you are agreeing to Microsoft licensing terms." IDYES vscodeinstrue IDNO vscodeinsfalse
    vscodeinstrue:
    ; EXTRACT THE LOCAL INSTALLER FILES - DON'T OVERWRITE SETTINGS.JSON
-   ;SetOutPath "$INSTDIR\insider"
+   ;SetOutPath "$INSTDIR\insiders"
    ;File /r /x settings.json ..\build\*.*
-   inetc::get ${CodeInsiderDownloadUrl} "$INSTDIR\VSCodeInsider.zip"
+   inetc::get ${CodeInsidersDownloadUrl} "$INSTDIR\VSCodeInsiders.zip"
    ; 'OK' when sucessful
    Pop $Status
    StrCmp $Status "OK" 0 vscodeinsfalse
    ;ExecWait '"$INSTDIR\VSCode.exe" /SILENT /MERGETASKS="!runcode,addcontextmenufiles,addcontextmenufolders,associatewithfiles" /NORESTART /NOCANCEL /SUPPRESSMSGBOXES /DIR="$INSTDIR"'
    ; 'success' when sucessful
-   CreateDirectory "$INSTDIR\insider"
-   nsisunz::Unzip "$INSTDIR\VSCodeInsider.zip" "$INSTDIR\insider"
+   CreateDirectory "$INSTDIR\insiders"
+   nsisunz::Unzip "$INSTDIR\VSCodeInsiders.zip" "$INSTDIR\insiders"
    Pop $Status
    ; SETTINGS.JSON
    ; Check if 'settings.json' exists in the target directory   
-   ;IfFileExists "$INSTDIR\insider\data\user-data\User\settings.json" SETTINGS2_FILE_ALREADY_EXISTS 0
+   ;IfFileExists "$INSTDIR\insiders\data\user-data\User\settings.json" SETTINGS2_FILE_ALREADY_EXISTS 0
    ; Copy the file
-   ;File /oname=insider\data\user-data\User\settings.json ..\build\settings.json
+   ;File /oname=insiders\data\user-data\User\settings.json ..\build\settings.json
    ; replace c:\code in settings.json with actual install dir
-   ;Push "$INSTDIR\insider\data\user-data\User\settings.json"
+   ;Push "$INSTDIR\insiders\data\user-data\User\settings.json"
    ;Push "c:\Code" 
-   ;Push "$INSTDIR\insider"
+   ;Push "$INSTDIR\insiders"
    ;Call ReplaceInFile
-   StrCpy $InsiderInstalled "YES"
+   StrCpy $InsidersInstalled "YES"
    ;SetOutPath "$INSTDIR"
    ;SETTINGS2_FILE_ALREADY_EXISTS:
-   ;CreateShortCut "$INSTDIR\insider\data" "$INSTDIR\data"
-   CreateShortCut "$DESKTOP\Code Insider.lnk" "$INSTDIR\insider\Code - Insider.exe"
-   Delete "$INSTDIR\VSCodeInsider.zip"
+   ;CreateShortCut "$INSTDIR\insiders\data" "$INSTDIR\data"
+   CreateShortCut "$DESKTOP\Code Insiders.lnk" "$INSTDIR\insiders\Code - Insiders.exe"
+   Delete "$INSTDIR\VSCodeInsiders.zip"
    vscodeinsfalse:
 
    ; .NET 4.72 DEVELOPMENT PACK
@@ -228,24 +228,24 @@ Section "Install"
    Push '"atlassian.atlascode", "johnstoncode.svn-scm"]'
    Call ReplaceInFile
 
-   ;StrCmp $InsiderInstalled "YES" 0 insider_extensions_done
-   ;ExecWait '"$INSTDIR\insider\install_extensions.bat" --install-extension'
+   ;StrCmp $InsidersInstalled "YES" 0 insiders_extensions_done
+   ;ExecWait '"$INSTDIR\insiders\install_extensions.bat" --install-extension'
    ; Add 'johnstoncode.svn-scm' to enabledProposedApi list in subversion exension, this enabled the file explorer decorations
-   ;Push '$INSTDIR\insider\resources\app\product.json'   ; < v 1.32
+   ;Push '$INSTDIR\insiders\resources\app\product.json'   ; < v 1.32
    ;Push '"ms-vsliveshare.vsliveshare"]'
    ;Push '"ms-vsliveshare.vsliveshare", "johnstoncode.svn-scm"]'
    ;Call ReplaceInFile
-   ;Push '$INSTDIR\insider\resources\app\product.json'   ; >= V 1.32
+   ;Push '$INSTDIR\insiders\resources\app\product.json'   ; >= V 1.32
    ;Push '"atlassian.atlascode"]'
    ;Push '"atlassian.atlascode", "johnstoncode.svn-scm"]'
-   ;insider_extensions_done:
+   ;insiders_extensions_done:
 
    ; GLOBAL NODE MODULES
    ; ExecWait 'cmd.exe "$INSTDIR\nodejs\npm" install -g eslint'
-   ExecWait '"$INSTDIR\install_node_modules.bat" install'
-   StrCmp $InsiderInstalled "YES" 0 insider_nodemodules_done
-   ExecWait '"$INSTDIR\insider\install_node_modules.bat" install'
-   insider_nodemodules_done:
+   ;ExecWait '"$INSTDIR\install_node_modules.bat" install'
+   ;StrCmp $InsidersInstalled "YES" 0 insiders_nodemodules_done
+   ;ExecWait '"$INSTDIR\insiders\install_node_modules.bat" install'
+   ;insiders_nodemodules_done:
 
    ; PYTHON PIP
    Push "$INSTDIR\python\python37._pth" ; replace c:\Code with actual install dir
@@ -413,22 +413,16 @@ Section "Uninstall"
 
    ; GLOBAL NODE MODULES
    ExecWait '"$INSTDIR\install_node_modules.bat" uninstall'
-   IfFileExists "$INSTDIR\insider\install_node_modules.bat" 0 nodemodules_done
-   ExecWait '"$INSTDIR\insider\install_node_modules.bat" uninstall'
-   nodemodules_done:
 
    ; EXTENSIONS
    ExecWait '"$INSTDIR\install_extensions.bat" --uninstall-extension'
-   IfFileExists "$INSTDIR\insider\install_extensions.bat" 0 extensions_done
-   ExecWait '"$INSTDIR\insider\install_extensions.bat" --uninstall-extension'
-   extensions_done:
    RMDir /r "$PROFILE\.vscode\extensions"
    
    ; REMOVE LOCAL INSTALLATON DIRS FROM SETUP
    RMDir /r "$INSTDIR\ant"
    RMDir /r "$INSTDIR\ansicon"
    RMDir /r "$INSTDIR\compilers"
-   RMDir /r "$INSTDIR\insider"
+   RMDir /r "$INSTDIR\insiders"
    RMDir /r "$INSTDIR\gradle"
    RMDir /r "$INSTDIR\nodejs"
    RMDir /r "$INSTDIR\nsis"
@@ -553,6 +547,11 @@ Function .onInit
    ;Exec $R0 ; supposedly lets uninstaller remove itself
    IfErrors 0 done
       ; need to delete uninstaller here?
+
+   ; TODO - a bug when running the installer after the uninstall none of the path vars
+   ; get registered.  Force user to re-run installer for now
+   Abort
+
    done:
 
 FunctionEnd
