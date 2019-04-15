@@ -1,5 +1,12 @@
 Change Log
 
+## [1.3.2](https://github.com/spmeesseman/code-package/compare/v1.3.1...v1.3.2) (2019-04-15)
+
+
+### Bug Fixes
+
+* insiders edition desktop link after install is invalid ([402660f](https://github.com/spmeesseman/code-package/commit/402660f))
+
 ## [1.3.1](https://github.com/spmeesseman/code-package/compare/v1.3.0...v1.3.1) (2019-04-14)
 
 
