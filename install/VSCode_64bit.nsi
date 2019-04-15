@@ -46,6 +46,7 @@
 !include "x64.nsh"
 !include "StrRep.nsh"
 !include "ReplaceInFile.nsh"
+!include "nsDialogs.nsh"
 
 ;*********************************************************************
 ;*                                                                   *
@@ -55,6 +56,10 @@
 
 Var Status
 Var InsidersInstalled
+Var InstallInsiders
+Var InstallNet472DevPack
+Var InstallTortoise
+Var InstallGit
 
 ;*********************************************************************
 ;*                                                                   *
@@ -82,6 +87,7 @@ ShowInstDetails show
 ShowUninstDetails show
 
 ; Specify the pages to display when performing an Install
+Page custom InstTypePageCreate InstTypePageLeave
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
 
@@ -527,32 +533,147 @@ Function .onInit
    ; Specify default directory
    StrCpy $INSTDIR "c:\Code"
 
-   SetRegView 64
-   ReadRegStr $R0 HKLM \
-   "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}" \
-   "UninstallString"
-   StrCmp $R0 "" done
-   
-   MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION \
-   "${APPLICATION_NAME} is already installed. $\n$\nClick `OK` to remove the \
-   previous version or `Cancel` to cancel this upgrade." \
-   IDOK uninst
-   Abort
- 
-   ;Run the uninstaller
-   uninst:
-   ClearErrors
-   ;Do not copy the uninstaller to a temp file
-   ExecWait '$R0 _?=$INSTDIR'
-   ;Exec $R0 ; supposedly lets uninstaller remove itself
-   IfErrors 0 done
-      ; need to delete uninstaller here?
-
-   ; TODO - a bug when running the installer after the uninstall none of the path vars
-   ; get registered.  Force user to re-run installer for now
-   Abort
-
-   done:
+   ;SetRegView 64
+   ;ReadRegStr $R0 HKLM \
+   ;"Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}" \
+   ;"UninstallString"
+   ;StrCmp $R0 "" done
+   ;
+   ;MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION \
+   ;"${APPLICATION_NAME} is already installed. $\n$\nClick `OK` to remove the \
+   ;previous version or `Cancel` to cancel this upgrade." \
+   ;IDOK uninst
+   ;Abort
+ ;
+   ;;Run the uninstaller
+   ;uninst:
+   ;ClearErrors
+   ;;Do not copy the uninstaller to a temp file
+   ;ExecWait '$R0 _?=$INSTDIR'
+   ;;Exec $R0 ; supposedly lets uninstaller remove itself
+   ;IfErrors 0 done
+   ;   ; need to delete uninstaller here?
+;
+   ;; TODO - a bug when running the installer after the uninstall none of the path vars
+   ;; get registered.  Force user to re-run installer for now
+   ;Abort
+;
+   ;done:
 
 FunctionEnd
 
+;*********************************************************************
+;*                                                                   *
+;*   Function Definition                                             *
+;*                                                                   * 
+;*      InstTypePageCreate                                           * 
+;*                                                                   * 
+;*********************************************************************
+
+Function InstTypePageCreate
+    nsDialogs::Create 1018
+    pop $0
+    !insertmacro MUI_HEADER_TEXT "Choose Installation Packages" \
+            "Choose Installation Packages to Install" 
+    
+    ${If} $InstallInsiders == ""
+        StrCpy $InstallInsiders YES
+    ${EndIf}
+    ${If} $InstallNet472DevPack == ""
+        StrCpy $InstallNet472DevPack YES
+    ${EndIf}
+    ${If} $InstallTortoise == ""
+        StrCpy $InstallTortoise YES
+    ${EndIf}
+    ${If} $InstallGit == ""
+        StrCpy $InstallGit YES
+    ${EndIf}
+
+    SetRegView 64
+
+    ${NSD_CreateLabel} 0 10u 100% 10u "Choose Installation Packages"
+    pop $1
+
+    ${NSD_CreateCheckBox} 10u 40u 100% 10u "Visual Studio Code Insiders"
+    pop $2
+    IfFileExists "$INSTDIR\insiders\Code - Insiders.exe" 0 insidersdone
+        EnableWindow $2 0
+        StrCpy $InstallInsiders NO
+    insidersdone:
+    ${If} $InstallInsiders == YES 
+        ${NSD_Check} $2
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 10u 60u 100% 10u ".NET 4.72 Developer Pack"
+    pop $3
+    IfFileExists "$INSTDIR\NDP472-DevPack.exe" 0 net472done
+        EnableWindow $3 0
+        StrCpy $InstallNet472DevPack NO
+    net472done:
+    ${If} $InstallNet472DevPack == YES 
+        ${NSD_Check} $3
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 10u 80u 100% 10u "Tortoise SVN + Cmd Line Tools"
+    pop $4
+    ReadRegStr $R0 HKLM "SOFTWARE\TortoiseSVN" "Directory"  ; Check to see if already installed
+    IfFileExists "$R0\bin\svn.exe" 0 svndone
+        EnableWindow $4 0
+        StrCpy $InstallTortoise NO
+    svndone:
+    ${If} $InstallTortoise == YES 
+        ${NSD_Check} $4
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 10u 100u 100% 10u "Git for Windows"
+    pop $5
+    ReadRegStr $R0 HKLM "SOFTWARE\GitForWindows" "InstallPath"  ; Check to see if already installed
+    IfFileExists "$R0\bin\git.exe" 0 gitdone
+       EnableWindow $5 0
+       StrCpy $InstallGit NO
+    gitdone:
+    ${If} $InstallGit == YES 
+        ${NSD_Check} $5
+    ${EndIf}
+
+   ${NSD_CreateLabel} 0 130u 100% 10u "Visual Studio Code is installed by default"
+
+    nsDialogs::Show
+FunctionEnd
+
+
+;*********************************************************************
+;*                                                                   *
+;*   Function Definition                                             *
+;*                                                                   * 
+;*      InstTypePageLeave                                            * 
+;*                                                                   * 
+;*********************************************************************
+
+
+Function InstTypePageLeave
+    ${NSD_GetState} $2 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallInsiders NO
+    ${Else}
+        StrCpy $InstallInsiders YES
+    ${EndIf}
+    ${NSD_GetState} $3 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallNet472DevPack NO
+    ${Else}
+        StrCpy $InstallNet472DevPack YES
+    ${EndIf}
+    ${NSD_GetState} $4 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallTortoise NO
+    ${Else}
+        StrCpy $InstallTortoise YES
+    ${EndIf}
+    ${NSD_GetState} $5 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallGit NO
+    ${Else}
+        StrCpy $InstallGit YES
+    ${EndIf}
+FunctionEnd
