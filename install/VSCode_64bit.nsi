@@ -9,7 +9,7 @@
 !define APPLICATION_NAME     "Code Package"
 
 ; Define build level
-!define BUILD_LEVEL          "1.3.2"
+!define BUILD_LEVEL          "2.0.0"
 
 ; Define install file name
 !define INSTALL_FILE_NAME    "CodePackage_x64.exe"
@@ -33,7 +33,10 @@
 !define CodeInsidersDownloadUrl "https://update.code.visualstudio.com/latest/win32-x64-archive/insider"
 !define GitDownloadUrl "https://github.com/git-for-windows/git/releases/download/v2.21.0.windows.1/Git-2.21.0-64-bit.exe"
 !define Net472DownloadUrl "https://go.microsoft.com/fwlink/?LinkId=874338"
-
+!define TortoiseUrl "https://github.com/spmeesseman/code-package/blob/master/src/tortoisesvn/TortoiseSVN-1.11.1.28492-x64-svn-1.11.1.msi?raw=true"
+!define DotfuscatorUrl "https://github.com/spmeesseman/code-package/blob/master/src/dotfuscator/ce.zip?raw=true"
+!define NsisUrl "https://github.com/spmeesseman/code-package/blob/master/src/nsis/nsis.zip?raw=true"
+!define PythonUrl "https://github.com/spmeesseman/code-package/blob/master/src/python/python-3.7.3-embed-amd64.zip?raw=true"
 
 ;*********************************************************************
 ;*                                                                   *
@@ -55,11 +58,13 @@
 ;*********************************************************************
 
 Var Status
-Var InsidersInstalled
 Var InstallInsiders
 Var InstallNet472DevPack
 Var InstallTortoise
 Var InstallGit
+Var InstallDotfuscator
+Var InstallNsis
+Var InstallPython
 
 ;*********************************************************************
 ;*                                                                   *
@@ -131,8 +136,7 @@ Section "Install"
    status0_success:
    ;ExecWait '"$INSTDIR\VSCode.exe" /SILENT /MERGETASKS="!runcode,addcontextmenufiles,addcontextmenufolders,associatewithfiles" /NORESTART /NOCANCEL /SUPPRESSMSGBOXES /DIR="$INSTDIR"'
    nsisunz::Unzip "$INSTDIR\VSCode.zip" "$INSTDIR"
-   ; 'success' when sucessful
-   Pop $Status
+   Pop $Status ; 'success' when sucessful
    CreateShortCut "$DESKTOP\Code.lnk" "$INSTDIR\code.exe"
    Delete "$INSTDIR\VSCode.zip"
 
@@ -140,88 +144,75 @@ Section "Install"
    File /r /x settings.json ..\build\*.*
 
    ; VSCODE Insiders (latest/current version)
-   StrCpy $InsidersInstalled "NO"
-   MessageBox MB_YESNO "Install Code Insiders Edition?$\n$\nBy installing you are agreeing to Microsoft licensing terms." IDYES vscodeinstrue IDNO vscodeinsfalse
-   vscodeinstrue:
-   ; EXTRACT THE LOCAL INSTALLER FILES - DON'T OVERWRITE SETTINGS.JSON
-   ;SetOutPath "$INSTDIR\insiders"
-   ;File /r /x settings.json ..\build\*.*
-   inetc::get ${CodeInsidersDownloadUrl} "$INSTDIR\VSCodeInsiders.zip"
-   ; 'OK' when sucessful
-   Pop $Status
-   StrCmp $Status "OK" 0 vscodeinsfalse
-   ;ExecWait '"$INSTDIR\VSCode.exe" /SILENT /MERGETASKS="!runcode,addcontextmenufiles,addcontextmenufolders,associatewithfiles" /NORESTART /NOCANCEL /SUPPRESSMSGBOXES /DIR="$INSTDIR"'
-   ; 'success' when sucessful
-   CreateDirectory "$INSTDIR\insiders"
-   nsisunz::Unzip "$INSTDIR\VSCodeInsiders.zip" "$INSTDIR\insiders"
-   Pop $Status
-   ; SETTINGS.JSON
-   ; Check if 'settings.json' exists in the target directory   
-   ;IfFileExists "$INSTDIR\insiders\data\user-data\User\settings.json" SETTINGS2_FILE_ALREADY_EXISTS 0
-   ; Copy the file
-   ;File /oname=insiders\data\user-data\User\settings.json ..\build\settings.json
-   ; replace c:\code in settings.json with actual install dir
-   ;Push "$INSTDIR\insiders\data\user-data\User\settings.json"
-   ;Push "c:\Code" 
-   ;Push "$INSTDIR\insiders"
-   ;Call ReplaceInFile
-   StrCpy $InsidersInstalled "YES"
-   ;SetOutPath "$INSTDIR"
-   ;SETTINGS2_FILE_ALREADY_EXISTS:
-   ;CreateShortCut "$INSTDIR\insiders\data" "$INSTDIR\data"
-   CreateShortCut "$DESKTOP\Code Insiders.lnk" "$INSTDIR\insiders\Code - Insiders.exe"
-   Delete "$INSTDIR\VSCodeInsiders.zip"
-   vscodeinsfalse:
+   ${If} $InstallInsiders == YES 
+        inetc::get ${CodeInsidersDownloadUrl} "$INSTDIR\VSCodeInsiders.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            ;ExecWait '"$INSTDIR\VSCode.exe" /SILENT /MERGETASKS="!runcode,addcontextmenufiles,addcontextmenufolders,associatewithfiles" /NORESTART /NOCANCEL /SUPPRESSMSGBOXES /DIR="$INSTDIR"'
+            CreateDirectory "$INSTDIR\insiders"
+            nsisunz::Unzip "$INSTDIR\VSCodeInsiders.zip" "$INSTDIR\insiders"
+            Pop $Status ; 'success' when sucessful
+            CreateShortCut "$DESKTOP\Code Insiders.lnk" "$INSTDIR\insiders\Code - Insiders.exe"
+            Delete "$INSTDIR\VSCodeInsiders.zip"
+        ${EndIf}
+   ${EndIf}
 
    ; .NET 4.72 DEVELOPMENT PACK
-   MessageBox MB_YESNO "Install .NET 4.72 Development Pack?$\n$\nBy clicking yes you are agreeing to Microsoft licensing terms." IDYES net472true IDNO net472false
-   net472true:
+   ${If} $InstallNet472DevPack == YES 
       inetc::get ${Net472DownloadUrl} "$INSTDIR\NDP472-DevPack.exe"
-      ; 'OK' when sucessful
-      Pop $Status
-      StrCmp $Status "OK" 0 net472false
-      ExecWait '"$INSTDIR\NDP472-DevPack.exe" /passive /noreboot'
-   net472false:
+      Pop $Status ; 'OK' when sucessful
+      ${If} $Status == OK 
+        ExecWait '"$INSTDIR\NDP472-DevPack.exe" /passive /noreboot'
+      ${EndIf}
+   ${EndIf}
 
    ; GIT
-   ReadRegStr $R0 HKLM "SOFTWARE\GitForWindows" "InstallPath"  ; Check to see if already installed
-   IfFileExists "$R0\bin\git.exe" GIT_ALREADY_INSTALLED 0
-   MessageBox MB_YESNO "Install Git v2.21.0?" IDYES gittrue IDNO gitfalse
-   gittrue:
-      ; NSISdl::download ${GitDownloadUrl} "$INSTDIR\GitSetup.exe"
+   ${If} $InstallGit == YES 
       inetc::get ${GitDownloadUrl} "$INSTDIR\GitSetup.exe"
-      ; 'OK' when sucessful
-      Pop $Status
-      StrCmp $Status "OK" 0 gitfalse
-      Push "$INSTDIR\git.inf"     ; copy install dir to inf file
-      Push "C:\Program Files\Git" 
-      Push "$INSTDIR\git"
-      Call ReplaceInFile
-      ExecWait '"$INSTDIR\GitSetup.exe" /SILENT /SUPPRESSMSGBOXES /NOCANCEL /NORESTART /SP- /LOADINF="$INSTDIR\git.inf" /DIR="$INSTDIR"'
-   gitfalse:                         
-   GIT_ALREADY_INSTALLED:
+      Pop $Status ; 'OK' when sucessful
+      ${If} $Status == OK 
+        Push "$INSTDIR\git.inf"     ; copy install dir to inf file
+        Push "C:\Program Files\Git" 
+        Push "$INSTDIR\git"
+        Call ReplaceInFile
+        ExecWait '"$INSTDIR\GitSetup.exe" /SILENT /SUPPRESSMSGBOXES /NOCANCEL /NORESTART /SP- /LOADINF="$INSTDIR\git.inf" /DIR="$INSTDIR"'
+      ${EndIf}
+   ${EndIf}
    Delete "$INSTDIR\git.inf"
 
    ; TORTOISE SVN
-   ReadRegStr $R0 HKLM "SOFTWARE\TortoiseSVN" "Directory"  ; Check to see if already installed
-   IfFileExists "$R0\bin\svn.exe" TORTOISE_ALREADY_INSTALLED 0
-   MessageBox MB_YESNO "Install TortoiseSVN v1.11.1 and Subversion command line tools?" IDYES svntrue IDNO svnfalse
-   svntrue:
-      ExecWait 'msiexec /i "$INSTDIR\TortoiseSVN-1.11.1.28492-x64-svn-1.11.1.msi" /passive /norestart INSTALLDIR="$INSTDIR\tortoisesvn" ADDLOCAL=ALL'
-   svnfalse:                         
-   TORTOISE_ALREADY_INSTALLED:
+   ${If} $InstallTortoise == YES
+      inetc::get ${TortoiseUrl} "$INSTDIR\TortoisSetup.msi"
+      Pop $Status ; 'OK' when sucessful
+      ${If} $Status == OK 
+        ExecWait 'msiexec /i "$INSTDIR\TortoisSetup.msi" /passive /norestart INSTALLDIR="$INSTDIR\tortoisesvn" ADDLOCAL=ALL'
+      ${EndIf}
+   ${EndIf}
 
    ; NSIS
-   ;SetRegView 32
-   ;ReadRegStr $R0 HKLM "SOFTWARE\NSIS" "Default"  ; Check to see if already installed
-   ;IfFileExists "$R0\makensis.exe" NSIS_ALREADY_INSTALLED 0
-   ;MessageBox MB_YESNO "Install Nullsoft Scriptable Installer (NSIS) v3.04?" IDYES nsistrue IDNO nsisfalse
-   ;nsistrue:
-   ;   ExecWait 'nsis-3.04-setup.exe /SD /D="$INSTDIR\nsis"'
-   ;nsisfalse:                         
-   ;NSIS_ALREADY_INSTALLED:
-   ;SetRegView 64
+   ${If} $InstallNsis == YES
+      inetc::get ${NsisUrl} "$INSTDIR\nsis.zip"
+      Pop $Status ; 'OK' when sucessful
+      ${If} $Status == OK 
+        CreateDirectory "$INSTDIR\nsis"
+        nsisunz::Unzip "$INSTDIR\nsis.zip" "$INSTDIR\nsis"
+        Pop $Status ; 'success' when sucessful
+        Delete "$INSTDIR\nsis.zip"
+      ${EndIf}
+   ${EndIf}
    
+   ; PYTHON
+   ${If} $InstallPython == YES
+      inetc::get ${PythonUrl} "$INSTDIR\python.zip"
+      Pop $Status ; 'OK' when sucessful
+      ${If} $Status == OK 
+        CreateDirectory "$INSTDIR\python"
+        nsisunz::Unzip "$INSTDIR\python.zip" "$INSTDIR\python"
+        Pop $Status ; 'success' when sucessful
+        Delete "$INSTDIR\python.zip"
+      ${EndIf}
+   ${EndIf}
+
    ; EXTENSIONS
    ExecWait '"$INSTDIR\install_extensions.bat" --install-extension'
    ; Add 'johnstoncode.svn-scm' to enabledProposedApi list in subversion exension, this enabled the file explorer decorations
@@ -233,25 +224,6 @@ Section "Install"
    Push '"atlassian.atlascode"]'
    Push '"atlassian.atlascode", "johnstoncode.svn-scm"]'
    Call ReplaceInFile
-
-   ;StrCmp $InsidersInstalled "YES" 0 insiders_extensions_done
-   ;ExecWait '"$INSTDIR\insiders\install_extensions.bat" --install-extension'
-   ; Add 'johnstoncode.svn-scm' to enabledProposedApi list in subversion exension, this enabled the file explorer decorations
-   ;Push '$INSTDIR\insiders\resources\app\product.json'   ; < v 1.32
-   ;Push '"ms-vsliveshare.vsliveshare"]'
-   ;Push '"ms-vsliveshare.vsliveshare", "johnstoncode.svn-scm"]'
-   ;Call ReplaceInFile
-   ;Push '$INSTDIR\insiders\resources\app\product.json'   ; >= V 1.32
-   ;Push '"atlassian.atlascode"]'
-   ;Push '"atlassian.atlascode", "johnstoncode.svn-scm"]'
-   ;insiders_extensions_done:
-
-   ; GLOBAL NODE MODULES
-   ; ExecWait 'cmd.exe "$INSTDIR\nodejs\npm" install -g eslint'
-   ;ExecWait '"$INSTDIR\install_node_modules.bat" install'
-   ;StrCmp $InsidersInstalled "YES" 0 insiders_nodemodules_done
-   ;ExecWait '"$INSTDIR\insiders\install_node_modules.bat" install'
-   ;insiders_nodemodules_done:
 
    ; PYTHON PIP
    Push "$INSTDIR\python\python37._pth" ; replace c:\Code with actual install dir
@@ -571,8 +543,10 @@ FunctionEnd
 ;*********************************************************************
 
 Function InstTypePageCreate
+
     nsDialogs::Create 1018
-    pop $0
+    Pop $0
+
     !insertmacro MUI_HEADER_TEXT "Choose Installation Packages" \
             "Choose Installation Packages to Install" 
     
@@ -588,14 +562,23 @@ Function InstTypePageCreate
     ${If} $InstallGit == ""
         StrCpy $InstallGit YES
     ${EndIf}
+    ${If} $InstallDotfuscator == ""
+        StrCpy $InstallDotfuscator YES
+    ${EndIf}
+    ${If} $InstallNsis == ""
+        StrCpy $InstallNsis YES
+    ${EndIf}
+    ${If} $InstallPython == ""
+        StrCpy $InstallPython YES
+    ${EndIf}
 
     SetRegView 64
 
     ${NSD_CreateLabel} 0 10u 100% 10u "Choose Installation Packages"
-    pop $1
+    Pop $1
 
-    ${NSD_CreateCheckBox} 10u 40u 100% 10u "Visual Studio Code Insiders"
-    pop $2
+    ${NSD_CreateCheckBox} 10u 40u 45% 10u "Visual Studio Code Insiders"
+    Pop $2
     IfFileExists "$INSTDIR\insiders\Code - Insiders.exe" 0 insidersdone
         EnableWindow $2 0
         StrCpy $InstallInsiders NO
@@ -604,8 +587,8 @@ Function InstTypePageCreate
         ${NSD_Check} $2
     ${EndIf}
 
-    ${NSD_CreateCheckBox} 10u 60u 100% 10u ".NET 4.72 Developer Pack"
-    pop $3
+    ${NSD_CreateCheckBox} 10u 60u 45% 10u ".NET 4.72 Developer Pack"
+    Pop $3
     IfFileExists "$INSTDIR\NDP472-DevPack.exe" 0 net472done
         EnableWindow $3 0
         StrCpy $InstallNet472DevPack NO
@@ -614,8 +597,8 @@ Function InstTypePageCreate
         ${NSD_Check} $3
     ${EndIf}
 
-    ${NSD_CreateCheckBox} 10u 80u 100% 10u "Tortoise SVN + Cmd Line Tools"
-    pop $4
+    ${NSD_CreateCheckBox} 10u 80u 45% 10u "Tortoise SVN + Cmd Line Tools"
+    Pop $4
     ReadRegStr $R0 HKLM "SOFTWARE\TortoiseSVN" "Directory"  ; Check to see if already installed
     IfFileExists "$R0\bin\svn.exe" 0 svndone
         EnableWindow $4 0
@@ -625,8 +608,8 @@ Function InstTypePageCreate
         ${NSD_Check} $4
     ${EndIf}
 
-    ${NSD_CreateCheckBox} 10u 100u 100% 10u "Git for Windows"
-    pop $5
+    ${NSD_CreateCheckBox} 10u 100u 45% 10u "Git for Windows"
+    Pop $5
     ReadRegStr $R0 HKLM "SOFTWARE\GitForWindows" "InstallPath"  ; Check to see if already installed
     IfFileExists "$R0\bin\git.exe" 0 gitdone
        EnableWindow $5 0
@@ -636,7 +619,38 @@ Function InstTypePageCreate
         ${NSD_Check} $5
     ${EndIf}
 
-   ${NSD_CreateLabel} 0 130u 100% 10u "Visual Studio Code is installed by default"
+    ${NSD_CreateCheckBox} 145u 40u 45% 10u "Dotfuscator Community Edition"
+    Pop $6
+    IfFileExists "$INSTDIR\dotfuscator\ce\DotfuscatorCLI.exe" 0 dotfuscatordone
+        EnableWindow $6 0
+        StrCpy $InstallDotfuscator NO
+    dotfuscatordone:
+    ${If} $InstallDotfuscator == YES 
+        ${NSD_Check} $6
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 145u 60u 45% 10u "Nullsoft Scriptable Installer (NSIS)"
+    Pop $7
+    IfFileExists "$INSTDIR\nsis\makensis.exe" 0 nsisdone
+        EnableWindow $7 0
+        StrCpy $InstallNsis NO
+    nsisdone:
+    ${If} $InstallNsis == YES 
+        ${NSD_Check} $7
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 145u 80u 45% 10u "Python for Windows"
+    Pop $8
+    IfFileExists "$INSTDIR\python\scripts\pip.exe" 0 pythondone
+        EnableWindow $8 0
+        StrCpy $InstallPython NO
+    pythondone:
+    ${If} $InstallPython == YES 
+        ${NSD_Check} $8
+    ${EndIf}
+
+    ${NSD_CreateLabel} 0 130u 100% 10u "Visual Studio Code is installed by default"
+    Pop $9
 
     nsDialogs::Show
 FunctionEnd
@@ -652,28 +666,54 @@ FunctionEnd
 
 
 Function InstTypePageLeave
+
     ${NSD_GetState} $2 $0
     ${If} $0 != ${BST_CHECKED}
         StrCpy $InstallInsiders NO
     ${Else}
         StrCpy $InstallInsiders YES
     ${EndIf}
+
     ${NSD_GetState} $3 $0
     ${If} $0 != ${BST_CHECKED}
         StrCpy $InstallNet472DevPack NO
     ${Else}
         StrCpy $InstallNet472DevPack YES
     ${EndIf}
+
     ${NSD_GetState} $4 $0
     ${If} $0 != ${BST_CHECKED}
         StrCpy $InstallTortoise NO
     ${Else}
         StrCpy $InstallTortoise YES
     ${EndIf}
+
     ${NSD_GetState} $5 $0
     ${If} $0 != ${BST_CHECKED}
         StrCpy $InstallGit NO
     ${Else}
         StrCpy $InstallGit YES
     ${EndIf}
+
+    ${NSD_GetState} $6 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallDotfuscator NO
+    ${Else}
+        StrCpy $InstallDotfuscator YES
+    ${EndIf}
+
+    ${NSD_GetState} $7 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallNsis NO
+    ${Else}
+        StrCpy $InstallNsis YES
+    ${EndIf}
+
+    ${NSD_GetState} $8 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallPython NO
+    ${Else}
+        StrCpy $InstallPython YES
+    ${EndIf}
+
 FunctionEnd
