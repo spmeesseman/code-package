@@ -379,44 +379,21 @@ Section "Install"
                     ""                                                                                        \
                     '"$INSTDIR\Code.exe" "%V"'     
 
+    Strcpy $0 "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"
+    ;Strcpy $0 "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}($InstanceNumber)"
+
     ; ADD REGISTRY KEYS - ADD/REMOVE PROGRAMS
     ; Write information to registry so the program can be removed from the 'Add/Remove Programs' control panel
-    WriteRegStr   HKLM                                                                                          \
-                    "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}($InstanceNumber)"  \
-                    "DisplayIcon"                                                                               \
-                    "$INSTDIR\code.exe"               
-    WriteRegStr   HKLM                                                                                          \
-                    "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}($InstanceNumber)"  \
-                    "DisplayName"                                                                               \
-                    "${APPLICATION_NAME}"         
-    WriteRegStr   HKLM                                                                                          \
-                    "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}($InstanceNumber)"  \
-                    "DisplayVersion"                                                                            \
-                    "${BUILD_LEVEL}"
-    WriteRegDWORD HKLM                                                                                          \
-                    "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}($InstanceNumber)"  \
-                    "EstimatedSize"                                                                             \
-                    1259000
-    WriteRegStr   HKLM                                                                                          \
-                    "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}($InstanceNumber)"  \
-                    "InstallLocation"                                                                           \
-                    "$INSTDIR"
-    WriteRegDWORD HKLM                                                                                          \
-                    "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}($InstanceNumber)"  \
-                    "NoModify"                                                                                  \
-                    1
-    WriteRegDWORD HKLM                                                                                          \
-                    "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}($InstanceNumber)"  \
-                    "NoRepair"                                                                                  \
-                    1
-    WriteRegStr   HKLM                                                                                          \
-                    "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}($InstanceNumber)"  \
-                    "Publisher"                                                                                 \
-                    "Scott Meesseman"
-    WriteRegStr   HKLM                                                                                          \
-                    "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}($InstanceNumber)"  \
-                    "UninstallString"                                                                           \
-                    "$INSTDIR\${UNINSTALL_FILE_NAME} $Delimiter$InstanceNumber$Delimiter"
+    WriteRegStr   HKLM "$0" "DisplayIcon" "$INSTDIR\code.exe"               
+    WriteRegStr   HKLM "$0" "DisplayName" "${APPLICATION_NAME}"         
+    WriteRegStr   HKLM "$0" "DisplayVersion" "${BUILD_LEVEL}"
+    WriteRegDWORD HKLM "$0" "EstimatedSize" 1259000
+    WriteRegStr   HKLM "$0" "InstallLocation" "$INSTDIR"
+    WriteRegDWORD HKLM "$0" "NoModify" 1
+    WriteRegDWORD HKLM "$0" "NoRepair" 1
+    WriteRegStr   HKLM "$0" "Publisher" "Scott Meesseman"
+    WriteRegStr   HKLM "$0" "UninstallString" "$INSTDIR\${UNINSTALL_FILE_NAME}"
+    ;WriteRegStr   HKLM "$0" "UninstallString" "$INSTDIR\${UNINSTALL_FILE_NAME} $Delimiter$InstanceNumber$Delimiter"
 
     ; Set context to 'All Users'
     SetShellVarContext "all"
@@ -443,82 +420,82 @@ Section "Uninstall"
     ; Set context to 'All Users'
     ;SetShellVarContext "all"
 
-    ; Extract instance information from the command line arg
-   
-   ; Define our delimiter
-   StrCpy $Delimiter "#"
-
-   ; Specify the amount of text to copy   
-   StrCpy $Size 1
-
-   ; Copy the command line
-   StrCpy $CommandLine $CMDLINE
-
-   ; Get the command line length
-   StrLen $CommandLineLength $CMDLINE
-   
-   ; Set current offset
-   StrCpy $CurrentOffset "0"
-   
-Param1Start:
-
-    ; Increment the current offset
-    IntOp $CurrentOffset $CurrentOffset + 1
-
-    ; Bounds check
-    IntCmp $CurrentOffset $CommandLineLength InvalidCommandLine 0 InvalidCommandLine
-
-    ; Extract the character at the current offset
-    StrCpy $CurrentValue $CommandLine $Size $CurrentOffset
-
-    ; Check to see if we found our delimiter
-    StrCmp $CurrentValue $Delimiter Param1StartFound Param1StartNotFound
-
-Param1StartFound:
-
-        ; Increment the current offset
-        IntOp $CurrentOffset $CurrentOffset + 1
-
-        ; Save the offset as the end
-        StrCpy $InstanceNumberStart $CurrentOffset
-
-        ; Go to the Param1End label
-        goto Param1End
-
-Param1StartNotFound:
-        ; Go to the Param1Start label
-        goto Param1Start
-        
-Param1End:
-
-    ; Increment the current offset
-    IntOp $CurrentOffset $CurrentOffset + 1
-
-    ; Extract the character at the current offset
-    StrCpy $CurrentValue $CommandLine $Size $CurrentOffset
-
-    ; Check to see if we found our delimiter
-    StrCmp $CurrentValue $Delimiter Param1EndFound Param1EndNotFound
-
-Param1EndFound:
-
-        ; Save the offset as the end
-        StrCpy $InstanceNumberEnd $CurrentOffset
-
-        ; Go to the FindComplete label
-        goto Param1Complete
-
-Param1EndNotFound:
-        ; Go to the Param1End label
-        goto Param1End
-
-Param1Complete:
-
-    ; Calculate the length
-    IntOp $InstanceNumberLength $InstanceNumberEnd - $InstanceNumberStart
-
-    ; Extract the instance name
-    StrCpy $InstanceNumber $CommandLine $InstanceNumberLength $InstanceNumberStart
+;     Extract instance information from the command line arg
+;
+;    ; Define our delimiter
+;    StrCpy $Delimiter "#"
+;
+;    ; Specify the amount of text to copy   
+;    StrCpy $Size 1
+;
+;    ; Copy the command line
+;    StrCpy $CommandLine $CMDLINE
+;
+;    ; Get the command line length
+;    StrLen $CommandLineLength $CMDLINE
+;
+;    ; Set current offset
+;    StrCpy $CurrentOffset "0"
+;
+;    Param1Start:
+;
+;    ; Increment the current offset
+;    IntOp $CurrentOffset $CurrentOffset + 1
+;
+;    ; Bounds check
+;    IntCmp $CurrentOffset $CommandLineLength InvalidCommandLine 0 InvalidCommandLine
+;
+;    ; Extract the character at the current offset
+;    StrCpy $CurrentValue $CommandLine $Size $CurrentOffset
+;
+;    ; Check to see if we found our delimiter
+;    StrCmp $CurrentValue $Delimiter Param1StartFound Param1StartNotFound
+;
+;    Param1StartFound:
+;
+;        ; Increment the current offset
+;        IntOp $CurrentOffset $CurrentOffset + 1
+;
+;        ; Save the offset as the end
+;        StrCpy $InstanceNumberStart $CurrentOffset
+;
+;        ; Go to the Param1End label
+;        goto Param1End
+;
+;    Param1StartNotFound:
+;        ; Go to the Param1Start label
+;        goto Param1Start
+;        
+;    Param1End:
+;
+;    ; Increment the current offset
+;    IntOp $CurrentOffset $CurrentOffset + 1
+;
+;    ; Extract the character at the current offset
+;    StrCpy $CurrentValue $CommandLine $Size $CurrentOffset
+;
+;    ; Check to see if we found our delimiter
+;    StrCmp $CurrentValue $Delimiter Param1EndFound Param1EndNotFound
+;
+;    Param1EndFound:
+;
+;        ; Save the offset as the end
+;        StrCpy $InstanceNumberEnd $CurrentOffset
+;
+;        ; Go to the FindComplete label
+;        goto Param1Complete
+;
+;    Param1EndNotFound:
+;        ; Go to the Param1End label
+;        goto Param1End
+;
+;    Param1Complete:
+;
+;    ; Calculate the length
+;    IntOp $InstanceNumberLength $InstanceNumberEnd - $InstanceNumberStart
+;
+;    ; Extract the instance name
+;    StrCpy $InstanceNumber $CommandLine $InstanceNumberLength $InstanceNumberStart
 
     ; GLOBAL NODE MODULES
     ExecWait '"$INSTDIR\install_node_modules.bat" uninstall'
@@ -612,13 +589,24 @@ Param1Complete:
     Delete "$DESKTOP\Code.lnk"
 
     ; DELETE REGISTRY KEYS
-    DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}($InstanceNumber)"
+    DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"
+    ;DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}($InstanceNumber)"
     DeleteRegKey HKCR "*\shell\Open with VS Code"
     DeleteRegKey HKCR "Directory\shell\vscode"
     DeleteRegKey HKCR "Directory\Background\shell\vscode"
 
     ; THIS WILL ONLY REMOVE THE BASE DIR IF IT IS EMPTY
     RMDir "$INSTDIR"
+
+;    ; Exit
+;   goto Exit
+;
+;InvalidCommandLine:
+;   MessageBox MB_OK                                                              \
+;              "You must specify the InstanceNumber as a command line parameter:  \
+;              $\n                                                                \
+;              $\n$\t[C:\]${APPLICATION_NAME}Uninstall #0#"
+;Exit:   
 
 SectionEnd
 
@@ -662,7 +650,7 @@ Function .onInit
     ;done:
     
     ;Extract InstallOptions INI files
-    !insertmacro MUI_INSTALLOPTIONS_EXTRACT "InstanceNumber.ini"
+    ;!insertmacro MUI_INSTALLOPTIONS_EXTRACT "InstanceNumber.ini"
 
 FunctionEnd
 
