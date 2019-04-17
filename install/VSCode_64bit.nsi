@@ -65,6 +65,7 @@ Var InstallGit
 Var InstallDotfuscator
 Var InstallNsis
 Var InstallPython
+Var InstanceNumber
 
 ;*********************************************************************
 ;*                                                                   *
@@ -93,6 +94,7 @@ ShowUninstDetails show
 
 ; Specify the pages to display when performing an Install
 Page custom InstTypePageCreate InstTypePageLeave
+Page custom GetInstanceNumber
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
 
@@ -175,7 +177,7 @@ Section "Install"
         Push "C:\Program Files\Git" 
         Push "$INSTDIR\git"
         Call ReplaceInFile
-        ExecWait '"$INSTDIR\GitSetup.exe" /SILENT /SUPPRESSMSGBOXES /NOCANCEL /NORESTART /SP- /LOADINF="$INSTDIR\git.inf" /DIR="$INSTDIR"'
+        ExecWait '"$INSTDIR\GitSetup.exe" /SILENT /SUPPRESSMSGBOXES /NOCANCEL /NORESTART /SP- /LOADINF="$INSTDIR\git.inf" /DIR="$INSTDIR\git"'
       ${EndIf}
    ${EndIf}
    Delete "$INSTDIR\git.inf"
@@ -194,8 +196,7 @@ Section "Install"
       inetc::get ${NsisUrl} "$INSTDIR\nsis.zip"
       Pop $Status ; 'OK' when sucessful
       ${If} $Status == OK 
-        CreateDirectory "$INSTDIR\nsis"
-        nsisunz::Unzip "$INSTDIR\nsis.zip" "$INSTDIR\nsis"
+        nsisunz::Unzip "$INSTDIR\nsis.zip" "$INSTDIR"
         Pop $Status ; 'success' when sucessful
         Delete "$INSTDIR\nsis.zip"
       ${EndIf}
@@ -206,8 +207,7 @@ Section "Install"
       inetc::get ${PythonUrl} "$INSTDIR\python.zip"
       Pop $Status ; 'OK' when sucessful
       ${If} $Status == OK 
-        CreateDirectory "$INSTDIR\python"
-        nsisunz::Unzip "$INSTDIR\python.zip" "$INSTDIR\python"
+        nsisunz::Unzip "$INSTDIR\python.zip" "$INSTDIR"
         Pop $Status ; 'success' when sucessful
         Delete "$INSTDIR\python.zip"
       ${EndIf}
@@ -493,8 +493,6 @@ SectionEnd
 
 
 ;*********************************************************************
-;*                                                                   *
-;*   Function Definition                                             *
 ;*                                                                   * 
 ;*      .onInit                                                      * 
 ;*                                                                   * 
@@ -535,8 +533,25 @@ Function .onInit
 FunctionEnd
 
 ;*********************************************************************
-;*                                                                   *
-;*   Function Definition                                             *
+;*                                                                   * 
+;*      GetInstanceNumber                                            * 
+;*                                                                   * 
+;*********************************************************************
+
+Function GetInstanceNumber
+   
+   !insertmacro MUI_HEADER_TEXT "Customization" "Instance Number"
+   !insertmacro MUI_INSTALLOPTIONS_DISPLAY "InstanceNumber.ini"
+    
+   ;Read the value
+   !insertmacro MUI_INSTALLOPTIONS_READ $InstanceNumber "InstanceNumber.ini" "Field 2" "State"
+
+   ;Specify the default installation folder
+   StrCpy $INSTDIR "C:\Code-$InstanceNumber"
+   
+FunctionEnd
+
+;*********************************************************************
 ;*                                                                   * 
 ;*      InstTypePageCreate                                           * 
 ;*                                                                   * 
@@ -575,7 +590,7 @@ Function InstTypePageCreate
     SetRegView 64
 
     ${NSD_CreateLabel} 0 10u 100% 10u "Choose Installation Packages"
-    Pop $1
+    Pop $0
 
     ${NSD_CreateCheckBox} 10u 40u 45% 10u "Visual Studio Code Insiders"
     Pop $2
@@ -649,8 +664,18 @@ Function InstTypePageCreate
         ${NSD_Check} $8
     ${EndIf}
 
+    ${NSD_CreateCheckBox} 145u 80u 45% 10u "Python for Windows"
+    Pop $8
+    IfFileExists "$INSTDIR\python\scripts\pip.exe" 0 pythondone
+        EnableWindow $8 0
+        StrCpy $InstallPython NO
+    pythondone:
+    ${If} $InstallPython == YES 
+        ${NSD_Check} $8
+    ${EndIf}
+    
     ${NSD_CreateLabel} 0 130u 100% 10u "Visual Studio Code is installed by default"
-    Pop $9
+    Pop $0
 
     nsDialogs::Show
 FunctionEnd
