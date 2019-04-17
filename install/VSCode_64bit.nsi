@@ -29,18 +29,29 @@
 ; Set context to 'All Users'
 !define ALL_USERS
 
+;!define DOWNLOAD_BRANCH_NAME    "master"
+!define DOWNLOAD_BRANCH_NAME    "v2.0"
+
 !define CodeDownloadUrl "https://update.code.visualstudio.com/latest/win32-x64-archive/stable"
 !define CodeInsidersDownloadUrl "https://update.code.visualstudio.com/latest/win32-x64-archive/insider"
 !define GitDownloadUrl "https://github.com/git-for-windows/git/releases/download/v2.21.0.windows.1/Git-2.21.0-64-bit.exe"
 !define Net472DownloadUrl "https://go.microsoft.com/fwlink/?LinkId=874338"
-!define TortoiseUrl "https://github.com/spmeesseman/code-package/blob/master/src/tortoisesvn/tortoisesvn.msi?raw=true"
-!define DotfuscatorUrl "https://github.com/spmeesseman/code-package/blob/master/src/dotfuscator/ce.zip?raw=true"
-!define NsisUrl "https://github.com/spmeesseman/code-package/blob/master/src/nsis/nsis.zip?raw=true"
-!define PythonUrl "https://github.com/spmeesseman/code-package/blob/master/src/python/python.zip?raw=true"
-!define NodeJsUrl "https://github.com/spmeesseman/code-package/blob/master/src/nodejs/nodejs.zip?raw=true"
-!define AntUrl "https://github.com/spmeesseman/code-package/blob/master/src/ant.ant.zip?raw=true"
-!define AnsiconUrl "https://github.com/spmeesseman/code-package/blob/master/src/ansicon/ansicon.zip?raw=true"
-!define GradleUrl "https://github.com/spmeesseman/code-package/blob/master/src/gradle/gradle.zip?raw=true"
+!define TortoiseUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/tortoisesvn/tortoisesvn.msi?raw=true"
+!define DotfuscatorUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/dotfuscator/ce.zip?raw=true"
+!define NsisUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/nsis/nsis.zip?raw=true"
+!define PythonUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/python/python.zip?raw=true"
+!define NodeJsUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/nodejs/nodejs.zip?raw=true"
+!define AntUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/ant/ant.zip?raw=true"
+!define AnsiconUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/ansicon/ansicon.zip?raw=true"
+!define GradleUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/gradle/gradle.zip?raw=true"
+!define LegacyWixUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/sdks/wix.zip?raw=true"
+!define LegacyAtlMfcUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/sdks/atlmfc.zip?raw=true"
+!define LegacyWindows2009Url "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/sdks/windows/august2009.zip?raw=true"
+!define Net35PackageUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/dotnet/v3.5.zip?raw=true"
+!define Net40PackageUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/dotnet/v4.0.zip?raw=true"
+!define Net452PackageUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/dotnet/v4.5.2.zip?raw=true"
+!define Net461PackageUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/dotnet/v4.6.1.zip?raw=true"
+!define Net472PackageUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/dotnet/v4.7.2.zip?raw=true"
 
 ;*********************************************************************
 ;*                                                                   *
@@ -61,16 +72,16 @@
 ;*                                                                   * 
 ;*********************************************************************
 
-Var CommandLine
-Var CommandLineLength
-Var CurrentOffset
-Var CurrentValue
-Var InstanceNumber
-Var InstanceNumberEnd
-Var InstanceNumberLength
-Var InstanceNumberStart
-Var Delimiter
-Var Size
+;Var CommandLine
+;Var CommandLineLength
+;Var CurrentOffset
+;Var CurrentValue
+;Var InstanceNumber
+;Var InstanceNumberEnd
+;Var InstanceNumberLength
+;Var InstanceNumberStart
+;Var Delimiter
+;Var Size
 Var Status
 Var InstallInsiders
 Var InstallNet472DevPack
@@ -83,6 +94,7 @@ Var InstallLegacySdks
 Var InstallNetSdks
 Var InstallAntAnsicon
 Var InstallGradle
+Var InstallCompilers
 
 ;*********************************************************************
 ;*                                                                   *
@@ -110,7 +122,7 @@ ShowInstDetails show
 ShowUninstDetails show
 
 ; Specify the pages to display when performing an Install
-Page custom GetInstanceNumber
+;Page custom GetInstanceNumber
 Page custom InstTypePageCreate InstTypePageLeave
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
@@ -123,7 +135,7 @@ Page custom InstTypePageCreate InstTypePageLeave
 !insertmacro MUI_LANGUAGE "English"
 
 ; Reserve the files
-ReserveFile "InstanceNumber.ini"
+;ReserveFile "InstanceNumber.ini"
 
 
 ;*********************************************************************
@@ -242,6 +254,62 @@ Section "Install"
     ${EndIf}
 
     ;
+    ; ANT/ANSICON
+    ;
+    ${If} $InstallNsis == YES
+        inetc::get ${AntUrl} "$INSTDIR\ant.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            nsisunz::Unzip "$INSTDIR\ant.zip" "$INSTDIR"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\ant.zip"
+            Push "$INSTDIR\ant\bin"
+            Call AddToPath
+            Push "ANT_HOME"
+            Push "$INSTDIR\ant"
+            Call AddToEnvVar
+        ${EndIf}
+        inetc::get ${AnsiconUrl} "$INSTDIR\ansicon.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            nsisunz::Unzip "$INSTDIR\ansicon.zip" "$INSTDIR"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\ansicon.zip"
+            ;Push "$INSTDIR\ansicon\x64"
+            ;Call AddToPath
+        ${EndIf}
+    ${EndIf}
+
+    ;
+    ; GRADLE
+    ;
+    ${If} $InstallGradle == YES
+        inetc::get ${GradleUrl} "$INSTDIR\gradle.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            nsisunz::Unzip "$INSTDIR\gradle.zip" "$INSTDIR"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\gradle.zip"
+            Push "$INSTDIR\gradle\bin"
+            Call AddToPath
+        ${EndIf}
+    ${EndIf}
+
+    ;
+    ; DOTFUSCATOR CE
+    ;
+    ${If} $InstallNsis == YES
+        inetc::get ${DotfuscatorUrl} "$INSTDIR\DotfuscatorCE.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            CreateDirectory "$INSTDIR\dotfuscator"
+            nsisunz::Unzip "$INSTDIR\DotfuscatorCE.zip" "$INSTDIR\dotfuscator"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\DotfuscatorCE.zip"
+        ${EndIf}
+    ${EndIf}
+
+    ;
     ; NSIS
     ;
     ${If} $InstallNsis == YES
@@ -288,6 +356,84 @@ Section "Install"
     ${EndIf}
 
     ;
+    ; Create sdks directory structure if required
+    ;
+    ${If} $InstallLegacySdks == YES
+        CreateDirectory "$INSTDIR\sdks"
+        CreateDirectory "$INSTDIR\sdks\windows"
+    ${ElseIf} $InstallNetSdks == YES
+        CreateDirectory "$INSTDIR\sdks"
+    ${EndIf}
+
+    ;
+    ; .NET SDK BUNDLES
+    ;
+    ${If} $InstallLegacySdks == YES
+        inetc::get ${Net35PackageUrl} "$INSTDIR\Net35Package.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            nsisunz::Unzip "$INSTDIR\Net35Package.zip" "$INSTDIR\sdks"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\Net35Package.zip"
+        ${EndIf}
+        inetc::get ${Net40PackageUrl} "$INSTDIR\Net40Package.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            nsisunz::Unzip "$INSTDIR\Net40Package.zip" "$INSTDIR\sdks"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\Net40Package.zip"
+        ${EndIf}
+        inetc::get ${Net452PackageUrl} "$INSTDIR\Net452Package.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            nsisunz::Unzip "$INSTDIR\Net452Package.zip" "$INSTDIR\sdks"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\Net452Package.zip"
+        ${EndIf}
+        inetc::get ${Net461PackageUrl} "$INSTDIR\Net461Package.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            nsisunz::Unzip "$INSTDIR\Net461Package.zip" "$INSTDIR\sdks"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\Net461Package.zip"
+        ${EndIf}
+        inetc::get ${Net472PackageUrl} "$INSTDIR\Net472Package.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            nsisunz::Unzip "$INSTDIR\Net472Package.zip" "$INSTDIR\sdks"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\Net472Package.zip"
+        ${EndIf}
+    ${EndIf}
+
+    ;
+    ; LEGACY SDKS
+    ;
+    ${If} $InstallLegacySdks == YES
+        inetc::get ${LegacyWixUrl} "$INSTDIR\LegacyWix.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            nsisunz::Unzip "$INSTDIR\LegacyWix.zip" "$INSTDIR\sdks"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\LegacyWix.zip"
+        ${EndIf}
+        inetc::get ${LegacyAtlMfcUrl} "$INSTDIR\LegacyAtlMfc.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            nsisunz::Unzip "$INSTDIR\LegacyAtlMfc.zip" "$INSTDIR\sdks"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\LegacyAtlMfc.zip"
+        ${EndIf}
+        inetc::get ${LegacyWindows2009Url} "$INSTDIR\WindowsAugust2009.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            nsisunz::Unzip "$INSTDIR\WindowsAugust2009.zip" "$INSTDIR\sdks\windows"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\WindowsAugust2009.zip"
+        ${EndIf}
+    ${EndIf}
+
+    ;
     ; EXTENSIONS
     ;
     ExecWait '"$INSTDIR\install_extensions.bat" --install-extension'
@@ -326,63 +472,26 @@ Section "Install"
     ExecWait '"$INSTDIR\copy_settings.bat"'
     Delete "$INSTDIR\copy_settings.bat"
 
-    ;
-    ; ADD TO PATH ENVIRONMENT VARIABLE
-    ;
-    Push "$INSTDIR\ant\bin"
-    Call AddToPath
-    Push "$INSTDIR\gradle\bin"
-    Call AddToPath
-    ; ADD CUSTOM VARIABLES TO ENVIRONMENT
-    Push "ANT_HOME"
-    Push "$INSTDIR\ant"
-    Call AddToEnvVar
-
     ; Define our delimiter
-    StrCpy $Delimiter "#"
+    ;StrCpy $Delimiter "#"
 
+    ;
     ; ADD REGISTRY KEYS - VSCODE WINDOWS EXPLORER CONTEXT MENUS
-    WriteRegStr   HKCR                                                                                      \
-                    "*\shell\Open with VS Code"                                                               \
-                    ""                                                                                        \
-                    "Edit with VS Code"     
-    WriteRegStr   HKCR                                                                                      \
-                    "*\shell\Open with VS Code"                                                               \
-                    "Icon"                                                                                    \
-                    "$INSTDIR\Code.exe,0"     
-    WriteRegStr   HKCR                                                                                      \
-                    "*\shell\Open with VS Code\command"                                                       \
-                    ""                                                                                        \
-                    '"$INSTDIR\Code.exe" "%1"'     
-    WriteRegStr   HKCR                                                                                      \
-                    "Directory\shell\vscode"                                                                  \
-                    ""                                                                                        \
-                    "Open Folder as VS Code Project"     
-    WriteRegStr   HKCR                                                                                      \
-                    "Directory\shell\vscode"                                                                  \
-                    "Icon"                                                                                    \
-                    "$INSTDIR\Code.exe,0"     
-    WriteRegStr   HKCR                                                                                      \
-                    "Directory\shell\vscode\command"                                                          \
-                    ""                                                                                        \
-                    '"$INSTDIR\Code.exe" "%1"'     
-    WriteRegStr   HKCR                                                                                      \
-                    "Directory\Background\shell\vscode"                                                       \
-                    ""                                                                                        \
-                    "Open Folder as VS Code Project"     
-    WriteRegStr   HKCR                                                                                      \
-                    "Directory\Background\shell\vscode"                                                       \
-                    "Icon"                                                                                    \
-                    "$INSTDIR\Code.exe,0"     
-    WriteRegStr   HKCR                                                                                      \
-                    "Directory\Background\shell\vscode\command"                                               \
-                    ""                                                                                        \
-                    '"$INSTDIR\Code.exe" "%V"'     
+    ;
+    WriteRegStr   HKCR "*\shell\Open with VS Code" "" "Edit with VS Code"     
+    WriteRegStr   HKCR "*\shell\Open with VS Code" "Icon" "$INSTDIR\Code.exe,0"     
+    WriteRegStr   HKCR "*\shell\Open with VS Code\command" "" '"$INSTDIR\Code.exe" "%1"'     
+    WriteRegStr   HKCR "Directory\shell\vscode" "" "Open Folder as VS Code Project"     
+    WriteRegStr   HKCR "Directory\shell\vscode" "Icon" "$INSTDIR\Code.exe,0"     
+    WriteRegStr   HKCR "Directory\shell\vscode\command" "" '"$INSTDIR\Code.exe" "%1"'     
+    WriteRegStr   HKCR "Directory\Background\shell\vscode" "" "Open Folder as VS Code Project"     
+    WriteRegStr   HKCR "Directory\Background\shell\vscode" "Icon" "$INSTDIR\Code.exe,0"     
+    WriteRegStr   HKCR "Directory\Background\shell\vscode\command" "" '"$INSTDIR\Code.exe" "%V"'     
 
-    Strcpy $0 "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"
-    ;Strcpy $0 "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}($InstanceNumber)"
-
+    ;
     ; ADD REGISTRY KEYS - ADD/REMOVE PROGRAMS
+    ;
+    ;StrCpy $Delimiter "#"
     ; Write information to registry so the program can be removed from the 'Add/Remove Programs' control panel
     WriteRegStr   HKLM "$0" "DisplayIcon" "$INSTDIR\code.exe"               
     WriteRegStr   HKLM "$0" "DisplayName" "${APPLICATION_NAME}"         
@@ -660,18 +769,18 @@ FunctionEnd
 ;*                                                                   * 
 ;*********************************************************************
 
-Function GetInstanceNumber
-
-    !insertmacro MUI_HEADER_TEXT "Customization" "Instance Number"
-    !insertmacro MUI_INSTALLOPTIONS_DISPLAY "InstanceNumber.ini"
-
-    ;Read the value
-    !insertmacro MUI_INSTALLOPTIONS_READ $InstanceNumber "InstanceNumber.ini" "Field 2" "State"
-
-    ;Specify the default installation folder
-    StrCpy $INSTDIR "C:\Code-$InstanceNumber"
-
-FunctionEnd
+;Function GetInstanceNumber
+;
+;    !insertmacro MUI_HEADER_TEXT "Customization" "Instance Number"
+;    !insertmacro MUI_INSTALLOPTIONS_DISPLAY "InstanceNumber.ini"
+;
+;    ;Read the value
+;    !insertmacro MUI_INSTALLOPTIONS_READ $InstanceNumber "InstanceNumber.ini" "Field 2" "State"
+;
+;    ;Specify the default installation folder
+;    StrCpy $INSTDIR "C:\Code-$InstanceNumber"
+;
+;FunctionEnd
 
 ;*********************************************************************
 ;*                                                                   * 
@@ -720,14 +829,21 @@ Function InstTypePageCreate
     ${If} $InstallGradle == ""
         StrCpy $InstallGradle YES
     ${EndIf}
-
+    ${If} $InstallCompilers == ""
+        StrCpy $InstallCompilers YES
+    ${EndIf}
 
     SetRegView 64
 
-    ${NSD_CreateLabel} 0 10u 100% 10u "Choose Installation Packages"
+    ${NSD_CreateLabel} 0 0 100% 10u "Choose Installation Packages"
     Pop $R8
 
-    ${NSD_CreateCheckBox} 10u 30u 45% 10u "Visual Studio Code Insiders"
+    ${NSD_CreateCheckBox} 10u 20u 45% 10u "Visual Studio Code"
+    Pop $R9
+    EnableWindow $R9 0
+    ${NSD_Check} $R9
+
+    ${NSD_CreateCheckBox} 10u 35u 45% 10u "Visual Studio Code Insiders"
     Pop $2
     IfFileExists "$INSTDIR\insiders\Code - Insiders.exe" 0 insidersdone
         EnableWindow $2 0
@@ -737,17 +853,7 @@ Function InstTypePageCreate
         ${NSD_Check} $2
     ${EndIf}
 
-    ${NSD_CreateCheckBox} 10u 45u 45% 10u ".NET 4.72 Developer Pack"
-    Pop $3
-    IfFileExists "$INSTDIR\NDP472-DevPack.exe" 0 net472done
-        EnableWindow $3 0
-        StrCpy $InstallNet472DevPack NO
-    net472done:
-    ${If} $InstallNet472DevPack == YES 
-        ${NSD_Check} $3
-    ${EndIf}
-
-    ${NSD_CreateCheckBox} 10u 60u 45% 10u "Tortoise SVN + Cmd Line Tools"
+    ${NSD_CreateCheckBox} 10u 50u 45% 10u "Tortoise SVN + Cmd Line Tools"
     Pop $4
     ReadRegStr $R0 HKLM "SOFTWARE\TortoiseSVN" "Directory"  ; Check to see if already installed
     IfFileExists "$R0\bin\svn.exe" 0 svndone
@@ -758,7 +864,7 @@ Function InstTypePageCreate
         ${NSD_Check} $4
     ${EndIf}
 
-    ${NSD_CreateCheckBox} 10u 75u 45% 10u "Git for Windows"
+    ${NSD_CreateCheckBox} 10u 65u 45% 10u "Git for Windows"
     Pop $5
     ReadRegStr $R0 HKLM "SOFTWARE\GitForWindows" "InstallPath"  ; Check to see if already installed
     IfFileExists "$R0\bin\git.exe" 0 gitdone
@@ -769,7 +875,7 @@ Function InstTypePageCreate
         ${NSD_Check} $5
     ${EndIf}
 
-    ${NSD_CreateCheckBox} 10u 90u 45% 10u "Dotfuscator Community Edition"
+    ${NSD_CreateCheckBox} 10u 80u 45% 10u "Dotfuscator Community Edition"
     Pop $6
     IfFileExists "$INSTDIR\dotfuscator\ce\DotfuscatorCLI.exe" 0 dotfuscatordone
         EnableWindow $6 0
@@ -779,7 +885,27 @@ Function InstTypePageCreate
         ${NSD_Check} $6
     ${EndIf}
 
-    ${NSD_CreateCheckBox} 145u 30u 45% 10u "Nullsoft Scriptable Installer (NSIS)"
+    ${NSD_CreateCheckBox} 10u 95u 45% 10u ".NET 4.72 Developer Pack"
+    Pop $3
+    IfFileExists "$INSTDIR\NDP472-DevPack.exe" 0 net472done
+        EnableWindow $3 0
+        StrCpy $InstallNet472DevPack NO
+    net472done:
+    ${If} $InstallNet472DevPack == YES 
+        ${NSD_Check} $3
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 10u 110u 45% 10u "Compiler Package"
+    Pop $R5
+    IfFileExists "$INSTDIR\compilers\c#\15.0\Bin\MSBuild.exe" 0 compilersdone
+        EnableWindow $R5 0
+        StrCpy $InstallCompilers NO
+    compilersdone:
+    ${If} $InstallCompilers == YES 
+        ${NSD_Check} $R5
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 145u 20u 45% 10u "Nullsoft Scriptable Installer (NSIS)"
     Pop $7
     IfFileExists "$INSTDIR\nsis\makensis.exe" 0 nsisdone
         EnableWindow $7 0
@@ -789,7 +915,7 @@ Function InstTypePageCreate
         ${NSD_Check} $7
     ${EndIf}
 
-    ${NSD_CreateCheckBox} 145u 45u 45% 10u "Python for Windows"
+    ${NSD_CreateCheckBox} 145u 35u 45% 10u "Python for Windows"
     Pop $8
     IfFileExists "$INSTDIR\python\scripts\pip.exe" 0 pythondone
         EnableWindow $8 0
@@ -799,7 +925,7 @@ Function InstTypePageCreate
         ${NSD_Check} $8
     ${EndIf}
 
-    ${NSD_CreateCheckBox} 145u 60u 45% 10u ".NET SDKs"
+    ${NSD_CreateCheckBox} 145u 50u 45% 10u ".NET SDKs"
     Pop $R1
     IfFileExists "$INSTDIR\sdks\atlmfc\lib\atl.lib" 0 netsdksdone
         EnableWindow $R1 0
@@ -809,7 +935,7 @@ Function InstTypePageCreate
         ${NSD_Check} $R1
     ${EndIf}
 
-    ${NSD_CreateCheckBox} 145u 75u 45% 10u "Legacy SDKs"
+    ${NSD_CreateCheckBox} 145u 65u 45% 10u "Legacy SDKs"
     Pop $R2
     IfFileExists "$INSTDIR\sdks\atlmfc\lib\atl.lib" 0 legacysdksdone
         EnableWindow $R2 0
@@ -819,7 +945,7 @@ Function InstTypePageCreate
         ${NSD_Check} $R2
     ${EndIf}
 
-    ${NSD_CreateCheckBox} 145u 90u 45% 10u "Apache Ant"
+    ${NSD_CreateCheckBox} 145u 80u 45% 10u "Apache Ant"
     Pop $R3
     IfFileExists "$INSTDIR\ant\bin\ant.bat" 0 antdone
         EnableWindow $R3 0
@@ -829,7 +955,7 @@ Function InstTypePageCreate
         ${NSD_Check} $R3
     ${EndIf}
 
-    ${NSD_CreateCheckBox} 145u 105u 45% 10u "Gradle"
+    ${NSD_CreateCheckBox} 145u 95u 45% 10u "Gradle"
     Pop $R4
     IfFileExists "$INSTDIR\gradle\bin\gradle.bat" 0 gradledone
         EnableWindow $R4 0
@@ -838,9 +964,6 @@ Function InstTypePageCreate
     ${If} $InstallGradle == YES 
         ${NSD_Check} $R4
     ${EndIf}
-
-    ${NSD_CreateLabel} 0 130u 100% 10u "Visual Studio Code is installed by default"
-    Pop $R9
 
     nsDialogs::Show
 FunctionEnd
@@ -932,6 +1055,13 @@ Function InstTypePageLeave
         StrCpy $InstallGradle NO
     ${Else}
         StrCpy $InstallGradle YES
+    ${EndIf}
+
+    ${NSD_GetState} $R5 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallCompilers NO
+    ${Else}
+        StrCpy $InstallCompilers YES
     ${EndIf}
 
 FunctionEnd
