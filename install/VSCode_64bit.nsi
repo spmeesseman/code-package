@@ -72,16 +72,6 @@
 ;*                                                                   * 
 ;*********************************************************************
 
-;Var CommandLine
-;Var CommandLineLength
-;Var CurrentOffset
-;Var CurrentValue
-;Var InstanceNumber
-;Var InstanceNumberEnd
-;Var InstanceNumberLength
-;Var InstanceNumberStart
-;Var Delimiter
-;Var Size
 Var IsUpdateMode
 Var Status
 Var InstallCode
@@ -105,17 +95,16 @@ Var InstallCompilers
 ;*                                                                   * 
 ;*********************************************************************
 
-; Define the 'BrandingText' text 
 ; This value is displayed in the lower left of each dialog window
 BrandingText " "
 
 ; Force CRC checking
 CRCCheck force
 
-; Define the name which appears in the title bar
+; This appears in the title bar
 Name "${APPLICATION_NAME} ${BUILD_LEVEL} 64-bit"
 
-; Define the name of the output file
+; The output file name
 OutFile "dist\${INSTALL_FILE_NAME}"
 
 ; Show details of install
@@ -125,7 +114,6 @@ ShowInstDetails show
 ShowUninstDetails show
 
 ; Specify the pages to display when performing an Install
-;Page custom GetInstanceNumber
 Page custom InstTypePageCreate InstTypePageLeave
 !define MUI_PAGE_CUSTOMFUNCTION_PRE dirPre
 !insertmacro MUI_PAGE_DIRECTORY
@@ -162,7 +150,7 @@ Section "Install"
             RMDir "$INSTDIR" ; Don't remove if not empty (/r)
             Abort
         vscodetrue:
-        ;NSISdl::download ${CodeDownloadUrl} "$INSTDIR\VSCode.exe"
+        ;NSISdl::download ${CodeDownloadUrl} "$INSTDIR\VSCode.exe" ; old built-in method doesnt work
         inetc::get ${CodeDownloadUrl} "$INSTDIR\VSCode.zip"
         ; 'OK' when sucessful
         Pop $Status
@@ -211,13 +199,14 @@ Section "Install"
         Pop $Status ; 'OK' when sucessful
         ${If} $Status == OK 
             ${If} $IsUpdateMode == YES ; remove current files
+                ; REMOVE GLOBAL NODE MODULES
                 ExecWait '"$INSTDIR\install_node_modules.bat" uninstall'
                 RMDir /r "$INSTDIR\nodejs"
             ${EndIf}
             nsisunz::Unzip "$INSTDIR\NodeJs.zip" "$INSTDIR"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\NodeJs.zip"
-            ; GLOBAL NODE MODULES
+            ; INSTALL GLOBAL NODE MODULES
             ExecWait '"$INSTDIR\install_node_modules.bat" install'
             ${If} $IsUpdateMode != YES
                 Push "$INSTDIR\nodejs"
@@ -748,7 +737,7 @@ Section "Uninstall"
     ; Delete the desktop shortcut
     ;
     Delete "$DESKTOP\Code.lnk"
-    Delete "$DESKTOP\Code - Insiders.lnk"
+    Delete "$DESKTOP\Code Insiders.lnk"
 
     ;
     ; DELETE REGISTRY KEYS
