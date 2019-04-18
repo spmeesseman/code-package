@@ -40,16 +40,13 @@ rem echo New version is %newversion%
 rem cscript //B ..\script\substitute.vbs %version% %newversion% VSCode_64bit.nsi > VSCode_64bit.nsi.new
 rem move /Y VSCode_64bit.nsi.new VSCode_64bit.nsi
 
-rem Compile the Setup script
+rem Extract nsis for use, this will not be included in installer, nsi script will use "/x nsis" to exclude it
 if not exist ..\build\nsis\  (
     ..\script\7za.exe e -tzip ..\src\nsis\nsis.zip -o..\build -r -spf
 )
 
+rem Compile the Setup script
 ..\build\nsis\makensis VSCode_64bit.nsi
-
-rem Remove the build directory, leaving this around after building
-rem the installer causes some issues with task scanning in VSCode
-rem rmdir /Q /S ..\build
 
 if "%1" == "--pj" (
     move /Y VSCode_64bit.nsi.tmp VSCode_64bit.nsi
