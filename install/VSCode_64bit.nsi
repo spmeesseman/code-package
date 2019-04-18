@@ -195,9 +195,13 @@ Section "Install"
     ${Endif}
 
     ;
-    ; EXTRACT THE INSTALLERS LOCAL FILES - WITHOUT SETTINGS.JSON
+    ; EXTRACT THE INSTALLERS LOCAL FILES - WITHOUT SETTINGS.JSON, PYTHON and TEMP NSIS folder
+    ; MAKENSIS.EXE is running from the temp ../build/nsis folder
+    ; Only extract settings.json later, after extensions are installed and it doesnt exist already, 
+    ; and we are not in update mode
+    ; Only extract python dir later, if we are installing/updating it
     ;
-    File /r /x settings.json /x nsis ..\build\*.*
+    File /r /x settings.json /x nsis /x python ..\build\*.*
 
     ;
     ; NODEJS
@@ -391,7 +395,11 @@ Section "Install"
             nsisunz::Unzip "$INSTDIR\python.zip" "$INSTDIR"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\python.zip"
+            ;
             ; PYTHON PIP
+            ;
+            ; Extract just python local installer dir
+            File /r /x *.json /x install_extensions.bat /x install_node_modules.bat /x *.inf /x nsis ..\build\*.*
             Push "$INSTDIR\python\python37._pth" ; replace c:\Code with actual install dir
             Push "c:\Code" 
             Push "$INSTDIR"
