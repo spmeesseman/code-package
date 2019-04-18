@@ -2,6 +2,7 @@
 @echo off
 cd %~dp0
 
+rem CI skip edit files
 if "%1" == "--edit-files" (
     rem Edit the History
     notepad history.txt
@@ -18,7 +19,9 @@ if "%1" == "--pj" (
     rem use pj header
     cscript //B ..\script\substitute.vbs installerhdr.bmp pja24bit.bmp VSCode_64bit.nsi > VSCode_64bit.nsi.new
     cscript //B ..\script\substitute.vbs "Scott Meesseman" "Perry Johnson & Associates" VSCode_64bit.nsi.new > VSCode_64bit.nsi.new2
-    move /Y VSCode_64bit.nsi.new2 VSCode_64bit.nsi
+    cscript //B ..\script\substitute.vbs "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src" "https://svc.perryjohnson01.com/code/package" VSCode_64bit.nsi.new2 > VSCode_64bit.nsi.new3
+    move /Y VSCode_64bit.nsi.new3 VSCode_64bit.nsi
+    del /Q VSCode_64bit.nsi.new2
     del /Q VSCode_64bit.nsi.new
 )
 

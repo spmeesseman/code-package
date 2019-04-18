@@ -4,33 +4,7 @@
     "version": "2.0.0",
     "tasks": [
     {
-        "label": "Code (Installer)",
-        "type": "shell",
-        "command": "${workspaceFolder}\\install\\Build.bat",
-        "args": [ "--edit-files" ],
-        "group": "build",
-        "presentation": {
-            "echo": true,
-            "reveal": "always",
-            "focus": false,
-            "panel": "shared"
-        }
-    },
-    {
-        "label": "Code (PJ Installer)",
-        "type": "shell",
-        "command": "${workspaceFolder}\\install\\Build.bat",
-        "args": [ "--edit-files", "--pj" ],
-        "group": "build",
-        "presentation": {
-            "echo": true,
-            "reveal": "always",
-            "focus": false,
-            "panel": "shared"
-        }
-    },
-    {
-        "label": "Code (Build)",
+        "label": "Package Files",
         "type": "shell",
         "command": "${workspaceFolder}\\src\\Build.bat",
         // start the build without prompting for task selection, use "group": "build" otherwise
@@ -46,7 +20,33 @@
         }
     },
     {
-        "label": "Code (PJ Deploy)",
+        "label": "Installer",
+        "type": "shell",
+        "command": "${workspaceFolder}\\install\\Build.bat",
+        "args": [ "--edit-files" ],
+        "group": "build",
+        "presentation": {
+            "echo": true,
+            "reveal": "always",
+            "focus": false,
+            "panel": "shared"
+        }
+    },
+    {
+        "label": "PJ Installer",
+        "type": "shell",
+        "command": "${workspaceFolder}\\install\\Build.bat",
+        "args": [ "--edit-files", "--pj" ],
+        "group": "build",
+        "presentation": {
+            "echo": true,
+            "reveal": "always",
+            "focus": false,
+            "panel": "shared"
+        }
+    },
+    {
+        "label": "PJ Deploy",
         "type": "shell",
         "command": "${env:CODE_HOME}\\ant\\bin\\ant.bat",
         "args": [ "-logger", "org.apache.tools.ant.listener.AnsiColorLogger", "-f", "PJDeploy.xml", "DeployPackage"],
@@ -67,7 +67,7 @@
         }
     },
     {
-        "label": "Code (Sync)",
+        "label": "PJ Sync",
         "type": "shell",
         "command": "${env:CODE_HOME}\\ant\\bin\\ant.bat",
         "args": [ "-logger", "org.apache.tools.ant.listener.AnsiColorLogger", "-f", "syncpj.xml", "-Dpjproj=\"..\\..\\Code\"", "copy_to"],
