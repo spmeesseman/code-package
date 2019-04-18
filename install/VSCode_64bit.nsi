@@ -38,9 +38,9 @@
 !define Net472DownloadUrl "https://go.microsoft.com/fwlink/?LinkId=874338"
 !define TortoiseUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/tortoisesvn/tortoisesvn.msi?raw=true"
 !define DotfuscatorUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/dotfuscator/ce.zip?raw=true"
+!define NodeJsUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/nodejs/nodejs.zip?raw=true"
 !define NsisUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/nsis/nsis.zip?raw=true"
 !define PythonUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/python/python.zip?raw=true"
-!define NodeJsUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/nodejs/nodejs.zip?raw=true"
 !define AntUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/ant/ant.zip?raw=true"
 !define AnsiconUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/ansicon/ansicon.zip?raw=true"
 !define GradleUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/gradle/gradle.zip?raw=true"
@@ -84,7 +84,9 @@
 ;Var Size
 Var IsUpdateMode
 Var Status
+Var InstallCode
 Var InstallInsiders
+Var InstallNodeJs
 Var InstallNet472DevPack
 Var InstallTortoise
 Var InstallGit
@@ -153,68 +155,73 @@ Section "Install"
     ;
     ; VSCODE BASE (latest/current version)
     ;
-    MessageBox MB_OKCANCEL "The latest version of Microsoft VS Code needs to be installed.$\n$\n  \
-               By continuing you are agreeing to Microsoft licensing terms."                      \
-               IDOK vscodetrue
-    RMDir "$INSTDIR" ; Don't remove if not empty (/r)
-    Abort
-    vscodetrue:
-    ;NSISdl::download ${CodeDownloadUrl} "$INSTDIR\VSCode.exe"
-    inetc::get ${CodeDownloadUrl} "$INSTDIR\VSCode.zip"
-    ; 'OK' when sucessful
-    Pop $Status
-    StrCmp $Status "OK" status0_success 0
-        RMDir "$INSTDIR" ; Don't remove if not empty (/r)
-        Abort
-    status0_success:
-    ${If} $IsUpdateMode == YES ; remove current code files
-        RMDir /r "$INSTDIR\bin"
-        RMDir /r "$INSTDIR\locales"
-        RMDir /r "$INSTDIR\resources"
-        RMDir /r "$INSTDIR\tools"
-        Delete "$INSTDIR\*.dll"
-        Delete "$INSTDIR\*.pak"
-        Delete "$INSTDIR\*.bin"
-        Delete "$INSTDIR\Code*"
-    ${EndIf}
-    ;ExecWait '"$INSTDIR\VSCode.exe" /SILENT /MERGETASKS="!runcode,addcontextmenufiles,addcontextmenufolders,associatewithfiles" /NORESTART /NOCANCEL /SUPPRESSMSGBOXES /DIR="$INSTDIR"'
-    nsisunz::Unzip "$INSTDIR\VSCode.zip" "$INSTDIR"
-    Pop $Status ; 'success' when sucessful
-    Delete "$INSTDIR\VSCode.zip"
-    ${If} $IsUpdateMode != YES
-        CreateShortCut "$DESKTOP\Code.lnk" "$INSTDIR\code.exe"
-        Push "$INSTDIR\bin"
-        Call AddToPath
-        Push "CODE_HOME"
-        Push "$INSTDIR"
-        Call AddToEnvVar
+    ${If} InstallCode == YES
+        MessageBox MB_OKCANCEL "The latest version of Microsoft VS Code will be installed.$\n$\n  \
+                By continuing you are agreeing to Microsoft licensing terms."                     \
+                IDOK vscodetrue
+            RMDir "$INSTDIR" ; Don't remove if not empty (/r)
+            Abort
+        vscodetrue:
+        ;NSISdl::download ${CodeDownloadUrl} "$INSTDIR\VSCode.exe"
+        inetc::get ${CodeDownloadUrl} "$INSTDIR\VSCode.zip"
+        ; 'OK' when sucessful
+        Pop $Status
+        StrCmp $Status "OK" status0_success 0
+            RMDir "$INSTDIR" ; Don't remove if not empty (/r)
+            Abort
+        status0_success:
+        ${If} $IsUpdateMode == YES ; remove current code files
+            RMDir /r "$INSTDIR\bin"
+            RMDir /r "$INSTDIR\locales"
+            RMDir /r "$INSTDIR\resources"
+            RMDir /r "$INSTDIR\tools"
+            Delete "$INSTDIR\*.dll"
+            Delete "$INSTDIR\*.pak"
+            Delete "$INSTDIR\*.bin"
+            Delete "$INSTDIR\Code*"
+        ${EndIf}
+        ;ExecWait '"$INSTDIR\VSCode.exe" /SILENT /MERGETASKS="!runcode,addcontextmenufiles,addcontextmenufolders,associatewithfiles" /NORESTART /NOCANCEL /SUPPRESSMSGBOXES /DIR="$INSTDIR"'
+        nsisunz::Unzip "$INSTDIR\VSCode.zip" "$INSTDIR"
+        Pop $Status ; 'success' when sucessful
+        Delete "$INSTDIR\VSCode.zip"
+        ${If} $IsUpdateMode != YES
+            CreateShortCut "$DESKTOP\Code.lnk" "$INSTDIR\code.exe"
+            Push "$INSTDIR\bin"
+            Call AddToPath
+            Push "CODE_HOME"
+            Push "$INSTDIR"
+            Call AddToEnvVar
+        ${Endif}
     ${Endif}
-    
+
     ;
     ; EXTRACT THE INSTALLERS LOCAL FILES - WITHOUT SETTINGS.JSON
     ;
-    File /r /x settings.json ..\build\*.*
+    File /r /x settings.json /x nsis ..\build\*.*
 
     ;
     ; NODEJS
     ;
-    inetc::get ${NodeJsUrl} "$INSTDIR\NodeJs.zip"
-    Pop $Status ; 'OK' when sucessful
-    ${If} $Status == OK 
-        ${If} $IsUpdateMode == YES ; remove current files
-            RMDir /r "$INSTDIR\nodejs"
+    ${If} $InstallNodeJs == YES
+        inetc::get ${NodeJsUrl} "$INSTDIR\NodeJs.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            ${If} $IsUpdateMode == YES ; remove current files
+                ExecWait '"$INSTDIR\install_node_modules.bat" uninstall'
+                RMDir /r "$INSTDIR\nodejs"
+            ${EndIf}
+            nsisunz::Unzip "$INSTDIR\NodeJs.zip" "$INSTDIR"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\NodeJs.zip"
+            ; GLOBAL NODE MODULES
+            ExecWait '"$INSTDIR\install_node_modules.bat" install'
+            ${If} $IsUpdateMode != YES
+                Push "$INSTDIR\nodejs"
+                Call AddToPath
+                Push "$INSTDIR\nodejs\node_modules\typescript\bin"
+                Call AddToPath
+            ${Endif}
         ${EndIf}
-        nsisunz::Unzip "$INSTDIR\NodeJs.zip" "$INSTDIR"
-        Pop $Status ; 'success' when sucessful
-        Delete "$INSTDIR\NodeJs.zip"
-        ; GLOBAL NODE MODULES
-        ExecWait '"$INSTDIR\install_node_modules.bat" install'
-        ${If} $IsUpdateMode != YES
-            Push "$INSTDIR\nodejs"
-            Call AddToPath
-            Push "$INSTDIR\nodejs\node_modules\typescript\bin"
-            Call AddToPath
-        ${Endif}
     ${EndIf}
 
     ;
@@ -650,6 +657,7 @@ Section "Uninstall"
     Delete "$INSTDIR\*.dll"
     Delete "$INSTDIR\*.pak"
     Delete "$INSTDIR\*.bin"
+    Delete "$INSTDIR\*.bat"
     Delete "$INSTDIR\Code*"
 
     ;
@@ -768,33 +776,21 @@ Function .onInit
 
     StrCmp $R0 "" done
 
-    MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION                                     \
-        "${APPLICATION_NAME} is already installed. $\n$\nClick `OK` to update the \
-        previous version with selected packages or `Cancel` to quit."             \
+    MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION                           \
+        "${APPLICATION_NAME} is already installed. $\n$\nClick `OK` to  \
+         select packages to update, or `Cancel` to quit."               \
     IDOK update
-
         Abort
-
     update:
-        ; ALready installed, in update mode
-        StrCpy $IsUpdateMode YES
-        ; copy the current install location
-        StrCpy $INSTDIR "$R0"
+    MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION                                                 \
+        "Ensure that there are no instances of Code or any of the packages are in use." \
+    IDOK update2
+        Abort
+    update2:
+    StrCpy $IsUpdateMode YES
+    ; copy the current install location
+    StrCpy $INSTDIR "$R0"
 
-    ;
-    ;uninst:
-    ;;Run the uninstaller
-    ;ClearErrors
-    ;;Do not copy the uninstaller to a temp file
-    ;ExecWait '$R0 _?=$INSTDIR'
-    ;;Exec $R0 ; supposedly lets uninstaller remove itself
-    ;IfErrors 0 done
-    ;   ; need to delete uninstaller here?
-    ;
-    ;; TODO - a bug when running the installer after the uninstall none of the path vars
-    ;; get registered.  Force user to re-run installer for now
-    ;Abort
-    ;
     done:
 
 FunctionEnd
@@ -807,7 +803,7 @@ FunctionEnd
 ;*********************************************************************
 
 Function dirPre
-    ${If} $IsUpdateMode == YES
+    ${If} $IsUpdateMode == YES ; skip insall dir window if update mode
         Abort
     ${EndIf}
 FunctionEnd
@@ -824,12 +820,18 @@ Function InstTypePageCreate
     nsDialogs::Create 1018
     Pop $1
 
-    !insertmacro MUI_HEADER_TEXT "Choose Installation Packages" \
-            "Choose Installation Packages to Install" 
+    !insertmacro MUI_HEADER_TEXT "Visual Studio Code Based Development Environment" \
+                                 "Choose Packages to Install" 
 
+    ${If} $InstallCode == ""
+        StrCpy $InstallCode YES
+    ${EndIf}
     ${If} $InstallInsiders == ""
         StrCpy $InstallInsiders YES
     ${EndIf}
+    ${If} $InstallNodeJs == ""
+        StrCpy $InstallNodeJs YES
+    ${Endif}
     ${If} $InstallNet472DevPack == ""
         StrCpy $InstallNet472DevPack YES
     ${EndIf}
@@ -866,25 +868,30 @@ Function InstTypePageCreate
 
     SetRegView 64
 
-    ${NSD_CreateLabel} 0 0 100% 10u "Choose Installation Packages"
-    Pop $R8
-
-    ${NSD_CreateCheckBox} 10u 20u 45% 10u "Visual Studio Code"
+    ${NSD_CreateCheckBox} 0 20u 45% 10u "Visual Studio Code"
     Pop $R9
-    EnableWindow $R9 0
-    ${NSD_Check} $R9
+    ${If} $IsUpdateMode != YES
+        EnableWindow $R9 0
+        ${NSD_Check} $R9
+    ${EndIf}
 
-    ${NSD_CreateCheckBox} 10u 35u 45% 10u "Visual Studio Code Insiders"
+    ${NSD_CreateCheckBox} 0 35u 45% 10u "Visual Studio Code Insiders"
     Pop $2
     IfFileExists "$INSTDIR\insiders\Code - Insiders.exe" 0 insidersdone
-        ;EnableWindow $2 0
         StrCpy $InstallInsiders NO
     insidersdone:
     ${If} $InstallInsiders == YES 
         ${NSD_Check} $2
     ${EndIf}
 
-    ${NSD_CreateCheckBox} 10u 50u 45% 10u "Tortoise SVN + Cmd Line Tools"
+    ${NSD_CreateCheckBox} 0 50u 45% 10u "NodeJS and Package Manager (NPM)"
+    Pop $R6
+    ${If} $IsUpdateMode != YES
+        EnableWindow $R6 0
+        ${NSD_Check} $R9
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 0 65u 45% 10u "Tortoise SVN + Cmd Line Tools"
     Pop $4
     ReadRegStr $R0 HKLM "SOFTWARE\TortoiseSVN" "Directory"  ; Check to see if already installed
     IfFileExists "$R0\bin\svn.exe" 0 svndone
@@ -895,7 +902,7 @@ Function InstTypePageCreate
         ${NSD_Check} $4
     ${EndIf}
 
-    ${NSD_CreateCheckBox} 10u 65u 45% 10u "Git for Windows"
+    ${NSD_CreateCheckBox} 0 80u 45% 10u "Git for Windows"
     Pop $5
     ReadRegStr $R0 HKLM "SOFTWARE\GitForWindows" "InstallPath"  ; Check to see if already installed
     IfFileExists "$R0\bin\git.exe" 0 gitdone
@@ -906,94 +913,85 @@ Function InstTypePageCreate
         ${NSD_Check} $5
     ${EndIf}
 
-    ${NSD_CreateCheckBox} 10u 80u 45% 10u "Dotfuscator Community Edition"
+    ${NSD_CreateCheckBox} 0 95u 45% 10u "Dotfuscator Community Edition"
     Pop $6
     IfFileExists "$INSTDIR\dotfuscator\ce\DotfuscatorCLI.exe" 0 dotfuscatordone
-        ;EnableWindow $6 0
         StrCpy $InstallDotfuscator NO
     dotfuscatordone:
     ${If} $InstallDotfuscator == YES 
         ${NSD_Check} $6
     ${EndIf}
 
-    ${NSD_CreateCheckBox} 10u 95u 45% 10u ".NET 4.72 Developer Pack"
-    Pop $3
-    IfFileExists "$INSTDIR\NDP472-DevPack.exe" 0 net472done
-        ;EnableWindow $3 0
-        StrCpy $InstallNet472DevPack NO
-    net472done:
-    ${If} $InstallNet472DevPack == YES 
-        ${NSD_Check} $3
-    ${EndIf}
-
-    ${NSD_CreateCheckBox} 10u 110u 45% 10u "C#/C/C++ Compiler Package"
+    ${NSD_CreateCheckBox} 0 110u 45% 10u "C#/C/C++ Compiler Package"
     Pop $R5
     IfFileExists "$INSTDIR\compilers\c#\15.0\Bin\MSBuild.exe" 0 compilersdone
-        ;EnableWindow $R5 0
         StrCpy $InstallCompilers NO
     compilersdone:
     ${If} $InstallCompilers == YES 
         ${NSD_Check} $R5
     ${EndIf}
 
-    ${NSD_CreateCheckBox} 145u 20u 45% 10u "Nullsoft Scriptable Installer (NSIS)"
-    Pop $7
-    IfFileExists "$INSTDIR\nsis\makensis.exe" 0 nsisdone
-        ;EnableWindow $7 0
-        StrCpy $InstallNsis NO
-    nsisdone:
-    ${If} $InstallNsis == YES 
-        ${NSD_Check} $7
-    ${EndIf}
-
-    ${NSD_CreateCheckBox} 145u 35u 45% 10u "Python for Windows"
-    Pop $8
-    IfFileExists "$INSTDIR\python\scripts\pip.exe" 0 pythondone
-        ;EnableWindow $8 0
-        StrCpy $InstallPython NO
-    pythondone:
-    ${If} $InstallPython == YES 
-        ${NSD_Check} $8
-    ${EndIf}
-
-    ${NSD_CreateCheckBox} 145u 50u 45% 10u ".NET SDKs (3.5, 4.0, 4.52, 4.61, 4.72)"
-    Pop $R1
-    IfFileExists "$INSTDIR\sdks\atlmfc\lib\atl.lib" 0 netsdksdone
-        ;EnableWindow $R1 0
-        StrCpy $InstallNetSdks NO
-    netsdksdone:
-    ${If} $InstallNetSdks == YES 
-        ${NSD_Check} $R1
-    ${EndIf}
-
-    ${NSD_CreateCheckBox} 145u 65u 45% 10u "Legacy SDKs (Atl, Mfc, Windows, Wix)"
-    Pop $R2
-    IfFileExists "$INSTDIR\sdks\atlmfc\lib\atl.lib" 0 legacysdksdone
-        ;EnableWindow $R2 0
-        StrCpy $InstallLegacySdks NO
-    legacysdksdone:
-    ${If} $InstallLegacySdks == YES 
-        ${NSD_Check} $R2
-    ${EndIf}
-
-    ${NSD_CreateCheckBox} 145u 80u 45% 10u "Apache Ant with Ansicon"
+    ${NSD_CreateCheckBox} 150u 20u 45% 10u "Apache Ant with Ansicon"
     Pop $R3
     IfFileExists "$INSTDIR\ant\bin\ant.bat" 0 antdone
-        ;EnableWindow $R3 0
         StrCpy $InstallAntAnsicon NO
     antdone:
     ${If} $InstallAntAnsicon == YES 
         ${NSD_Check} $R3
     ${EndIf}
 
-    ${NSD_CreateCheckBox} 145u 95u 45% 10u "Gradle Build Tool"
+    ${NSD_CreateCheckBox} 150u 35u 45% 10u "Gradle Build Tool"
     Pop $R4
     IfFileExists "$INSTDIR\gradle\bin\gradle.bat" 0 gradledone
-        ;EnableWindow $R4 0
         StrCpy $InstallGradle NO
     gradledone:
     ${If} $InstallGradle == YES 
         ${NSD_Check} $R4
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 150u 50u 45% 10u "Nullsoft Scriptable Installer (NSIS)"
+    Pop $7
+    IfFileExists "$INSTDIR\nsis\makensis.exe" 0 nsisdone
+        StrCpy $InstallNsis NO
+    nsisdone:
+    ${If} $InstallNsis == YES 
+        ${NSD_Check} $7
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 150u 65u 45% 10u "Python for Windows"
+    Pop $8
+    IfFileExists "$INSTDIR\python\scripts\pip.exe" 0 pythondone
+        StrCpy $InstallPython NO
+    pythondone:
+    ${If} $InstallPython == YES 
+        ${NSD_Check} $8
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 150u 80u 45% 10u ".NET SDKs (3.5, 4.0, 4.52, 4.61, 4.72)"
+    Pop $R1
+    IfFileExists "$INSTDIR\sdks\atlmfc\lib\atl.lib" 0 netsdksdone
+        StrCpy $InstallNetSdks NO
+    netsdksdone:
+    ${If} $InstallNetSdks == YES 
+        ${NSD_Check} $R1
+    ${EndIf}
+    
+    ${NSD_CreateCheckBox} 150u 95u 45% 10u ".NET 4.72 Developer Pack"
+    Pop $3
+    IfFileExists "$INSTDIR\NDP472-DevPack.exe" 0 net472done
+        StrCpy $InstallNet472DevPack NO
+    net472done:
+    ${If} $InstallNet472DevPack == YES 
+        ${NSD_Check} $3
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 150u 110u 45% 10u "Legacy SDKs (Atl, Mfc, Windows, Wix)"
+    Pop $R2
+    IfFileExists "$INSTDIR\sdks\atlmfc\lib\atl.lib" 0 legacysdksdone
+        StrCpy $InstallLegacySdks NO
+    legacysdksdone:
+    ${If} $InstallLegacySdks == YES 
+        ${NSD_Check} $R2
     ${EndIf}
 
     nsDialogs::Show
@@ -1011,11 +1009,25 @@ FunctionEnd
 
 Function InstTypePageLeave
 
+    ${NSD_GetState} $R9 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallCode NO
+    ${Else}
+        StrCpy $InstallCode YES
+    ${EndIf}
+
     ${NSD_GetState} $2 $0
     ${If} $0 != ${BST_CHECKED}
         StrCpy $InstallInsiders NO
     ${Else}
         StrCpy $InstallInsiders YES
+    ${EndIf}
+
+    ${NSD_GetState} $R6 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallNodeJs NO
+    ${Else}
+        StrCpy $InstallNodeJs YES
     ${EndIf}
 
     ${NSD_GetState} $3 $0
@@ -1094,5 +1106,38 @@ Function InstTypePageLeave
     ${Else}
         StrCpy $InstallCompilers YES
     ${EndIf}
+
+    ${If} $InstallCode == NO 
+        ${If} $InstallInsiders == NO
+            ${If} $InstallNodeJs == NO
+                ${If} $InstallAntAnsicon == NO
+                    ${If} $InstallCompilers == NO
+                        ${If} $InstallGit == NO
+                            ${If} $InstallTortoise == NO
+                                ${If} $InstallGradle == NO
+                                    ${If} $InstallNetSdks == NO
+                                        ${If} $InstallPython == NO
+                                            ${If} $InstallLegacySdks == NO
+                                                ${If} $InstallDotfuscator == NO
+                                                    ${If} $InstallNsis == NO
+                                                        ${If} $InstallNet472DevPack == NO
+                                                            MessageBox MB_OK|MB_ICONEXCLAMATION        \
+                                                                "You must select at least one package to update" \
+                                                            IDOK 0
+                                                            Abort
+                                                        ${Endif}
+                                                    ${Endif}
+                                                ${Endif}
+                                            ${Endif} 
+                                        ${Endif}        
+                                    ${Endif}
+                                ${Endif}
+                            ${Endif}
+                        ${Endif}
+                    ${Endif}
+                ${Endif}
+            ${Endif}
+        ${Endif}
+    ${Endif}
 
 FunctionEnd

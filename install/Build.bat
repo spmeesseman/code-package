@@ -41,7 +41,11 @@ rem cscript //B ..\script\substitute.vbs %version% %newversion% VSCode_64bit.nsi
 rem move /Y VSCode_64bit.nsi.new VSCode_64bit.nsi
 
 rem Compile the Setup script
-..\src\nsis\makensis VSCode_64bit.nsi
+if not exist ..\build\nsis\  (
+    ..\script\7za.exe e -tzip ..\src\nsis\nsis.zip -o..\build -r -spf
+)
+
+..\build\nsis\makensis VSCode_64bit.nsi
 
 rem Remove the build directory, leaving this around after building
 rem the installer causes some issues with task scanning in VSCode
