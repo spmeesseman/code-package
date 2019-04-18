@@ -30,7 +30,7 @@
 !define ALL_USERS
 
 ;!define DOWNLOAD_BRANCH_NAME    "master"
-!define DOWNLOAD_BRANCH_NAME    "v2.0"
+!define DOWNLOAD_BRANCH_NAME    "dl-installer"
 
 !define CodeDownloadUrl "https://update.code.visualstudio.com/latest/win32-x64-archive/stable"
 !define CodeInsidersDownloadUrl "https://update.code.visualstudio.com/latest/win32-x64-archive/insider"
