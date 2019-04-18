@@ -790,8 +790,9 @@ Function .onInit
     IDOK update
         Abort
     update:
-    MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION                                                 \
-        "Ensure that there are no instances of Code or any of the packages are in use." \
+    MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION                    \
+        "Ensure that there are no instances of VSCode running or \
+        any of the packages are in use."                   \
     IDOK update2
         Abort
     update2:
