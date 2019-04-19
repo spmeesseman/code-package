@@ -190,6 +190,7 @@ Section "Install"
     ; Only extract settings.json later, after extensions are installed and it doesnt exist already, 
     ; and we are not in update mode
     ; Only extract python dir later, if we are installing/updating it
+    ; This would be just the *.bat files, and git.inf, as of 4.18.19
     ;
     File /r /x settings.json /x nsis /x python ..\build\*.*
 
@@ -347,7 +348,7 @@ Section "Install"
                 RMDir "$INSTDIR\dotfuscator" ; dont remove if another edition is installed here (no /r)
             ${EndIf}
             CreateDirectory "$INSTDIR\dotfuscator"
-            nsisunz::Unzip "$INSTDIR\DotfuscatorCE.zip" "$INSTDIR\dotfuscator"
+            nsisunz::Unzip "$INSTDIR\DotfuscatorCE.zip" "$INSTDIR\dotfuscator" ;will extract to 'ce' dir
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\DotfuscatorCE.zip"
         ${EndIf}
@@ -538,7 +539,7 @@ Section "Install"
     ${If} $IsUpdateMode != YES
         ; Check if 'settings.json' exists in the target directory   
         ;IfFileExists "$INSTDIR\data\user-data\User\settings.json" SETTINGS_FILE_ALREADY_EXISTS 0
-        IfFileExists "$APPDATA\Code\User\settings.json" SETTINGS_FILE_ALREADY_EXISTS 0
+        IfFileExists "$APPDATA\Code\User\settings.json" settingsexist 0
         ; Copy the file
         ;File /oname=data\user-data\User\settings.json ..\build\settings.json
         CreateDirectory "$APPDATA\Code" ; APPDATA = AppData\Roaming
@@ -552,7 +553,7 @@ Section "Install"
             Push "$INSTDIR"
             Call ReplaceInFile
         ${EndIf}
-        SETTINGS_FILE_ALREADY_EXISTS:
+        settingsexist:
     ${EndIf}
 
     ;
