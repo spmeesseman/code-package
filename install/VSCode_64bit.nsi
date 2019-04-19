@@ -29,29 +29,27 @@
 ; Set context to 'All Users'
 !define ALL_USERS
 
-;!define DOWNLOAD_BRANCH_NAME    "master"
-!define DOWNLOAD_BRANCH_NAME    "dl-installer"
-
 !define CodeDownloadUrl "https://update.code.visualstudio.com/latest/win32-x64-archive/stable"
 !define CodeInsidersDownloadUrl "https://update.code.visualstudio.com/latest/win32-x64-archive/insider"
 !define GitDownloadUrl "https://github.com/git-for-windows/git/releases/download/v2.21.0.windows.1/Git-2.21.0-64-bit.exe"
 !define Net472DownloadUrl "https://go.microsoft.com/fwlink/?LinkId=874338"
-!define TortoiseUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/tortoisesvn/tortoisesvn.msi?raw=true"
-!define DotfuscatorUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/dotfuscator/ce.zip?raw=true"
-!define NodeJsUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/nodejs/nodejs.zip?raw=true"
-!define NsisUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/nsis/nsis.zip?raw=true"
-!define PythonUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/python/python.zip?raw=true"
-!define AntUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/ant/ant.zip?raw=true"
-!define AnsiconUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/ansicon/ansicon.zip?raw=true"
-!define GradleUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/gradle/gradle.zip?raw=true"
-!define LegacyWixUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/sdks/wix.zip?raw=true"
-!define LegacyAtlMfcUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/sdks/atlmfc.zip?raw=true"
-!define LegacyWindows2009Url "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/sdks/windows/august2009.zip?raw=true"
-!define Net35PackageUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/dotnet/v3.5.zip?raw=true"
-!define Net40PackageUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/dotnet/v4.0.zip?raw=true"
-!define Net452PackageUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/dotnet/v4.5.2.zip?raw=true"
-!define Net461PackageUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/dotnet/v4.6.1.zip?raw=true"
-!define Net472PackageUrl "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src/dotnet/v4.7.2.zip?raw=true"
+!define PackageBaseUrl "https://github.com/spmeesseman/code-package/blob/dl-installer/src"
+!define TortoiseUrl "${PackageBaseUrl}/tortoisesvn/tortoisesvn.msi?raw=true"
+!define DotfuscatorUrl "${PackageBaseUrl}/dotfuscator/ce.zip?raw=true"
+!define NodeJsUrl "${PackageBaseUrl}/nodejs/nodejs.zip?raw=true"
+!define NsisUrl "${PackageBaseUrl}/nsis/nsis.zip?raw=true"
+!define PythonUrl "${PackageBaseUrl}/python/python.zip?raw=true"
+!define AntUrl "${PackageBaseUrl}/ant/ant.zip?raw=true"
+!define AnsiconUrl "${PackageBaseUrl}/ansicon/ansicon.zip?raw=true"
+!define GradleUrl "${PackageBaseUrl}/gradle/gradle.zip?raw=true"
+!define LegacyWixUrl "${PackageBaseUrl}/sdks/wix.zip?raw=true"
+!define LegacyAtlMfcUrl "${PackageBaseUrl}/sdks/atlmfc.zip?raw=true"
+!define LegacyWindows2009Url "${PackageBaseUrl}/sdks/windows/august2009.zip?raw=true"
+!define Net35PackageUrl "${PackageBaseUrl}/dotnet/v3.5.zip?raw=true"
+!define Net40PackageUrl "${PackageBaseUrl}/dotnet/v4.0.zip?raw=true"
+!define Net452PackageUrl "${PackageBaseUrl}/dotnet/v4.5.2.zip?raw=true"
+!define Net461PackageUrl "${PackageBaseUrl}/dotnet/v4.6.1.zip?raw=true"
+!define Net472PackageUrl "${PackageBaseUrl}/dotnet/v4.7.2.zip?raw=true"
 
 ;*********************************************************************
 ;*                                                                   *
@@ -121,7 +119,7 @@ Page custom InstTypePageCreate InstTypePageLeave
 !insertmacro MUI_PAGE_INSTFILES
 
 ; Specify the pages to display when performing an Uninstall
-Page custom InstTypePageCreate InstTypePageLeave
+UninstPage custom un.InstTypePageCreate un.InstTypePageLeave
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
 
@@ -180,7 +178,8 @@ Section "Install"
             Call AddToPath
             Push "CODE_HOME"
             Push "$INSTDIR"
-            Call AddToEnvVar
+            ;Call AddToEnvVar
+            Call WriteEnvVar
         ${Endif}
     ${Endif}
 
@@ -198,11 +197,12 @@ Section "Install"
     ; NODEJS
     ;
     ${If} $InstallNodeJs == YES
+        DetailPrint "Downloading Visual Studio Code..."
         inetc::get ${NodeJsUrl} "$INSTDIR\NodeJs.zip"
         Pop $Status ; 'OK' when sucessful
         ${If} $Status == OK 
             ${If} $IsUpdateMode == YES ; remove current files
-                ; REMOVE GLOBAL NODE MODULES
+                ; Remove global node modules gracefully
                 ExecWait '"$INSTDIR\install_node_modules.bat" uninstall'
                 RMDir /r "$INSTDIR\nodejs"
             ${EndIf}
@@ -217,6 +217,9 @@ Section "Install"
                 Push "$INSTDIR\nodejs\node_modules\typescript\bin"
                 Call AddToPath
             ${Endif}
+        ${Else}
+            DetailPrint "Error  - $Status"
+            DetailPrint "Code installation failure - exit installation"
         ${EndIf}
     ${EndIf}
 
@@ -224,6 +227,7 @@ Section "Install"
     ; VSCODE Insiders (latest/current version)
     ;
     ${If} $InstallInsiders == YES 
+        DetailPrint "Downloading Visual Studio Code Insiders..."
         inetc::get ${CodeInsidersDownloadUrl} "$INSTDIR\VSCodeInsiders.zip"
         Pop $Status ; 'OK' when sucessful
         ${If} $Status == OK 
@@ -238,17 +242,22 @@ Section "Install"
             ${If} $IsUpdateMode != YES
                 CreateShortCut "$DESKTOP\Code Insiders.lnk" "$INSTDIR\insiders\Code - Insiders.exe"
             ${EndIf}
+        ${Else}
+            DetailPrint "Error  - $Status"
         ${EndIf}
     ${EndIf}
 
     ;
     ; .NET 4.72 DEVELOPMENT PACK
     ;
-    ${If} $InstallNet472DevPack == YES 
+    ${If} $InstallNet472DevPack == YES
+        DetailPrint "Downloading .NET 4.72 Developer Pack..."
         inetc::get ${Net472DownloadUrl} "$INSTDIR\NDP472-DevPack.exe"
         Pop $Status ; 'OK' when sucessful
         ${If} $Status == OK 
             ExecWait '"$INSTDIR\NDP472-DevPack.exe" /passive /noreboot'
+        ${Else}
+            DetailPrint "Error  - $Status"
         ${EndIf}
     ${EndIf}
 
@@ -256,6 +265,7 @@ Section "Install"
     ; GIT
     ;
     ${If} $InstallGit == YES 
+        DetailPrint "Downloading Git for Windows..."
         inetc::get ${GitDownloadUrl} "$INSTDIR\GitSetup.exe"
         Pop $Status ; 'OK' when sucessful
         ${If} $Status == OK 
@@ -264,6 +274,8 @@ Section "Install"
             Push "$INSTDIR\git"
             Call ReplaceInFile
             ExecWait '"$INSTDIR\GitSetup.exe" /SILENT /SUPPRESSMSGBOXES /NOCANCEL /NORESTART /SP- /LOADINF="$INSTDIR\git.inf" /DIR="$INSTDIR\git"'
+        ${Else}
+            DetailPrint "Error  - $Status"
         ${EndIf}
     ${EndIf}
     Delete "$INSTDIR\git.inf"
@@ -272,17 +284,21 @@ Section "Install"
     ; TORTOISE SVN
     ;
     ${If} $InstallTortoise == YES
+        DetailPrint "Downloading TortoiseSVN..."
         inetc::get ${TortoiseUrl} "$INSTDIR\TortoiseSetup.msi"
         Pop $Status ; 'OK' when sucessful
         ${If} $Status == OK 
             ExecWait 'msiexec /i "$INSTDIR\TortoiseSetup.msi" /passive /norestart INSTALLDIR="$INSTDIR\tortoisesvn" ADDLOCAL=ALL'
+        ${Else}
+            DetailPrint "Error  - $Status"
         ${EndIf}
     ${EndIf}
 
     ;
     ; ANT/ANSICON
     ;
-    ${If} $InstallNsis == YES
+    ${If} $InstallAntAnsicon == YES
+        DetailPrint "Downloading Apache Ant..."
         inetc::get ${AntUrl} "$INSTDIR\ant.zip"
         Pop $Status ; 'OK' when sucessful
         ${If} $Status == OK 
@@ -297,9 +313,13 @@ Section "Install"
                 Call AddToPath
                 Push "ANT_HOME"
                 Push "$INSTDIR\ant"
-                Call AddToEnvVar
+                ;Call AddToEnvVar
+                Call WriteEnvVar
             ${Endif}
+        ${Else}
+            DetailPrint "Error  - $Status"
         ${EndIf}
+        DetailPrint "Downloading Ansicon for Ant..."
         inetc::get ${AnsiconUrl} "$INSTDIR\ansicon.zip"
         Pop $Status ; 'OK' when sucessful
         ${If} $Status == OK 
@@ -313,6 +333,8 @@ Section "Install"
                 ;Push "$INSTDIR\ansicon\x64"
                 ;Call AddToPath
             ;${Endif}
+        ${Else}
+            DetailPrint "Error  - $Status"
         ${EndIf}
     ${EndIf}
 
@@ -320,6 +342,7 @@ Section "Install"
     ; GRADLE
     ;
     ${If} $InstallGradle == YES
+        DetailPrint "Downloading Gradle Build Tool..."
         inetc::get ${GradleUrl} "$INSTDIR\gradle.zip"
         Pop $Status ; 'OK' when sucessful
         ${If} $Status == OK 
@@ -333,13 +356,16 @@ Section "Install"
                 Push "$INSTDIR\gradle\bin"
                 Call AddToPath
             ${Endif}
+        ${Else}
+            DetailPrint "Error  - $Status"
         ${EndIf}
     ${EndIf}
 
     ;
     ; DOTFUSCATOR CE
     ;
-    ${If} $InstallNsis == YES
+    ${If} $InstallDotfuscator == YES
+        DetailPrint "Downloading Dotfuscator Community Edition..."
         inetc::get ${DotfuscatorUrl} "$INSTDIR\DotfuscatorCE.zip"
         Pop $Status ; 'OK' when sucessful
         ${If} $Status == OK 
@@ -351,6 +377,8 @@ Section "Install"
             nsisunz::Unzip "$INSTDIR\DotfuscatorCE.zip" "$INSTDIR\dotfuscator" ;will extract to 'ce' dir
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\DotfuscatorCE.zip"
+        ${Else}
+            DetailPrint "Error  - $Status"
         ${EndIf}
     ${EndIf}
 
@@ -358,6 +386,7 @@ Section "Install"
     ; NSIS
     ;
     ${If} $InstallNsis == YES
+        DetailPrint "Downloading Nullsoft Scriptable Installer (NSIS)..."
         inetc::get ${NsisUrl} "$INSTDIR\nsis.zip"
         Pop $Status ; 'OK' when sucessful
         ${If} $Status == OK 
@@ -371,6 +400,8 @@ Section "Install"
                 Push "$INSTDIR\nsis"
                 Call AddToPath
             ${EndIf}
+        ${Else}
+            DetailPrint "Error  - $Status"
         ${EndIf}
     ${EndIf}
 
@@ -378,6 +409,7 @@ Section "Install"
     ; PYTHON
     ;
     ${If} $InstallPython == YES
+        DetailPrint "Downloading Python for Windows..."
         inetc::get ${PythonUrl} "$INSTDIR\python.zip"
         Pop $Status ; 'OK' when sucessful
         ${If} $Status == OK 
@@ -409,8 +441,11 @@ Section "Install"
                 Call AddToPath
                 Push "PYTHONPATH"
                 Push "$INSTDIR\python;$INSTDIR\python\DLLs;$INSTDIR\python\lib;$INSTDIR\python\lib\plat-win;$INSTDIR\python\lib\site-packages;$INSTDIR\python\Scripts"
-                Call AddToEnvVar
+                ;Call AddToEnvVar
+                Call WriteEnvVar
             ${Endif}
+        ${Else}
+            DetailPrint "Error  - $Status"
         ${EndIf}
     ${EndIf}
 
@@ -427,7 +462,9 @@ Section "Install"
     ;
     ; .NET SDK BUNDLES
     ;
-    ${If} $InstallLegacySdks == YES
+    ${If} $InstallNetSdks == YES
+        DetailPrint "Downloading .NET SDKs..."
+        DetailPrint "Downloading .NET 3.5 Package..."
         inetc::get ${Net35PackageUrl} "$INSTDIR\Net35Package.zip"
         Pop $Status ; 'OK' when sucessful
         ${If} $Status == OK 
@@ -437,7 +474,10 @@ Section "Install"
             nsisunz::Unzip "$INSTDIR\Net35Package.zip" "$INSTDIR\sdks"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\Net35Package.zip"
+        ${Else}
+            DetailPrint "Error  - $Status"
         ${EndIf}
+        DetailPrint "Downloading .NET 4 Package..."
         inetc::get ${Net40PackageUrl} "$INSTDIR\Net40Package.zip"
         Pop $Status ; 'OK' when sucessful
         ${If} $Status == OK 
@@ -447,7 +487,10 @@ Section "Install"
             nsisunz::Unzip "$INSTDIR\Net40Package.zip" "$INSTDIR\sdks"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\Net40Package.zip"
+        ${Else}
+            DetailPrint "Error  - $Status"
         ${EndIf}
+        DetailPrint "Downloading .NET 4.52 Package..."
         inetc::get ${Net452PackageUrl} "$INSTDIR\Net452Package.zip"
         Pop $Status ; 'OK' when sucessful
         ${If} $Status == OK 
@@ -457,7 +500,10 @@ Section "Install"
             nsisunz::Unzip "$INSTDIR\Net452Package.zip" "$INSTDIR\sdks"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\Net452Package.zip"
+        ${Else}
+            DetailPrint "Error  - $Status"
         ${EndIf}
+        DetailPrint "Downloading .NET 4.61 Package..."
         inetc::get ${Net461PackageUrl} "$INSTDIR\Net461Package.zip"
         Pop $Status ; 'OK' when sucessful
         ${If} $Status == OK 
@@ -467,7 +513,10 @@ Section "Install"
             nsisunz::Unzip "$INSTDIR\Net461Package.zip" "$INSTDIR\sdks"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\Net461Package.zip"
+        ${Else}
+            DetailPrint "Error  - $Status"
         ${EndIf}
+        DetailPrint "Downloading .NET 4.72 Package..."
         inetc::get ${Net472PackageUrl} "$INSTDIR\Net472Package.zip"
         Pop $Status ; 'OK' when sucessful
         ${If} $Status == OK 
@@ -477,6 +526,8 @@ Section "Install"
             nsisunz::Unzip "$INSTDIR\Net472Package.zip" "$INSTDIR\sdks"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\Net472Package.zip"
+        ${Else}
+            DetailPrint "Error  - $Status"
         ${EndIf}
     ${EndIf}
 
@@ -484,6 +535,7 @@ Section "Install"
     ; LEGACY SDKS
     ;
     ${If} $InstallLegacySdks == YES
+        DetailPrint "Downloading Legacy SDK - Wix..."
         inetc::get ${LegacyWixUrl} "$INSTDIR\LegacyWix.zip"
         Pop $Status ; 'OK' when sucessful
         ${If} $Status == OK 
@@ -493,7 +545,10 @@ Section "Install"
             nsisunz::Unzip "$INSTDIR\LegacyWix.zip" "$INSTDIR\sdks"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\LegacyWix.zip"
+        ${Else}
+            DetailPrint "Error  - $Status"
         ${EndIf}
+        DetailPrint "Downloading Legacy SDK - AtlMfc..."
         inetc::get ${LegacyAtlMfcUrl} "$INSTDIR\LegacyAtlMfc.zip"
         Pop $Status ; 'OK' when sucessful
         ${If} $Status == OK 
@@ -503,7 +558,10 @@ Section "Install"
             nsisunz::Unzip "$INSTDIR\LegacyAtlMfc.zip" "$INSTDIR\sdks"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\LegacyAtlMfc.zip"
+        ${Else}
+            DetailPrint "Error  - $Status"
         ${EndIf}
+        DetailPrint "Downloading Legacy SDK - Windows August 2009..."
         inetc::get ${LegacyWindows2009Url} "$INSTDIR\WindowsAugust2009.zip"
         Pop $Status ; 'OK' when sucessful
         ${If} $Status == OK 
@@ -513,6 +571,8 @@ Section "Install"
             nsisunz::Unzip "$INSTDIR\WindowsAugust2009.zip" "$INSTDIR\sdks\windows"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\WindowsAugust2009.zip"
+        ${Else}
+            DetailPrint "Error  - $Status"
         ${EndIf}
     ${EndIf}
 
@@ -639,8 +699,9 @@ Section "Uninstall"
         Push "$INSTDIR\bin"
         Call un.RemoveFromPath
         Push "CODE_HOME"
-        Push "$INSTDIR"
-        Call un.RemoveFromEnvVar
+        ;Push "$INSTDIR"
+        ;Call un.RemoveFromEnvVar
+        Call un.DeleteEnvVar
         DeleteRegKey HKCR "*\shell\Open with VS Code"
         DeleteRegKey HKCR "Directory\shell\vscode"
         DeleteRegKey HKCR "Directory\Background\shell\vscode"
@@ -743,8 +804,9 @@ Section "Uninstall"
         Push "$INSTDIR\ant\bin"
         Call un.RemoveFromPath
         Push "ANT_HOME"
-        Push "$INSTDIR\ant"
-        Call un.RemoveFromEnvVar
+        ;Push "$INSTDIR\ant"
+        ;Call un.RemoveFromEnvVar
+        Call un.DeleteEnvVar
         RMDir /r "$INSTDIR\ant"
         RMDir /r "$INSTDIR\ansicon"
     ${EndIf}
@@ -791,8 +853,9 @@ Section "Uninstall"
         Push "$INSTDIR\python\scripts"
         Call un.RemoveFromPath
         Push "PYTHONPATH"
-        Push "$INSTDIR\python;$INSTDIR\python\DLLs;$INSTDIR\python\lib;$INSTDIR\python\lib\plat-win;$INSTDIR\python\lib\site-packages;$INSTDIR\python\Scripts"
-        Call un.RemoveFromEnvVar
+        ;Push "$INSTDIR\python;$INSTDIR\python\DLLs;$INSTDIR\python\lib;$INSTDIR\python\lib\plat-win;$INSTDIR\python\lib\site-packages;$INSTDIR\python\Scripts"
+        ;Call un.RemoveFromEnvVar
+        Call un.DeleteEnvVar
         RMDir /r "$INSTDIR\python"
     ${EndIf}
 
@@ -1096,6 +1159,217 @@ Function InstTypePageCreate
 
 FunctionEnd
 
+;*********************************************************************
+;*                                                                   * 
+;*      InstTypePageCreate                                           * 
+;*                                                                   * 
+;*********************************************************************
+
+Function un.InstTypePageCreate
+
+    nsDialogs::Create 1018
+    Pop $1
+
+    !insertmacro MUI_HEADER_TEXT "Visual Studio Code Based Development Environment" \
+                                 "Choose Packages to Install" 
+
+    ${If} $InstallCode == ""
+        StrCpy $InstallCode YES
+    ${EndIf}
+    ${If} $InstallInsiders == ""
+        StrCpy $InstallInsiders YES
+    ${EndIf}
+    ${If} $InstallNodeJs == ""
+        StrCpy $InstallNodeJs YES
+    ${Endif}
+    ${If} $InstallNet472DevPack == ""
+        StrCpy $InstallNet472DevPack YES
+    ${EndIf}
+    ${If} $InstallTortoise == ""
+        StrCpy $InstallTortoise YES
+    ${EndIf}
+    ${If} $InstallGit == ""
+        StrCpy $InstallGit YES
+    ${EndIf}
+    ${If} $InstallDotfuscator == ""
+        StrCpy $InstallDotfuscator YES
+    ${EndIf}
+    ${If} $InstallNsis == ""
+        StrCpy $InstallNsis YES
+    ${EndIf}
+    ${If} $InstallPython == ""
+        StrCpy $InstallPython YES
+    ${EndIf}
+    ${If} $InstallNetSdks == ""
+        StrCpy $InstallNetSdks YES
+    ${EndIf}
+    ${If} $InstallLegacySdks == ""
+        StrCpy $InstallLegacySdks YES
+    ${EndIf}
+    ${If} $InstallAntAnsicon == ""
+        StrCpy $InstallAntAnsicon YES
+    ${EndIf}
+    ${If} $InstallGradle == ""
+        StrCpy $InstallGradle YES
+    ${EndIf}
+    ${If} $InstallCompilers == ""
+        StrCpy $InstallCompilers YES
+    ${EndIf}
+
+    SetRegView 64
+
+    ${NSD_CreateCheckBox} 0 20u 45% 10u "Visual Studio Code"
+    Pop $R9
+    ${If} $IsUpdateMode != YES
+    ${AndIf} $IsUninstall != YES
+        EnableWindow $R9 0
+        ${NSD_Check} $R9
+    ${EndIf}
+    ${If} $InstallCode == YES 
+        ${NSD_Check} $2
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 0 35u 45% 10u "Visual Studio Code Insiders"
+    Pop $2
+    IfFileExists "$INSTDIR\insiders\Code - Insiders.exe" 0 insidersdone
+        StrCpy $InstallInsiders NO
+    insidersdone:
+    ${If} $InstallInsiders == YES 
+    ${OrIf} $IsUninstall == YES
+        ${NSD_Check} $2
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 0 50u 45% 10u "NodeJS and Package Manager (NPM)"
+    Pop $R6
+    ${If} $IsUpdateMode != YES
+    ${AndIf} $IsUninstall != YES
+        EnableWindow $R6 0
+        ${NSD_Check} $R6
+    ${EndIf}
+    IfFileExists "$INSTDIR\nodejs\npm.cmd" 0 nodejsdone
+        StrCpy $InstallNodeJs NO
+    nodejsdone:
+    ${If} $InstallNodeJs == YES
+    ${OrIf} $IsUninstall == YES
+        ${NSD_Check} $R6
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 0 65u 45% 10u "Tortoise SVN + Cmd Line Tools"
+    Pop $4
+    ReadRegStr $R0 HKLM "SOFTWARE\TortoiseSVN" "Directory"  ; Check to see if already installed
+    IfFileExists "$R0\bin\svn.exe" 0 svndone
+        EnableWindow $4 0
+        StrCpy $InstallTortoise NO
+    svndone:
+    ${If} $InstallTortoise == YES 
+    ${OrIf} $IsUninstall == YES
+        ${NSD_Check} $4
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 0 80u 45% 10u "Git for Windows"
+    Pop $5
+    ReadRegStr $R0 HKLM "SOFTWARE\GitForWindows" "InstallPath"  ; Check to see if already installed
+    IfFileExists "$R0\bin\git.exe" 0 gitdone
+        EnableWindow $5 0
+        StrCpy $InstallGit NO
+    gitdone:
+    ${If} $InstallGit == YES
+    ${OrIf} $IsUninstall == YES 
+        ${NSD_Check} $5
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 0 95u 45% 10u "Dotfuscator Community Edition"
+    Pop $6
+    IfFileExists "$INSTDIR\dotfuscator\ce\DotfuscatorCLI.exe" 0 dotfuscatordone
+        StrCpy $InstallDotfuscator NO
+    dotfuscatordone:
+    ${If} $InstallDotfuscator == YES
+    ${OrIf} $IsUninstall == YES 
+        ${NSD_Check} $6
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 0 110u 45% 10u "C#/C/C++ Compiler Package"
+    Pop $R5
+    IfFileExists "$INSTDIR\compilers\c#\15.0\Bin\MSBuild.exe" 0 compilersdone
+        StrCpy $InstallCompilers NO
+    compilersdone:
+    ${If} $InstallCompilers == YES
+    ${OrIf} $IsUninstall == YES 
+        ${NSD_Check} $R5
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 150u 20u 45% 10u "Apache Ant with Ansicon"
+    Pop $R3
+    IfFileExists "$INSTDIR\ant\bin\ant.bat" 0 antdone
+        StrCpy $InstallAntAnsicon NO
+    antdone:
+    ${If} $InstallAntAnsicon == YES
+    ${OrIf} $IsUninstall == YES 
+        ${NSD_Check} $R3
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 150u 35u 45% 10u "Gradle Build Tool"
+    Pop $R4
+    IfFileExists "$INSTDIR\gradle\bin\gradle.bat" 0 gradledone
+        StrCpy $InstallGradle NO
+    gradledone:
+    ${If} $InstallGradle == YES
+    ${OrIf} $IsUninstall == YES 
+        ${NSD_Check} $R4
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 150u 50u 45% 10u "Nullsoft Scriptable Installer (NSIS)"
+    Pop $7
+    IfFileExists "$INSTDIR\nsis\makensis.exe" 0 nsisdone
+        StrCpy $InstallNsis NO
+    nsisdone:
+    ${If} $InstallNsis == YES
+    ${OrIf} $IsUninstall == YES 
+        ${NSD_Check} $7
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 150u 65u 45% 10u "Python for Windows"
+    Pop $8
+    IfFileExists "$INSTDIR\python\scripts\pip.exe" 0 pythondone
+        StrCpy $InstallPython NO
+    pythondone:
+    ${If} $InstallPython == YES 
+        ${NSD_Check} $8
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 150u 80u 45% 10u ".NET SDKs (3.5, 4.0, 4.52, 4.61, 4.72)"
+    Pop $R1
+    IfFileExists "$INSTDIR\sdks\atlmfc\lib\atl.lib" 0 netsdksdone
+        StrCpy $InstallNetSdks NO
+    netsdksdone:
+    ${If} $InstallNetSdks == YES
+    ${OrIf} $IsUninstall == YES 
+        ${NSD_Check} $R1
+    ${EndIf}
+    
+    ${NSD_CreateCheckBox} 150u 95u 45% 10u ".NET 4.72 Developer Pack"
+    Pop $3
+    IfFileExists "$INSTDIR\NDP472-DevPack.exe" 0 net472done
+        StrCpy $InstallNet472DevPack NO
+    net472done:
+    ${If} $InstallNet472DevPack == YES
+    ${OrIf} $IsUninstall == YES 
+        ${NSD_Check} $3
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 150u 110u 45% 10u "Legacy SDKs (Atl, Mfc, Windows, Wix)"
+    Pop $R2
+    IfFileExists "$INSTDIR\sdks\atlmfc\lib\atl.lib" 0 legacysdksdone
+        StrCpy $InstallLegacySdks NO
+    legacysdksdone:
+    ${If} $InstallLegacySdks == YES
+    ${OrIf} $IsUninstall == YES 
+        ${NSD_Check} $R2
+    ${EndIf}
+
+    nsDialogs::Show
+
+FunctionEnd
 
 ;*********************************************************************
 ;*                                                                   *
@@ -1107,6 +1381,136 @@ FunctionEnd
 
 Function InstTypePageLeave
 
+    ${NSD_GetState} $R9 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallCode NO
+    ${Else}
+        StrCpy $InstallCode YES
+    ${EndIf}
+
+    ${NSD_GetState} $2 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallInsiders NO
+    ${Else}
+        StrCpy $InstallInsiders YES
+    ${EndIf}
+
+    ${NSD_GetState} $R6 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallNodeJs NO
+    ${Else}
+        StrCpy $InstallNodeJs YES
+    ${EndIf}
+
+    ${NSD_GetState} $3 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallNet472DevPack NO
+    ${Else}
+        StrCpy $InstallNet472DevPack YES
+    ${EndIf}
+
+    ${NSD_GetState} $4 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallTortoise NO
+    ${Else}
+        StrCpy $InstallTortoise YES
+    ${EndIf}
+
+    ${NSD_GetState} $5 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallGit NO
+    ${Else}
+        StrCpy $InstallGit YES
+    ${EndIf}
+
+    ${NSD_GetState} $6 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallDotfuscator NO
+    ${Else}
+        StrCpy $InstallDotfuscator YES
+    ${EndIf}
+
+    ${NSD_GetState} $7 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallNsis NO
+    ${Else}
+        StrCpy $InstallNsis YES
+    ${EndIf}
+
+    ${NSD_GetState} $8 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallPython NO
+    ${Else}
+        StrCpy $InstallPython YES
+    ${EndIf}
+
+    ${NSD_GetState} $R1 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallNetSdks NO
+    ${Else}
+        StrCpy $InstallNetSdks YES
+    ${EndIf}
+
+    ${NSD_GetState} $R2 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallLegacySdks NO
+    ${Else}
+        StrCpy $InstallLegacySdks YES
+    ${EndIf}
+
+    ${NSD_GetState} $R3 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallAntAnsicon NO
+    ${Else}
+        StrCpy $InstallAntAnsicon YES
+    ${EndIf}
+
+    ${NSD_GetState} $R4 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallGradle NO
+    ${Else}
+        StrCpy $InstallGradle YES
+    ${EndIf}
+
+    ${NSD_GetState} $R5 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallCompilers NO
+    ${Else}
+        StrCpy $InstallCompilers YES
+    ${EndIf}
+
+    ${If} $InstallCode == NO 
+    ${AndIf} $InstallInsiders == NO
+    ${AndIf} $InstallNodeJs == NO
+    ${AndIf} $InstallAntAnsicon == NO
+    ${AndIf} $InstallCompilers == NO
+    ${AndIf} $InstallGit == NO
+    ${AndIf} $InstallTortoise == NO
+    ${AndIf} $InstallGradle == NO
+    ${AndIf} $InstallNetSdks == NO
+    ${AndIf} $InstallPython == NO
+    ${AndIf} $InstallLegacySdks == NO
+    ${AndIf} $InstallDotfuscator == NO
+    ${AndIf} $InstallNsis == NO
+    ${AndIf} $InstallNet472DevPack == NO
+        MessageBox MB_OK|MB_ICONEXCLAMATION        \
+            "You must select at least one package to update" \
+        IDOK 0
+            Abort
+    ${Endif}
+
+FunctionEnd
+
+;*********************************************************************
+;*                                                                   *
+;*   Function Definition                                             *
+;*                                                                   * 
+;*      un.InstTypePageLeave                                         * 
+;*                                                                   * 
+;*********************************************************************
+
+Function un.InstTypePageLeave
+    
     ${NSD_GetState} $R9 $0
     ${If} $0 != ${BST_CHECKED}
         StrCpy $InstallCode NO
