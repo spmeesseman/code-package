@@ -73,6 +73,7 @@
 ;*********************************************************************
 
 Var IsUpdateMode
+Var IsUninstall
 Var Status
 Var InstallCode
 Var InstallInsiders
@@ -120,6 +121,7 @@ Page custom InstTypePageCreate InstTypePageLeave
 !insertmacro MUI_PAGE_INSTFILES
 
 ; Specify the pages to display when performing an Uninstall
+Page custom InstTypePageCreate InstTypePageLeave
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
 
@@ -617,139 +619,210 @@ Section "Uninstall"
     ; Explicitly set the registry view to be 64 bits
     ;
     SetRegView 64
-
     ;
     ; Set context to 'All Users'
     ;
     SetShellVarContext "all"
 
     ;
-    ; GLOBAL NODE MODULES
+    ; CODE
     ;
-    ExecWait '"$INSTDIR\install_node_modules.bat" uninstall'
+    ${If} $InstallCode == YES
+        ; uninstall vscode
+        ; uninstaller for vscode exe installer
+        ;ExecWait '"$INSTDIR\unins000.exe" /SILENT /SUPPRESSMSGBOXES'
+        ;
+        ; DELETE USER SETTINGS IF USER SAYS ITS OK
+        ;
+        MessageBox MB_YESNO "Delete user settings and cache?" IDYES 0 IDNO code1
+            ;RMDir /r "$INSTDIR\data"
+            RMDir /r "$PROFILE\.vscode"
+            RMDir /r "$APPDATA\Code"
+        code1:
+            ; Extensions
+            ExecWait '"$INSTDIR\install_extensions.bat" --uninstall-extension'
+            ; Desktop shortcut
+            Delete "$DESKTOP\Code.lnk"
+            Push "$INSTDIR\bin"
+            Call un.RemoveFromPath
+            Push "CODE_HOME"
+            Push "$INSTDIR"
+            Call un.RemoveFromEnvVar
+            DeleteRegKey HKCR "*\shell\Open with VS Code"
+            DeleteRegKey HKCR "Directory\shell\vscode"
+            DeleteRegKey HKCR "Directory\Background\shell\vscode"
+            RMDir /r "$PROFILE\.vscode\extensions"
+            RMDir /r "$INSTDIR\bin"
+            RMDir /r "$INSTDIR\locales"
+            RMDir /r "$INSTDIR\resources"
+            RMDir /r "$INSTDIR\tools"
+            Delete "$INSTDIR\*.dll"
+            Delete "$INSTDIR\*.pak"
+            Delete "$INSTDIR\*.bin"
+            Delete "$INSTDIR\*.bat"
+            Delete "$INSTDIR\Code*"
+    ${EndIf}
 
     ;
-    ; EXTENSIONS
+    ; CODE INSIDERS
     ;
-    ExecWait '"$INSTDIR\install_extensions.bat" --uninstall-extension'
-    RMDir /r "$PROFILE\.vscode\extensions"
+    ${If} $InstallInsiders == YES 
+        RMDir /r "$INSTDIR\insdiers"
+        Delete "$DESKTOP\Code Insiders.lnk"
+    ${EndIf}
 
     ;
-    ; REMOVE LOCAL INSTALLATON DIRS FROM SETUP
+    ; NODEJS
     ;
-    RMDir /r "$INSTDIR\ant"
-    RMDir /r "$INSTDIR\ansicon"
-    RMDir /r "$INSTDIR\compilers"
-    RMDir /r "$INSTDIR\dotfuscator"
-    RMDir /r "$INSTDIR\insiders"
-    RMDir /r "$INSTDIR\gradle"
-    RMDir /r "$INSTDIR\nodejs"
-    RMDir /r "$INSTDIR\nsis"
-    RMDir /r "$INSTDIR\python"
-    RMDir /r "$INSTDIR\sdks"
-    RMDir /r "$INSTDIR\bin"
-    RMDir /r "$INSTDIR\locales"
-    RMDir /r "$INSTDIR\resources"
-    RMDir /r "$INSTDIR\tools"
-    Delete "$INSTDIR\*.dll"
-    Delete "$INSTDIR\*.pak"
-    Delete "$INSTDIR\*.bin"
-    Delete "$INSTDIR\*.bat"
-    Delete "$INSTDIR\Code*"
+    ${If} $InstallNodeJs == YES 
+        ExecWait '"$INSTDIR\install_node_modules.bat" uninstall'
+        Push "$INSTDIR\nodejs"
+        Call un.RemoveFromPath
+        Push "$INSTDIR\nodejs\node_modules\typescript\bin"
+        Call un.RemoveFromPath
+        RMDir /r "$INSTDIR\nodejs"
+    ${EndIf}
+    
+    ;
+    ; GIT
+    ;
+    ${If} $InstallGit == YES 
+        ReadRegStr $R0 HKLM "SOFTWARE\GitForWindows" "InstallPath"  ; Check to see if already installed
+        IfFileExists "$R0\bin\git.exe" 0 git1
+        MessageBox MB_YESNO "Uninstall Git?" IDYES 0 IDNO git1
+            ExecWait '"$INSTDIR\git\unins000.exe" /SILENT /SUPPRESSMSGBOXES'
+            RMDir /r "$INSTDIR\git"
+            Delete "$INSTDIR\GitSetup.exe"
+        git1:
+    ${EndIf}
 
     ;
-    ; DELETE USER SETTINGS IF USER SAYS ITS OK
+    ; TORTOISESVN
     ;
-    MessageBox MB_YESNO "Delete user settings and cache?" IDYES true1 IDNO false1
-    true1:
-        ;RMDir /r "$INSTDIR\data"
-        RMDir /r "$PROFILE\.vscode"
-        RMDir /r "$APPDATA\Code"
-    false1:
-
-    ; uninstall vscode
-    ; uninstaller for vscode exe installer
-    ;ExecWait '"$INSTDIR\unins000.exe" /SILENT /SUPPRESSMSGBOXES'
-
-    ;
-    ; UNINSTALL GIT IF USER SAYS ITS OK
-    ;
-    ReadRegStr $R0 HKLM "SOFTWARE\GitForWindows" "InstallPath"  ; Check to see if already installed
-    IfFileExists "$R0\bin\git.exe" 0 false0
-    MessageBox MB_YESNO "Uninstall Git?" IDYES true0 IDNO false0
-    true0:
-        ExecWait '"$INSTDIR\git\unins000.exe" /SILENT /SUPPRESSMSGBOXES'
-        RMDir /r "$INSTDIR\git"
-        Delete "$INSTDIR\GitSetup.exe"
-    false0:
+    ${If} $InstallTortoise == YES 
+        ReadRegStr $R0 HKLM "SOFTWARE\TortoiseSVN" "Directory"  ; Check to see if already installed
+        IfFileExists "$R0\bin\svn.exe" 0 svn1
+        MessageBox MB_YESNO "Uninstall Tortoise SVN?" IDYES 0 IDNO svn1
+            ExecWait 'msiexec /x "$INSTDIR\TortoiseSVN-1.11.1.28492-x64-svn-1.11.1.msi" /passive REBOOT=ReallySuppress MSIRESTARTMANAGERCONTROL=Disable'
+            RMDir /r "$INSTDIR\tortoisesvn"
+            Delete "$INSTDIR\TortoiseSetup.msi"
+        svn1:
+    ${EndIf}
 
     ;
-    ; UNINSTALL TORTOISESVN IF USER SAYS ITS OK
+    ; .NET472 DEV PACK
     ;
-    ReadRegStr $R0 HKLM "SOFTWARE\TortoiseSVN" "Directory"  ; Check to see if already installed
-    IfFileExists "$R0\bin\svn.exe" 0 false2
-    MessageBox MB_YESNO "Uninstall Tortoise SVN?" IDYES true2 IDNO false2
-    true2:
-        ExecWait 'msiexec /x "$INSTDIR\TortoiseSVN-1.11.1.28492-x64-svn-1.11.1.msi" /passive REBOOT=ReallySuppress MSIRESTARTMANAGERCONTROL=Disable'
-        RMDir /r "$INSTDIR\tortoisesvn"
-        Delete "$INSTDIR\TortoiseSetup.msi"
-    false2:
+    ${If} $InstallNet472DevPack == YES 
+        IfFileExists "$INSTDIR\NDP472-DevPack.exe" 0 net472pack1
+            ExecWait '"$INSTDIR\NDP472-DevPack.exe" /uninstall /passive /noreboot'
+        net472pack1:
+    ${EndIf}
 
     ;
-    ; UNINSTALL .NET472 DEV PACK
+    ; .NET SDKS
     ;
-    IfFileExists "$INSTDIR\NDP472-DevPack.exe" 0 DEVPACK_UNINSTALLED
-        ExecWait '"$INSTDIR\NDP472-DevPack.exe" /uninstall /passive /noreboot'
-    DEVPACK_UNINSTALLED:
+    ${If} $InstallNetSdks == YES 
+        RMDir /r "$INSTDIR\sdks\net35"
+        RMDir /r "$INSTDIR\sdks\net40"
+        RMDir /r "$INSTDIR\sdks\net452"
+        RMDir /r "$INSTDIR\sdks\net461"
+        RMDir /r "$INSTDIR\sdks\net472"
+    ${EndIf}
 
     ;
-    ; REMOVE VARIABLES FROM PATH ENVIRONMENT VARIABLE
+    ; LEGACY SDKS
     ;
-    Push "$INSTDIR\ant\bin"
-    Call un.RemoveFromPath
-    Push "$INSTDIR\gradle\bin"
-    Call un.RemoveFromPath
-    Push "$INSTDIR\python"
-    Call un.RemoveFromPath
-    Push "$INSTDIR\python\scripts"
-    Call un.RemoveFromPath
-    Push "$INSTDIR\nodejs"
-    Call un.RemoveFromPath
-    Push "$INSTDIR\nodejs\node_modules\typescript\bin"
-    Call un.RemoveFromPath
-    Push "$INSTDIR\bin"
-    Call un.RemoveFromPath
-    Push "$INSTDIR\nsis"
-    Call un.RemoveFromPath
-    ; REMOVE CUSTOM ENVIRONMENT VARIABLES
-    ; TODO - This only sets var to empty string, want to delete var
-    Push "ANT_HOME"
-    Push "$INSTDIR\ant"
-    Call un.RemoveFromEnvVar
-    Push "CODE_HOME"
-    Push "$INSTDIR"
-    Call un.RemoveFromEnvVar
-    Push "PYTHONPATH"
-    Push "$INSTDIR\python;$INSTDIR\python\DLLs;$INSTDIR\python\lib;$INSTDIR\python\lib\plat-win;$INSTDIR\python\lib\site-packages;$INSTDIR\python\Scripts"
-    Call un.RemoveFromEnvVar
+    ${If} $InstallLegacySdks == YES 
+        RMDir /r "$INSTDIR\sdks\windows"
+        RMDir /r "$INSTDIR\sdks\atlmfc"
+        RMDir /r "$INSTDIR\sdks\wix"
+    ${EndIf}
 
     ;
-    ; Delete the desktop shortcut
+    ; ANT
     ;
-    Delete "$DESKTOP\Code.lnk"
-    Delete "$DESKTOP\Code Insiders.lnk"
+    ${If} $InstallAntAnsicon == YES 
+        Push "$INSTDIR\ant\bin"
+        Call un.RemoveFromPath
+        Push "ANT_HOME"
+        Push "$INSTDIR\ant"
+        Call un.RemoveFromEnvVar
+        RMDir /r "$INSTDIR\ant"
+        RMDir /r "$INSTDIR\ansicon"
+    ${EndIf}
 
     ;
-    ; DELETE REGISTRY KEYS
+    ; GRADLE
     ;
-    DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"
-    DeleteRegKey HKCR "*\shell\Open with VS Code"
-    DeleteRegKey HKCR "Directory\shell\vscode"
-    DeleteRegKey HKCR "Directory\Background\shell\vscode"
+    ${If} $InstallGradle == YES 
+        Push "$INSTDIR\gradle\bin"
+        Call un.RemoveFromPath
+        RMDir /r "$INSTDIR\gradle"
+    ${EndIf}
+    
+    ;
+    ; COMPILERS PACK
+    ;
+    ${If} $InstallCompilers == YES 
+        RMDir /r "$INSTDIR\compilers"
+    ${EndIf}
 
     ;
-    ; THIS WILL ONLY REMOVE THE BASE DIR IF IT IS EMPTY (no /r)
+    ; DOTFUSCATOR
     ;
+    ${If} $InstallDotfuscator == YES 
+        RMDir /r "$INSTDIR\dotfuscator"
+    ${EndIf}
+
+    ;
+    ; NSIS
+    ;
+    ${If} $InstallNsis == YES 
+        Push "$INSTDIR\nsis"
+        Call un.RemoveFromPath
+        RMDir /r "$INSTDIR\nsis"
+    ${EndIf}
+
+    ;
+    ; PYTHON
+    ;
+    
+    ${If} $InstallPython == YES 
+        Push "$INSTDIR\python"
+        Call un.RemoveFromPath
+        Push "$INSTDIR\python\scripts"
+        Call un.RemoveFromPath
+        Push "PYTHONPATH"
+        Push "$INSTDIR\python;$INSTDIR\python\DLLs;$INSTDIR\python\lib;$INSTDIR\python\lib\plat-win;$INSTDIR\python\lib\site-packages;$INSTDIR\python\Scripts"
+        Call un.RemoveFromEnvVar
+        RMDir /r "$INSTDIR\python"
+    ${EndIf}
+
+    ;
+    ; DELETE UNINSTALL REGISTRY KEY IF COMPLETE UNINSTALL, REMOVE DIRS FINAL
+    ;
+    ${If} $InstallCode == YES 
+    ${AndIf} $InstallInsiders == YES
+    ${AndIf} $InstallNodeJs == YES
+    ${AndIf} $InstallAntAnsicon == YES
+    ${AndIf} $InstallCompilers == YES
+    ${AndIf} $InstallGit == YES
+    ${AndIf} $InstallTortoise == YES
+    ${AndIf} $InstallGradle == YES
+    ${AndIf} $InstallNetSdks == YES
+    ${AndIf} $InstallPython == YES
+    ${AndIf} $InstallLegacySdks == YES
+    ${AndIf} $InstallDotfuscator == YES
+    ${AndIf} $InstallNsis == YES
+    ${AndIf} $InstallNet472DevPack == YES
+        DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"
+        RMDir /r "$INSTDIR\sdks"
+        Delete "$INSTDIR\*.bat"
+    ${Else}
+        ; THIS WILL ONLY REMOVE THE BASE DIR IF IT IS EMPTY (no /r)
+        RMDir "$INSTDIR\sdks"
+    ${EndIf}
+
     RMDir "$INSTDIR" 
 
 SectionEnd
@@ -768,31 +841,37 @@ Function .onInit
 
     SetRegView 64
     ReadRegStr $R0 HKLM \
-    "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"     \
+    "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}" \
     "InstallLocation"
 
     StrCmp $R0 "" done
 
-    MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION                           \
-        "${APPLICATION_NAME} is already installed. $\n$\nClick `OK` to  \
-         select packages to update, or `Cancel` to quit."               \
+    MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION                            \
+        "${APPLICATION_NAME} is already installed.$\n$\nClick `OK` to    \
+         select packages to update, or `Cancel` to quit.$\n$\nBefore     \ 
+         updating,ensure that there are no instances of VSCode running   \
+         or any of the packages are in use."                             \
     IDOK update
         Abort
     update:
-    MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION                    \
-        "Ensure that there are no instances of VSCode running or \
-        any of the packages are in use."                   \
-    IDOK update2
-        Abort
-    update2:
-    StrCpy $IsUpdateMode YES
-    ; copy the current install location
-    StrCpy $INSTDIR "$R0"
-
+        StrCpy $IsUpdateMode YES ; Set flag that this is update mode
+        ; Copy the current install location, install updates here
+        StrCpy $INSTDIR "$R0"
     done:
 
 FunctionEnd
 
+;*********************************************************************
+;*                                                                   * 
+;*      un.onInit                                                    * 
+;*                                                                   * 
+;*********************************************************************
+
+Function un.onInit
+
+    StrCpy $IsUninstall YES
+
+FunctionEnd
 
 ;*********************************************************************
 ;*                                                                   * 
@@ -869,8 +948,12 @@ Function InstTypePageCreate
     ${NSD_CreateCheckBox} 0 20u 45% 10u "Visual Studio Code"
     Pop $R9
     ${If} $IsUpdateMode != YES
+    ${AndIf} $IsUninstall != YES
         EnableWindow $R9 0
         ${NSD_Check} $R9
+    ${EndIf}
+    ${If} $InstallCode == YES 
+        ${NSD_Check} $2
     ${EndIf}
 
     ${NSD_CreateCheckBox} 0 35u 45% 10u "Visual Studio Code Insiders"
@@ -879,14 +962,23 @@ Function InstTypePageCreate
         StrCpy $InstallInsiders NO
     insidersdone:
     ${If} $InstallInsiders == YES 
+    ${OrIf} $IsUninstall == YES
         ${NSD_Check} $2
     ${EndIf}
 
     ${NSD_CreateCheckBox} 0 50u 45% 10u "NodeJS and Package Manager (NPM)"
     Pop $R6
     ${If} $IsUpdateMode != YES
+    ${AndIf} $IsUninstall != YES
         EnableWindow $R6 0
-        ${NSD_Check} $R9
+        ${NSD_Check} $R6
+    ${EndIf}
+    IfFileExists "$INSTDIR\nodejs\npm.cmd" 0 nodejsdone
+        StrCpy $InstallNodeJs NO
+    nodejsdone:
+    ${If} $InstallNodeJs == YES
+    ${OrIf} $IsUninstall == YES
+        ${NSD_Check} $R6
     ${EndIf}
 
     ${NSD_CreateCheckBox} 0 65u 45% 10u "Tortoise SVN + Cmd Line Tools"
@@ -897,6 +989,7 @@ Function InstTypePageCreate
         StrCpy $InstallTortoise NO
     svndone:
     ${If} $InstallTortoise == YES 
+    ${OrIf} $IsUninstall == YES
         ${NSD_Check} $4
     ${EndIf}
 
@@ -907,7 +1000,8 @@ Function InstTypePageCreate
         EnableWindow $5 0
         StrCpy $InstallGit NO
     gitdone:
-    ${If} $InstallGit == YES 
+    ${If} $InstallGit == YES
+    ${OrIf} $IsUninstall == YES 
         ${NSD_Check} $5
     ${EndIf}
 
@@ -916,7 +1010,8 @@ Function InstTypePageCreate
     IfFileExists "$INSTDIR\dotfuscator\ce\DotfuscatorCLI.exe" 0 dotfuscatordone
         StrCpy $InstallDotfuscator NO
     dotfuscatordone:
-    ${If} $InstallDotfuscator == YES 
+    ${If} $InstallDotfuscator == YES
+    ${OrIf} $IsUninstall == YES 
         ${NSD_Check} $6
     ${EndIf}
 
@@ -925,7 +1020,8 @@ Function InstTypePageCreate
     IfFileExists "$INSTDIR\compilers\c#\15.0\Bin\MSBuild.exe" 0 compilersdone
         StrCpy $InstallCompilers NO
     compilersdone:
-    ${If} $InstallCompilers == YES 
+    ${If} $InstallCompilers == YES
+    ${OrIf} $IsUninstall == YES 
         ${NSD_Check} $R5
     ${EndIf}
 
@@ -934,7 +1030,8 @@ Function InstTypePageCreate
     IfFileExists "$INSTDIR\ant\bin\ant.bat" 0 antdone
         StrCpy $InstallAntAnsicon NO
     antdone:
-    ${If} $InstallAntAnsicon == YES 
+    ${If} $InstallAntAnsicon == YES
+    ${OrIf} $IsUninstall == YES 
         ${NSD_Check} $R3
     ${EndIf}
 
@@ -943,7 +1040,8 @@ Function InstTypePageCreate
     IfFileExists "$INSTDIR\gradle\bin\gradle.bat" 0 gradledone
         StrCpy $InstallGradle NO
     gradledone:
-    ${If} $InstallGradle == YES 
+    ${If} $InstallGradle == YES
+    ${OrIf} $IsUninstall == YES 
         ${NSD_Check} $R4
     ${EndIf}
 
@@ -952,7 +1050,8 @@ Function InstTypePageCreate
     IfFileExists "$INSTDIR\nsis\makensis.exe" 0 nsisdone
         StrCpy $InstallNsis NO
     nsisdone:
-    ${If} $InstallNsis == YES 
+    ${If} $InstallNsis == YES
+    ${OrIf} $IsUninstall == YES 
         ${NSD_Check} $7
     ${EndIf}
 
@@ -970,7 +1069,8 @@ Function InstTypePageCreate
     IfFileExists "$INSTDIR\sdks\atlmfc\lib\atl.lib" 0 netsdksdone
         StrCpy $InstallNetSdks NO
     netsdksdone:
-    ${If} $InstallNetSdks == YES 
+    ${If} $InstallNetSdks == YES
+    ${OrIf} $IsUninstall == YES 
         ${NSD_Check} $R1
     ${EndIf}
     
@@ -979,7 +1079,8 @@ Function InstTypePageCreate
     IfFileExists "$INSTDIR\NDP472-DevPack.exe" 0 net472done
         StrCpy $InstallNet472DevPack NO
     net472done:
-    ${If} $InstallNet472DevPack == YES 
+    ${If} $InstallNet472DevPack == YES
+    ${OrIf} $IsUninstall == YES 
         ${NSD_Check} $3
     ${EndIf}
 
@@ -988,7 +1089,8 @@ Function InstTypePageCreate
     IfFileExists "$INSTDIR\sdks\atlmfc\lib\atl.lib" 0 legacysdksdone
         StrCpy $InstallLegacySdks NO
     legacysdksdone:
-    ${If} $InstallLegacySdks == YES 
+    ${If} $InstallLegacySdks == YES
+    ${OrIf} $IsUninstall == YES 
         ${NSD_Check} $R2
     ${EndIf}
 
@@ -1106,36 +1208,23 @@ Function InstTypePageLeave
     ${EndIf}
 
     ${If} $InstallCode == NO 
-        ${If} $InstallInsiders == NO
-            ${If} $InstallNodeJs == NO
-                ${If} $InstallAntAnsicon == NO
-                    ${If} $InstallCompilers == NO
-                        ${If} $InstallGit == NO
-                            ${If} $InstallTortoise == NO
-                                ${If} $InstallGradle == NO
-                                    ${If} $InstallNetSdks == NO
-                                        ${If} $InstallPython == NO
-                                            ${If} $InstallLegacySdks == NO
-                                                ${If} $InstallDotfuscator == NO
-                                                    ${If} $InstallNsis == NO
-                                                        ${If} $InstallNet472DevPack == NO
-                                                            MessageBox MB_OK|MB_ICONEXCLAMATION        \
-                                                                "You must select at least one package to update" \
-                                                            IDOK 0
-                                                            Abort
-                                                        ${Endif}
-                                                    ${Endif}
-                                                ${Endif}
-                                            ${Endif} 
-                                        ${Endif}        
-                                    ${Endif}
-                                ${Endif}
-                            ${Endif}
-                        ${Endif}
-                    ${Endif}
-                ${Endif}
-            ${Endif}
-        ${Endif}
+    ${AndIf} $InstallInsiders == NO
+    ${AndIf} $InstallNodeJs == NO
+    ${AndIf} $InstallAntAnsicon == NO
+    ${AndIf} $InstallCompilers == NO
+    ${AndIf} $InstallGit == NO
+    ${AndIf} $InstallTortoise == NO
+    ${AndIf} $InstallGradle == NO
+    ${AndIf} $InstallNetSdks == NO
+    ${AndIf} $InstallPython == NO
+    ${AndIf} $InstallLegacySdks == NO
+    ${AndIf} $InstallDotfuscator == NO
+    ${AndIf} $InstallNsis == NO
+    ${AndIf} $InstallNet472DevPack == NO
+        MessageBox MB_OK|MB_ICONEXCLAMATION        \
+            "You must select at least one package to update" \
+        IDOK 0
+            Abort
     ${Endif}
 
 FunctionEnd
