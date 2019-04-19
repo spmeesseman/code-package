@@ -631,36 +631,33 @@ Section "Uninstall"
         ; uninstall vscode
         ; uninstaller for vscode exe installer
         ;ExecWait '"$INSTDIR\unins000.exe" /SILENT /SUPPRESSMSGBOXES'
-        ;
-        ; DELETE USER SETTINGS IF USER SAYS ITS OK
-        ;
+        ; Extensions
+        ExecWait '"$INSTDIR\install_extensions.bat" --uninstall-extension'
+        ; Desktop shortcut
+        Delete "$DESKTOP\Code.lnk"
+        Push "$INSTDIR\bin"
+        Call un.RemoveFromPath
+        Push "CODE_HOME"
+        Push "$INSTDIR"
+        Call un.RemoveFromEnvVar
+        DeleteRegKey HKCR "*\shell\Open with VS Code"
+        DeleteRegKey HKCR "Directory\shell\vscode"
+        DeleteRegKey HKCR "Directory\Background\shell\vscode"
+        RMDir /r "$PROFILE\.vscode\extensions"
+        RMDir /r "$INSTDIR\bin"
+        RMDir /r "$INSTDIR\locales"
+        RMDir /r "$INSTDIR\resources"
+        RMDir /r "$INSTDIR\tools"
+        Delete "$INSTDIR\*.dll"
+        Delete "$INSTDIR\*.pak"
+        Delete "$INSTDIR\*.bin"
+        Delete "$INSTDIR\*.bat"
+        Delete "$INSTDIR\Code*"
         MessageBox MB_YESNO "Delete user settings and cache?" IDYES 0 IDNO code1
             ;RMDir /r "$INSTDIR\data"
             RMDir /r "$PROFILE\.vscode"
             RMDir /r "$APPDATA\Code"
         code1:
-            ; Extensions
-            ExecWait '"$INSTDIR\install_extensions.bat" --uninstall-extension'
-            ; Desktop shortcut
-            Delete "$DESKTOP\Code.lnk"
-            Push "$INSTDIR\bin"
-            Call un.RemoveFromPath
-            Push "CODE_HOME"
-            Push "$INSTDIR"
-            Call un.RemoveFromEnvVar
-            DeleteRegKey HKCR "*\shell\Open with VS Code"
-            DeleteRegKey HKCR "Directory\shell\vscode"
-            DeleteRegKey HKCR "Directory\Background\shell\vscode"
-            RMDir /r "$PROFILE\.vscode\extensions"
-            RMDir /r "$INSTDIR\bin"
-            RMDir /r "$INSTDIR\locales"
-            RMDir /r "$INSTDIR\resources"
-            RMDir /r "$INSTDIR\tools"
-            Delete "$INSTDIR\*.dll"
-            Delete "$INSTDIR\*.pak"
-            Delete "$INSTDIR\*.bin"
-            Delete "$INSTDIR\*.bat"
-            Delete "$INSTDIR\Code*"
     ${EndIf}
 
     ;
