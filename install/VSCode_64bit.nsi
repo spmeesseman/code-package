@@ -147,7 +147,7 @@ Section "Install"
     ;
     ${If} InstallCode == YES
         MessageBox MB_OKCANCEL "The latest version of Microsoft VS Code will be installed.$\n$\n  \
-                By continuing you are agreeing to Microsoft licensing terms."                     \
+                By continuing you are agreeing to Microsoft licensing terms." \
                 IDOK vscodetrue
             RMDir "$INSTDIR" ; Don't remove if not empty (/r)
             Abort
@@ -846,11 +846,11 @@ Function .onInit
 
     StrCmp $R0 "" done
 
-    MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION                            \
-        "${APPLICATION_NAME} is already installed.$\n$\nClick `OK` to    \
-         select packages to update, or `Cancel` to quit.$\n$\nBefore     \ 
-         updating,ensure that there are no instances of VSCode running   \
-         or any of the packages are in use."                             \
+    MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION \
+        "${APPLICATION_NAME} is already installed.$\n$\nClick `OK` to \
+         select packages to update, or `Cancel` to quit.$\n$\nBefore \ 
+         updating,ensure that there are no instances of VSCode running \
+         or any of the packages are in use." \
     IDOK update
         Abort
     update:
