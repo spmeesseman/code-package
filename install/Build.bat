@@ -18,10 +18,13 @@ if "%1" == "--pj" (
     copy /Y VSCode_64bit.nsi VSCode_64bit.nsi.tmp
     rem use pj header
     cscript //B ..\script\substitute.vbs installerhdr.bmp pja24bit.bmp VSCode_64bit.nsi > VSCode_64bit.nsi.new
+    rem // pj package owner
     cscript //B ..\script\substitute.vbs "Scott Meesseman" "Perry Johnson & Associates" VSCode_64bit.nsi.new > VSCode_64bit.nsi.new2
-    cscript //B ..\script\substitute.vbs "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src" "https://svc.perryjohnson01.com/code/package" VSCode_64bit.nsi.new2 > VSCode_64bit.nsi.new3
-    move /Y VSCode_64bit.nsi.new3 VSCode_64bit.nsi
-    del /Q VSCode_64bit.nsi.new2
+    rem pj download url (not ready yet, use test download links)
+    rem cscript //B ..\script\substitute.vbs "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src" "https://svn.perryjohnson01.com/code/package" VSCode_64bit.nsi.new2 > VSCode_64bit.nsi.new3
+    move /Y VSCode_64bit.nsi.new2 VSCode_64bit.nsi
+    rem move /Y VSCode_64bit.nsi.new3 VSCode_64bit.nsi
+    rem del /Q VSCode_64bit.nsi.new2
     del /Q VSCode_64bit.nsi.new
 )
 
