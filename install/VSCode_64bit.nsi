@@ -123,9 +123,8 @@ ShowUninstDetails show
 
 ; Specify the pages to display when performing an Install
 Page custom InstTypePageCreate InstTypePageLeave
-;Page custom authPre
 Page custom InstAuthPageCreate InstAuthPageLeave
-;!define MUI_PAGE_CUSTOMFUNCTION_PRE dirPre
+!define MUI_PAGE_CUSTOMFUNCTION_PRE dirPre
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
 
@@ -1022,19 +1021,6 @@ FunctionEnd
 Function dirPre
     ${If} $IsUpdateMode == YES ; skip insall dir window if update mode
         Abort                  ; INSTDIR is set in .onInit
-    ${EndIf}
-FunctionEnd
-
-
-;*********************************************************************
-;*                                                                   * 
-;*      dirPre                                                       * 
-;*                                                                   * 
-;*********************************************************************
-
-Function authPre
-    ${If} $InstallDotfuscator != YES
-        Abort
     ${EndIf}
 FunctionEnd
 
