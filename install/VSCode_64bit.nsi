@@ -78,7 +78,6 @@
 ;*********************************************************************
 
 Var IsUpdateMode
-Var IsUninstall
 Var Status
 Var InstallCode
 Var InstallInsiders
@@ -1001,19 +1000,6 @@ FunctionEnd
 
 ;*********************************************************************
 ;*                                                                   * 
-;*      un.onInit                                                    * 
-;*                                                                   * 
-;*********************************************************************
-
-Function un.onInit
-
-    StrCpy $IsUninstall YES
-
-FunctionEnd
-
-
-;*********************************************************************
-;*                                                                   * 
 ;*      dirPre                                                       * 
 ;*                                                                   * 
 ;*********************************************************************
@@ -1236,7 +1222,6 @@ Function InstTypePageCreate
         ${EndIf}
     gradledone:
     ${If} $InstallGradle == YES
-    ${OrIf} $IsUninstall == YES 
         ${NSD_Check} $R4
     ${EndIf}
 
@@ -1598,7 +1583,6 @@ Function un.InstTypePageCreate
         ${EndIf}
     gradledone:
     ${If} $InstallGradle == YES
-    ${OrIf} $IsUninstall == YES 
         ${NSD_Check} $R4
     ${EndIf}
 
