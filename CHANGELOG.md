@@ -1,5 +1,33 @@
 Change Log
 
+# [2.0.0](https://github.com/spmeesseman/code-package/compare/v1.3.2...v2.0.0) (2019-04-21)
+
+
+### Build System
+
+* extract nsis on demand when building installer, remove unzipped files under src ([727f453](https://github.com/spmeesseman/code-package/commit/727f453))
+* fix python dir extraction for pip install ([3ba6f88](https://github.com/spmeesseman/code-package/commit/3ba6f88))
+* fix soacing in update mode dialog box text on init ([76aa194](https://github.com/spmeesseman/code-package/commit/76aa194))
+* **nsis:** general cleanup and first few alpha fixes ([f525763](https://github.com/spmeesseman/code-package/commit/f525763))
+* **installer:** not sure what to do with branded pj installer yet, may just set up svn external ([1df5e29](https://github.com/spmeesseman/code-package/commit/1df5e29))
+* progress v2 check in, all downloads initially added to nsis script ([18732c1](https://github.com/spmeesseman/code-package/commit/18732c1))
+* **dotfuscator:** removed, not licensed for distribution. ([ba17d06](https://github.com/spmeesseman/code-package/commit/ba17d06))
+* uninstaller - move settings dekete at the end of code uninstall section ([1a9bd60](https://github.com/spmeesseman/code-package/commit/1a9bd60))
+* update branch name for downloads ([8ca4952](https://github.com/spmeesseman/code-package/commit/8ca4952))
+* update message box content on init ([f98aac9](https://github.com/spmeesseman/code-package/commit/f98aac9))
+* v2 progress ([2534417](https://github.com/spmeesseman/code-package/commit/2534417))
+
+
+### Features
+
+* installer should download packages instead of including localy. ([43fcdf4](https://github.com/spmeesseman/code-package/commit/43fcdf4))
+* use checkbox type insatllation for selecting packages. ([17b555f](https://github.com/spmeesseman/code-package/commit/17b555f))
+
+
+### BREAKING CHANGES
+
+* Dotfuscator CE no longer available by direct download, available to registered users only with internal manually entered URL.  Bump major version number
+
 ## [1.3.2](https://github.com/spmeesseman/code-package/compare/v1.3.1...v1.3.2) (2019-04-15)
 
 
