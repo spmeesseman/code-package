@@ -52,11 +52,11 @@
 !define LegacyWixUrl "${PackageBaseUrl}/sdks/wix.zip?raw=true"
 !define LegacyAtlMfcUrl "${PackageBaseUrl}/sdks/atlmfc.zip?raw=true"
 !define LegacyWindows2009Url "${PackageBaseUrl}/sdks/windows/august2009.zip?raw=true"
-!define Net35PackageUrl "${PackageBaseUrl}/dotnet/v3.5.zip?raw=true"
-!define Net40PackageUrl "${PackageBaseUrl}/dotnet/v4.0.zip?raw=true"
-!define Net452PackageUrl "${PackageBaseUrl}/dotnet/v4.5.2.zip?raw=true"
-!define Net461PackageUrl "${PackageBaseUrl}/dotnet/v4.6.1.zip?raw=true"
-!define Net472PackageUrl "${PackageBaseUrl}/dotnet/v4.7.2.zip?raw=true"
+!define Net35PackageUrl "${PackageBaseUrl}/dotnet/net35.zip?raw=true"
+!define Net40PackageUrl "${PackageBaseUrl}/dotnet/net40zip?raw=true"
+!define Net452PackageUrl "${PackageBaseUrl}/dotnet/net452.zip?raw=true"
+!define Net461PackageUrl "${PackageBaseUrl}/dotnet/net461.zip?raw=true"
+!define Net472PackageUrl "${PackageBaseUrl}/dotnet/net472.zip?raw=true"
 
 ;*********************************************************************
 ;*                                                                   *
@@ -152,7 +152,7 @@ Section "Install"
     ;
     ; VSCODE BASE (latest/current version)
     ;
-    ${If} InstallCode == YES
+    ${If} $InstallCode == YES
         MessageBox MB_OKCANCEL "The latest version of Microsoft VS Code will be installed.$\n$\n  \
                 By continuing you are agreeing to Microsoft licensing terms." \
                 IDOK vscodetrue
@@ -189,6 +189,40 @@ Section "Install"
             Push "$INSTDIR"
             ;Call AddToEnvVar
             Call WriteEnvVar
+        ${Endif}
+        ${If} $IsUpdateMode != YES
+            ; EXTENSIONS
+            ${If} $IsUpdateMode != YES ; remove current files
+                ExecWait '"$INSTDIR\install_extensions.bat" --install-extension'
+            ${EndIf}
+            ; Add 'johnstoncode.svn-scm' to enabledProposedApi list in subversion exension, this enabled the file explorer decorations
+            ; located in code installation resources/app/product.json
+            Push '$INSTDIR\resources\app\product.json'   ; < v 1.32
+            Push '"ms-vsliveshare.vsliveshare"]'
+            Push '"ms-vsliveshare.vsliveshare", "johnstoncode.svn-scm"]'
+            Call ReplaceInFile
+            Push '$INSTDIR\resources\app\product.json'   ; >= V 1.32
+            Push '"atlassian.atlascode"]'
+            Push '"atlassian.atlascode", "johnstoncode.svn-scm"]'
+            Call ReplaceInFile
+            ; SETTINGS.JSON
+            ; Check if 'settings.json' exists in the target directory   
+            ;IfFileExists "$INSTDIR\data\user-data\User\settings.json" SETTINGS_FILE_ALREADY_EXISTS 0
+            IfFileExists "$APPDATA\Code\User\settings.json" settingsexist 0
+            ; Copy the file
+            ;File /oname=data\user-data\User\settings.json ..\build\settings.json
+            CreateDirectory "$APPDATA\Code" ; APPDATA = AppData\Roaming
+            CreateDirectory "$APPDATA\Code\User"
+            File /oname=$APPDATA\Code\User\settings.json ..\build\settings.json
+            ; replace c:\code in settings.json with actual install dir
+            ;Push "$INSTDIR\data\user-data\User\settings.json"
+            ${If} "$INSTDIR" != "c:\Code"
+                Push "$APPDATA\Code\User\settings.json"
+                Push "c:\Code" 
+                Push "$INSTDIR"
+                Call ReplaceInFile
+            ${EndIf}
+            settingsexist:
         ${Endif}
     ${Endif}
 
@@ -634,46 +668,6 @@ Section "Install"
         ${Else}
             DetailPrint "Error  - $Status"
         ${EndIf}
-    ${EndIf}
-
-    ;
-    ; EXTENSIONS
-    ;
-    ${If} $IsUpdateMode != YES ; remove current files
-        ExecWait '"$INSTDIR\install_extensions.bat" --install-extension'
-    ${EndIf}
-    ; Add 'johnstoncode.svn-scm' to enabledProposedApi list in subversion exension, this enabled the file explorer decorations
-    ; located in code installation resources/app/product.json
-    Push '$INSTDIR\resources\app\product.json'   ; < v 1.32
-    Push '"ms-vsliveshare.vsliveshare"]'
-    Push '"ms-vsliveshare.vsliveshare", "johnstoncode.svn-scm"]'
-    Call ReplaceInFile
-    Push '$INSTDIR\resources\app\product.json'   ; >= V 1.32
-    Push '"atlassian.atlascode"]'
-    Push '"atlassian.atlascode", "johnstoncode.svn-scm"]'
-    Call ReplaceInFile
-
-    ;
-    ; SETTINGS.JSON
-    ;
-    ${If} $IsUpdateMode != YES
-        ; Check if 'settings.json' exists in the target directory   
-        ;IfFileExists "$INSTDIR\data\user-data\User\settings.json" SETTINGS_FILE_ALREADY_EXISTS 0
-        IfFileExists "$APPDATA\Code\User\settings.json" settingsexist 0
-        ; Copy the file
-        ;File /oname=data\user-data\User\settings.json ..\build\settings.json
-        CreateDirectory "$APPDATA\Code" ; APPDATA = AppData\Roaming
-        CreateDirectory "$APPDATA\Code\User"
-        File /oname=$APPDATA\Code\User\settings.json ..\build\settings.json
-        ; replace c:\code in settings.json with actual install dir
-        ;Push "$INSTDIR\data\user-data\User\settings.json"
-        ${If} "$INSTDIR" != "c:\Code"
-            Push "$APPDATA\Code\User\settings.json"
-            Push "c:\Code" 
-            Push "$INSTDIR"
-            Call ReplaceInFile
-        ${EndIf}
-        settingsexist:
     ${EndIf}
 
     ;
@@ -1124,7 +1118,7 @@ Function InstTypePageCreate
         EnableWindow $R9 0
     ${EndIf}
     ${If} $InstallCode == YES 
-        ${NSD_Check} $2
+        ${NSD_Check} $R9
     ${EndIf}
 
     ${NSD_CreateCheckBox} 0 35u 45% 10u "Visual Studio Code Insiders"
@@ -1481,37 +1475,28 @@ Function un.InstTypePageCreate
 
     ${NSD_CreateCheckBox} 0 20u 45% 10u "Visual Studio Code"
     Pop $R9
-    ${If} $IsUpdateMode != YES
-        EnableWindow $R9 0
-    ${EndIf}
     ${If} $InstallCode == YES 
         ${NSD_Check} $2
     ${EndIf}
 
     ${NSD_CreateCheckBox} 0 35u 45% 10u "Visual Studio Code Insiders"
     Pop $2
-    IfFileExists "$INSTDIR\insiders\Code - Insiders.exe" 0 insidersdone
-        ${If} $InstallsSaved != YES
-            StrCpy $InstallInsiders NO
-        ${EndIf}
-    insidersdone:
+    ${IfNot} ${FileExists} "$INSTDIR\insiders\Code - Insiders.exe"
+        ${NSD_Uncheck} $2
+        EnableWindow $2 0
+        StrCpy $InstallInsiders NO
+    ${EndIf}
     ${If} $InstallInsiders == YES
         ${NSD_Check} $2
     ${EndIf}
-
-    DetailPrint "Install nodejs $InstallNodeJs"
-
+    
     ${NSD_CreateCheckBox} 0 50u 45% 10u "NodeJS and Package Manager (NPM)"
     Pop $R6
-    ${If} $IsUpdateMode != YES
+    ${IfNot} ${FileExists} "$INSTDIR\nodejs\npm.cmd"
+        ${NSD_Uncheck} $R6
         EnableWindow $R6 0
-        ${NSD_Check} $R6
+        StrCpy $InstallNodeJs NO
     ${EndIf}
-    IfFileExists "$INSTDIR\nodejs\npm.cmd" 0 nodejsdone
-        ${If} $InstallsSaved != YES
-            StrCpy $InstallNodeJs NO
-        ${Endif}
-    nodejsdone:
     ${If} $InstallNodeJs == YES
         ${NSD_Check} $R6
     ${EndIf}
@@ -1519,124 +1504,122 @@ Function un.InstTypePageCreate
     ${NSD_CreateCheckBox} 0 65u 45% 10u "Tortoise SVN + Cmd Line Tools"
     Pop $4
     ReadRegStr $R0 HKLM "SOFTWARE\TortoiseSVN" "Directory"  ; Check to see if already installed
-    IfFileExists "$R0\bin\svn.exe" 0 svndone
+    ${IfNot} ${FileExists} "$R0\bin\svn.exe"
+        ${NSD_Uncheck} $4
         EnableWindow $4 0
-        ${If} $InstallsSaved != YES
-            StrCpy $InstallTortoise NO
-        ${EndIf}
-    svndone:
-    ${If} $InstallTortoise == YES 
+        StrCpy $InstallTortoise NO
+    ${EndIf}
+    ${If} $InstallTortoise == YES
         ${NSD_Check} $4
     ${EndIf}
 
     ${NSD_CreateCheckBox} 0 80u 45% 10u "Git for Windows"
     Pop $5
     ReadRegStr $R0 HKLM "SOFTWARE\GitForWindows" "InstallPath"  ; Check to see if already installed
-    IfFileExists "$R0\bin\git.exe" 0 gitdone
+    ${IfNot} ${FileExists} "$R0\bin\svn.exe"
+        ${NSD_Uncheck} $5
         EnableWindow $5 0
-        ${If} $InstallsSaved != YES
-            StrCpy $InstallGit NO
-        ${EndIf}
-    gitdone:
+        StrCpy $InstallGit NO
+    ${EndIf}
     ${If} $InstallGit == YES
         ${NSD_Check} $5
     ${EndIf}
 
     ${NSD_CreateCheckBox} 0 95u 45% 10u "Dotfuscator Community Edition"
     Pop $6
-    IfFileExists "$INSTDIR\dotfuscator\ce\DotfuscatorCLI.exe" 0 dotfuscatordone
-        ${If} $InstallsSaved != YES
-            StrCpy $InstallDotfuscator NO
-        ${EndIf}
-    dotfuscatordone:
+    ${IfNot} ${FileExists} "$INSTDIR\dotfuscator\ce\DotfuscatorCLI.exe"
+        ${NSD_Uncheck} $6
+        EnableWindow $6 0
+        StrCpy $InstallDotfuscator NO
+    ${EndIf}
     ${If} $InstallDotfuscator == YES
         ${NSD_Check} $6
     ${EndIf}
 
     ${NSD_CreateCheckBox} 0 110u 45% 10u "C#/C/C++ Compiler Package"
     Pop $R5
-    IfFileExists "$INSTDIR\compilers\c#\15.0\Bin\MSBuild.exe" 0 compilersdone
-        ${If} $InstallsSaved != YES
-            StrCpy $InstallCompilers NO
-        ${EndIf}
-    compilersdone:
+    ${IfNot} ${FileExists} "$INSTDIR\compilers\c#\15.0\Bin\MSBuild.exe"
+        ${NSD_Uncheck} $R5
+        EnableWindow $R5 0
+        StrCpy $InstallCompilers NO
+    ${EndIf}
     ${If} $InstallCompilers == YES
         ${NSD_Check} $R5
     ${EndIf}
 
     ${NSD_CreateCheckBox} 150u 20u 45% 10u "Apache Ant with Ansicon"
     Pop $R3
-    IfFileExists "$INSTDIR\ant\bin\ant.bat" 0 antdone
-        ${If} $InstallsSaved != YES
-            StrCpy $InstallAntAnsicon NO
-        ${EndIf}
-    antdone:
+    ${IfNot} ${FileExists} "$INSTDIR\compilers\c#\15.0\Bin\MSBuild.exe"
+        ${NSD_Uncheck} $R3
+        EnableWindow $R3 0
+        StrCpy $InstallAntAnsicon NO
+    ${EndIf}
     ${If} $InstallAntAnsicon == YES
         ${NSD_Check} $R3
     ${EndIf}
 
     ${NSD_CreateCheckBox} 150u 35u 45% 10u "Gradle Build Tool"
     Pop $R4
-    IfFileExists "$INSTDIR\gradle\bin\gradle.bat" 0 gradledone
-        ${If} $InstallsSaved != YES
-            StrCpy $InstallGradle NO
-        ${EndIf}
-    gradledone:
+    ${IfNot} ${FileExists} "$INSTDIR\gradle\bin\gradle.bat"
+        ${NSD_Uncheck} $R4
+        EnableWindow $R4 0
+        StrCpy $InstallGradle NO
+    ${EndIf}
     ${If} $InstallGradle == YES
         ${NSD_Check} $R4
     ${EndIf}
 
     ${NSD_CreateCheckBox} 150u 50u 45% 10u "Nullsoft Scriptable Installer (NSIS)"
     Pop $7
-    IfFileExists "$INSTDIR\nsis\makensis.exe" 0 nsisdone
-        ${If} $InstallsSaved != YES
-            StrCpy $InstallNsis NO
-        ${EndIf}
-    nsisdone:
+    ${IfNot} ${FileExists} "$INSTDIR\nsis\makensis.exe"
+        ${NSD_Uncheck} $7
+        EnableWindow $7 0
+        StrCpy $InstallNsis NO
+    ${EndIf}
     ${If} $InstallNsis == YES
         ${NSD_Check} $7
     ${EndIf}
 
     ${NSD_CreateCheckBox} 150u 65u 45% 10u "Python for Windows"
     Pop $8
-    IfFileExists "$INSTDIR\python\scripts\pip.exe" 0 pythondone
-        ${If} $InstallsSaved != YES
-            StrCpy $InstallPython NO
-        ${EndIf}
-    pythondone:
-    ${If} $InstallPython == YES 
+    ${IfNot} ${FileExists} "$INSTDIR\python\scripts\pip.exe"
+        ${NSD_Uncheck} $8
+        EnableWindow $8 0
+        StrCpy $InstallPython NO
+    ${EndIf}
+    ${If} $InstallPython == YES
         ${NSD_Check} $8
     ${EndIf}
 
     ${NSD_CreateCheckBox} 150u 80u 45% 10u ".NET SDKs (3.5, 4.0, 4.52, 4.61, 4.72)"
     Pop $R1
-    IfFileExists "$INSTDIR\sdks\atlmfc\lib\atl.lib" 0 netsdksdone
-        ${If} $InstallsSaved != YES
-            StrCpy $InstallNetSdks NO
-        ${EndIf}
-    netsdksdone:
+    ${IfNot} ${FileExists} "$INSTDIR\sdks\net472\Accessibility.dll"
+        ${NSD_Uncheck} $R1
+        EnableWindow $R1 0
+        StrCpy $InstallNetSdks NO
+    ${EndIf}
     ${If} $InstallNetSdks == YES
         ${NSD_Check} $R1
     ${EndIf}
     
     ${NSD_CreateCheckBox} 150u 95u 45% 10u ".NET 4.72 Developer Pack"
     Pop $3
-    IfFileExists "$INSTDIR\NDP472-DevPack.exe" 0 net472done
-        ${If} $InstallsSaved != YES
-            StrCpy $InstallNet472DevPack NO
-        ${EndIf}
-    net472done:
+    ${IfNot} ${FileExists} "$INSTDIR\NDP472-DevPack.exe"
+        ${NSD_Uncheck} $3
+        EnableWindow $3 0
+        StrCpy $InstallNet472DevPack NO
+    ${EndIf}
     ${If} $InstallNet472DevPack == YES
         ${NSD_Check} $3
     ${EndIf}
 
     ${NSD_CreateCheckBox} 150u 110u 45% 10u "Legacy SDKs (Atl, Mfc, Windows, Wix)"
     Pop $R2
-    IfFileExists "$INSTDIR\sdks\atlmfc\lib\atl.lib" 0 legacysdksdone
-        ${If} $InstallsSaved != YES
-            StrCpy $InstallLegacySdks NO
-        ${EndIf}
-    legacysdksdone:
+    ${IfNot} ${FileExists} "$INSTDIR\sdks\atlmfc\lib\atl.lib"
+        ${NSD_Uncheck} $R2
+        EnableWindow $R2 0
+        StrCpy $InstallLegacySdks NO
+    ${EndIf}
     ${If} $InstallLegacySdks == YES
         ${NSD_Check} $R2
     ${EndIf}
