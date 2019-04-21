@@ -18,13 +18,15 @@ This package downloads and installs the latest version VSCode at the time of ins
 
 The following software is redistributed locally by code-package:
 
-|Redistributable|Version|Method|License|Required|
+|Package|Version|License|Required|
 |-|-|-|-|-|
-|Tortoise SVN|1.11.1|Local|GPLv2|No|
-|Apache Ant|1.10.5|Local|Apache 2.0|Yes|
-|Ansicon|1.88|Local|Jason Hood|Yes|
-|NodeJS|10.15.3|Local|Node.js|Yes|
-|Python|3.7.3|Local|GPL-compatible|Yes|
+|Apache Ant|1.10.5|Apache 2.0|Yes|
+|Ansicon|1.88|Jason Hood|Yes|
+|Dotfuscator|5.26.0|GPL-compatible|Yes|
+|Git|2.21.0|GPL|Yes|
+|NodeJS|10.15.3|Node.js|Yes|
+|Python|3.7.3|GPL-compatible|Yes|
+|Tortoise SVN|1.11.1|GPLv2|No|
 
 ## Remote/Downloaded Software (non-redistributed)
 

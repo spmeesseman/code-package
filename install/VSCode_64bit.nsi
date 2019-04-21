@@ -9,13 +9,13 @@
 !define APPLICATION_NAME     "Code Package"
 
 ; Define build level
-!define BUILD_LEVEL          "1.3.2"
+!define BUILD_LEVEL          "2.0.0"
 
 ; Define install file name
-!define INSTALL_FILE_NAME    "CodePackage_x64.exe"
+!define INSTALL_FILE_NAME    "code-package-x64.exe"
 
 ; Define uninstall file name
-!define UNINSTALL_FILE_NAME  "CodePackageUninstall.exe"
+!define UNINSTALL_FILE_NAME  "code-package-uninst.exe"
 
 ; Define MUI_ABORTWARNING so that a warning message is displayed
 ; if you attempt to cancel an install
@@ -29,11 +29,29 @@
 ; Set context to 'All Users'
 !define ALL_USERS
 
+; Public URLs
 !define CodeDownloadUrl "https://update.code.visualstudio.com/latest/win32-x64-archive/stable"
 !define CodeInsidersDownloadUrl "https://update.code.visualstudio.com/latest/win32-x64-archive/insider"
 !define GitDownloadUrl "https://github.com/git-for-windows/git/releases/download/v2.21.0.windows.1/Git-2.21.0-64-bit.exe"
 !define Net472DownloadUrl "https://go.microsoft.com/fwlink/?LinkId=874338"
-
+; Private URLs (requires manual auth/url, for registered ce users only)
+!define DotfuscatorUrl "http://app1.spmeesseman.com/download/code-package/dotfuscator-ce.zip" ; will throw 404
+; Repo URLs
+!define PackageBaseUrl "https://github.com/spmeesseman/code-package/blob/dl-installer/src"
+!define TortoiseUrl "${PackageBaseUrl}/tortoisesvn/tortoisesvn.msi?raw=true"
+!define NodeJsUrl "${PackageBaseUrl}/nodejs/nodejs.zip?raw=true"
+!define NsisUrl "${PackageBaseUrl}/nsis/nsis.zip?raw=true"
+!define PythonUrl "${PackageBaseUrl}/python/python.zip?raw=true"
+!define AntUrl "${PackageBaseUrl}/ant/ant.zip?raw=true"
+!define AnsiconUrl "${PackageBaseUrl}/ansicon/ansicon.zip?raw=true"
+!define GradleUrl "${PackageBaseUrl}/gradle/gradle.zip?raw=true"
+!define CompilerCCPlusPlus9Url "${PackageBaseUrl}/compilers/C_C%2B%2B/9.0.zip?raw=true"
+!define CompilerCSharp8Url "${PackageBaseUrl}/compilers/C%23/8.0.zip?raw=true"
+!define CompilerCSharp15Url "${PackageBaseUrl}/compilers/C%23/15.0.zip?raw=true"
+!define LegacyWixUrl "${PackageBaseUrl}/sdks/wix.zip?raw=true"
+!define LegacyAtlMfcUrl "${PackageBaseUrl}/sdks/atlmfc.zip?raw=true"
+!define LegacyWindows2009Url "${PackageBaseUrl}/sdks/windows/august2009.zip?raw=true"
+!define DotNetPackageUrl "${PackageBaseUrl}/dotnet/dotnet.zip?raw=true"
 
 ;*********************************************************************
 ;*                                                                   *
@@ -53,8 +71,24 @@
 ;*                                                                   * 
 ;*********************************************************************
 
+Var IsUpdateMode
 Var Status
-Var InsidersInstalled
+Var InstallCode
+Var InstallInsiders
+Var InstallNodeJs
+Var InstallNet472DevPack
+Var InstallTortoise
+Var InstallGit
+Var InstallDotfuscator
+Var InstallNsis
+Var InstallPython
+Var InstallLegacySdks
+Var InstallNetSdks
+Var InstallAntAnsicon
+Var InstallGradle
+Var InstallCompilers
+Var InstallsSaved
+Var DotfuscatorUrlVar
 
 ;*********************************************************************
 ;*                                                                   *
@@ -62,17 +96,16 @@ Var InsidersInstalled
 ;*                                                                   * 
 ;*********************************************************************
 
-; Define the 'BrandingText' text 
 ; This value is displayed in the lower left of each dialog window
 BrandingText " "
 
 ; Force CRC checking
 CRCCheck force
 
-; Define the name which appears in the title bar
+; This appears in the title bar
 Name "${APPLICATION_NAME} ${BUILD_LEVEL} 64-bit"
 
-; Define the name of the output file
+; The output file name
 OutFile "dist\${INSTALL_FILE_NAME}"
 
 ; Show details of install
@@ -82,17 +115,19 @@ ShowInstDetails show
 ShowUninstDetails show
 
 ; Specify the pages to display when performing an Install
+Page custom InstTypePageCreate InstTypePageLeave
+Page custom InstAuthPageCreate InstAuthPageLeave
+!define MUI_PAGE_CUSTOMFUNCTION_PRE dirPre
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
 
 ; Specify the pages to display when performing an Uninstall
+UninstPage custom un.InstTypePageCreate un.InstTypePageLeave
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
-  
+
 ; Specify the language
 !insertmacro MUI_LANGUAGE "English"
-
-; Reserve the files
 
 
 ;*********************************************************************
@@ -105,292 +140,550 @@ ShowUninstDetails show
 
 Section "Install"
 
-   SetRegView 64
-   SetOutPath "$INSTDIR"
+    SetRegView 64
+    SetOutPath "$INSTDIR"
+    
+    ;
+    ; VSCODE BASE (latest/current version)
+    ;
+    ${If} $InstallCode == YES
+        MessageBox MB_OKCANCEL "The latest version of Microsoft VS Code will be installed.$\n$\n  \
+                By continuing you are agreeing to Microsoft licensing terms." \
+                IDOK vscodetrue
+            RMDir "$INSTDIR" ; Don't remove if not empty (/r)
+            DetailPrint "Code installation cancelled by user - exit installation"
+            Abort
+        vscodetrue:
+        DetailPrint "Downloading Visual Studio Code..."
+        ;NSISdl::download ${CodeDownloadUrl} "$INSTDIR\VSCode.exe" ; old built-in method doesnt work
+        inetc::get ${CodeDownloadUrl} "$INSTDIR\VSCode.zip"
+        ; 'OK' when sucessful
+        Pop $Status
+        StrCmp $Status "OK" status0_success 0
+            RMDir "$INSTDIR" ; Don't remove if not empty (/r)
+            DetailPrint "Code installation failure on download - exit installation"
+            Abort
+        status0_success:
+        ${If} $IsUpdateMode == YES ; remove current code files
+            RMDir /r "$INSTDIR\bin"
+            RMDir /r "$INSTDIR\locales"
+            RMDir /r "$INSTDIR\resources"
+            RMDir /r "$INSTDIR\tools"
+            Delete "$INSTDIR\*.dll"
+            Delete "$INSTDIR\*.pak"
+            Delete "$INSTDIR\*.bin"
+            Delete "$INSTDIR\Code*"
+        ${EndIf}
+        ;ExecWait '"$INSTDIR\VSCode.exe" /SILENT /MERGETASKS="!runcode,addcontextmenufiles,addcontextmenufolders,associatewithfiles" /NORESTART /NOCANCEL /SUPPRESSMSGBOXES /DIR="$INSTDIR"'
+        DetailPrint "Unpacking Visual Studio Code..."
+        nsisunz::Unzip "$INSTDIR\VSCode.zip" "$INSTDIR"
+        Pop $Status ; 'success' when sucessful
+        Delete "$INSTDIR\VSCode.zip"
+        ${If} $IsUpdateMode != YES
+            CreateShortCut "$DESKTOP\Code.lnk" "$INSTDIR\code.exe"
+            Push "$INSTDIR\bin"
+            Call AddToPath
+            Push "CODE_HOME"
+            Push "$INSTDIR"
+            ;Call AddToEnvVar
+            Call WriteEnvVar
+        ${Endif}
+        ${If} $IsUpdateMode != YES
+            ; Add 'johnstoncode.svn-scm' to enabledProposedApi list in subversion exension, this enabled the file explorer decorations
+            ; located in code installation resources/app/product.json
+            Push '$INSTDIR\resources\app\product.json'   ; < v 1.32
+            Push '"ms-vsliveshare.vsliveshare"]'
+            Push '"ms-vsliveshare.vsliveshare", "johnstoncode.svn-scm"]'
+            Call ReplaceInFile
+            Push '$INSTDIR\resources\app\product.json'   ; >= V 1.32
+            Push '"atlassian.atlascode"]'
+            Push '"atlassian.atlascode", "johnstoncode.svn-scm"]'
+            Call ReplaceInFile
+        ${Endif}
+    ${Endif}
 
-   ; VSCODE BASE (latest/current version)
-   MessageBox MB_OKCANCEL "The latest version of Microsoft VS Code needs to be installed.$\n$\nBy continuing you are agreeing to Microsoft licensing terms." IDOK vscodetrue IDCANCEL vscodefalse
-   vscodefalse:
-      RMDir "$INSTDIR" ; Don't remove if not empty (/r)
-      Abort
-   vscodetrue:
-   ;NSISdl::download ${GitDownloadUrl} "$INSTDIR\VSCode.exe"
-   inetc::get ${CodeDownloadUrl} "$INSTDIR\VSCode.zip"
-   ; 'OK' when sucessful
-   Pop $Status
-   ;StrCpy $Status "OK"
-   StrCmp $Status "OK" status0_success 0
-      RMDir "$INSTDIR" ; Don't remove if not empty (/r)
-      Abort
-   status0_success:
-   ;ExecWait '"$INSTDIR\VSCode.exe" /SILENT /MERGETASKS="!runcode,addcontextmenufiles,addcontextmenufolders,associatewithfiles" /NORESTART /NOCANCEL /SUPPRESSMSGBOXES /DIR="$INSTDIR"'
-   nsisunz::Unzip "$INSTDIR\VSCode.zip" "$INSTDIR"
-   ; 'success' when sucessful
-   Pop $Status
-   CreateShortCut "$DESKTOP\Code.lnk" "$INSTDIR\code.exe"
-   Delete "$INSTDIR\VSCode.zip"
+    ;
+    ; EXTRACT THE INSTALLERS LOCAL FILES - WITHOUT SETTINGS.JSON, PYTHON and TEMP NSIS folder
+    ; MAKENSIS.EXE is running from the temp ../build/nsis folder
+    ; Only extract settings.json later, after extensions are installed and it doesnt exist already, 
+    ; and we are not in update mode
+    ; Only extract python dir later, if we are installing/updating it
+    ; This would be just the *.bat files, and git.inf, as of 4.18.19
+    ;
+    File /r /x settings.json /x nsis /x python ..\build\*.*
 
-   ; EXTRACT THE LOCAL INSTALLER FILES - WITHOUT SETTINGS.JSON
-   File /r /x settings.json ..\build\*.*
+    ;
+    ; VSCODE EXTENSIONS
+    ; Use install_extensions.bat from installer package extracted above
+    ;
+    ${If} $IsUpdateMode != YES
+        ExecWait '"$INSTDIR\install_extensions.bat" --install-extension'
+    ${EndIf}
+    
+    ;
+    ; VSCODE Insiders (latest/current version)
+    ;
+    ${If} $InstallInsiders == YES 
+        DetailPrint "Downloading Visual Studio Code Insiders..."
+        inetc::get ${CodeInsidersDownloadUrl} "$INSTDIR\VSCodeInsiders.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            ;ExecWait '"$INSTDIR\VSCode.exe" /SILENT /MERGETASKS="!runcode,addcontextmenufiles,addcontextmenufolders,associatewithfiles" /NORESTART /NOCANCEL /SUPPRESSMSGBOXES /DIR="$INSTDIR"'
+            ${If} $IsUpdateMode == YES ; remove current code insiders files
+                RMDir /r "$INSTDIR\insiders"
+            ${EndIf}
+            CreateDirectory "$INSTDIR\insiders"
+            DetailPrint "Unpacking Visual Studio Code Insiders..."
+            nsisunz::Unzip "$INSTDIR\VSCodeInsiders.zip" "$INSTDIR\insiders"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\VSCodeInsiders.zip"
+            ${If} $IsUpdateMode != YES
+                CreateShortCut "$DESKTOP\Code Insiders.lnk" "$INSTDIR\insiders\Code - Insiders.exe"
+            ${EndIf}
+        ${Else}
+            DetailPrint "Error  - $Status"
+        ${EndIf}
+    ${EndIf}
 
-   ; VSCODE Insiders (latest/current version)
-   StrCpy $InsidersInstalled "NO"
-   MessageBox MB_YESNO "Install Code Insiders Edition?$\n$\nBy installing you are agreeing to Microsoft licensing terms." IDYES vscodeinstrue IDNO vscodeinsfalse
-   vscodeinstrue:
-   ; EXTRACT THE LOCAL INSTALLER FILES - DON'T OVERWRITE SETTINGS.JSON
-   ;SetOutPath "$INSTDIR\insiders"
-   ;File /r /x settings.json ..\build\*.*
-   inetc::get ${CodeInsidersDownloadUrl} "$INSTDIR\VSCodeInsiders.zip"
-   ; 'OK' when sucessful
-   Pop $Status
-   StrCmp $Status "OK" 0 vscodeinsfalse
-   ;ExecWait '"$INSTDIR\VSCode.exe" /SILENT /MERGETASKS="!runcode,addcontextmenufiles,addcontextmenufolders,associatewithfiles" /NORESTART /NOCANCEL /SUPPRESSMSGBOXES /DIR="$INSTDIR"'
-   ; 'success' when sucessful
-   CreateDirectory "$INSTDIR\insiders"
-   nsisunz::Unzip "$INSTDIR\VSCodeInsiders.zip" "$INSTDIR\insiders"
-   Pop $Status
-   ; SETTINGS.JSON
-   ; Check if 'settings.json' exists in the target directory   
-   ;IfFileExists "$INSTDIR\insiders\data\user-data\User\settings.json" SETTINGS2_FILE_ALREADY_EXISTS 0
-   ; Copy the file
-   ;File /oname=insiders\data\user-data\User\settings.json ..\build\settings.json
-   ; replace c:\code in settings.json with actual install dir
-   ;Push "$INSTDIR\insiders\data\user-data\User\settings.json"
-   ;Push "c:\Code" 
-   ;Push "$INSTDIR\insiders"
-   ;Call ReplaceInFile
-   StrCpy $InsidersInstalled "YES"
-   ;SetOutPath "$INSTDIR"
-   ;SETTINGS2_FILE_ALREADY_EXISTS:
-   ;CreateShortCut "$INSTDIR\insiders\data" "$INSTDIR\data"
-   CreateShortCut "$DESKTOP\Code Insiders.lnk" "$INSTDIR\insiders\Code - Insiders.exe"
-   Delete "$INSTDIR\VSCodeInsiders.zip"
-   vscodeinsfalse:
+    ;
+    ; NODEJS
+    ;
+    ${If} $InstallNodeJs == YES
+        DetailPrint "Downloading NodeJS and NPM..."
+        inetc::get ${NodeJsUrl} "$INSTDIR\NodeJs.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            ${If} $IsUpdateMode == YES ; remove current files
+                ; Remove global node modules gracefully
+                ExecWait '"$INSTDIR\install_node_modules.bat" uninstall'
+                RMDir /r "$INSTDIR\nodejs"
+            ${EndIf}
+            DetailPrint "Unpacking NodeJS and NPM..."
+            nsisunz::Unzip "$INSTDIR\NodeJs.zip" "$INSTDIR"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\NodeJs.zip"
+            ; INSTALL GLOBAL NODE MODULES
+            ExecWait '"$INSTDIR\install_node_modules.bat" install'
+            ${If} $IsUpdateMode != YES
+                Push "$INSTDIR\nodejs"
+                Call AddToPath
+                Push "$INSTDIR\nodejs\node_modules\typescript\bin"
+                Call AddToPath
+            ${Endif}
+        ${Else}
+            DetailPrint "Error  - $Status"
+        ${EndIf}
+    ${EndIf}
 
-   ; .NET 4.72 DEVELOPMENT PACK
-   MessageBox MB_YESNO "Install .NET 4.72 Development Pack?$\n$\nBy clicking yes you are agreeing to Microsoft licensing terms." IDYES net472true IDNO net472false
-   net472true:
-      inetc::get ${Net472DownloadUrl} "$INSTDIR\NDP472-DevPack.exe"
-      ; 'OK' when sucessful
-      Pop $Status
-      StrCmp $Status "OK" 0 net472false
-      ExecWait '"$INSTDIR\NDP472-DevPack.exe" /passive /noreboot'
-   net472false:
+    ;
+    ; .NET 4.72 DEVELOPMENT PACK
+    ;
+    ${If} $InstallNet472DevPack == YES
+        DetailPrint "Downloading .NET 4.72 Developer Pack..."
+        inetc::get ${Net472DownloadUrl} "$INSTDIR\NDP472-DevPack.exe"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            ExecWait '"$INSTDIR\NDP472-DevPack.exe" /passive /noreboot'
+        ${Else}
+            DetailPrint "Error  - $Status"
+        ${EndIf}
+    ${EndIf}
 
-   ; GIT
-   ReadRegStr $R0 HKLM "SOFTWARE\GitForWindows" "InstallPath"  ; Check to see if already installed
-   IfFileExists "$R0\bin\git.exe" GIT_ALREADY_INSTALLED 0
-   MessageBox MB_YESNO "Install Git v2.21.0?" IDYES gittrue IDNO gitfalse
-   gittrue:
-      ; NSISdl::download ${GitDownloadUrl} "$INSTDIR\GitSetup.exe"
-      inetc::get ${GitDownloadUrl} "$INSTDIR\GitSetup.exe"
-      ; 'OK' when sucessful
-      Pop $Status
-      StrCmp $Status "OK" 0 gitfalse
-      Push "$INSTDIR\git.inf"     ; copy install dir to inf file
-      Push "C:\Program Files\Git" 
-      Push "$INSTDIR\git"
-      Call ReplaceInFile
-      ExecWait '"$INSTDIR\GitSetup.exe" /SILENT /SUPPRESSMSGBOXES /NOCANCEL /NORESTART /SP- /LOADINF="$INSTDIR\git.inf" /DIR="$INSTDIR"'
-   gitfalse:                         
-   GIT_ALREADY_INSTALLED:
-   Delete "$INSTDIR\git.inf"
+    ;
+    ; GIT
+    ;
+    ${If} $InstallGit == YES 
+        DetailPrint "Downloading Git for Windows..."
+        inetc::get ${GitDownloadUrl} "$INSTDIR\GitSetup.exe"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            Push "$INSTDIR\git.inf"     ; copy install dir to inf file
+            Push "C:\Program Files\Git" 
+            Push "$INSTDIR\git"
+            Call ReplaceInFile
+            ExecWait '"$INSTDIR\GitSetup.exe" /SILENT /SUPPRESSMSGBOXES /NOCANCEL /NORESTART /SP- /LOADINF="$INSTDIR\git.inf" /DIR="$INSTDIR\git"'
+        ${Else}
+            DetailPrint "Error  - $Status"
+        ${EndIf}
+    ${EndIf}
+    Delete "$INSTDIR\git.inf"
 
-   ; TORTOISE SVN
-   ReadRegStr $R0 HKLM "SOFTWARE\TortoiseSVN" "Directory"  ; Check to see if already installed
-   IfFileExists "$R0\bin\svn.exe" TORTOISE_ALREADY_INSTALLED 0
-   MessageBox MB_YESNO "Install TortoiseSVN v1.11.1 and Subversion command line tools?" IDYES svntrue IDNO svnfalse
-   svntrue:
-      ExecWait 'msiexec /i "$INSTDIR\TortoiseSVN-1.11.1.28492-x64-svn-1.11.1.msi" /passive /norestart INSTALLDIR="$INSTDIR\tortoisesvn" ADDLOCAL=ALL'
-   svnfalse:                         
-   TORTOISE_ALREADY_INSTALLED:
+    ;
+    ; TORTOISE SVN
+    ;
+    ${If} $InstallTortoise == YES
+        DetailPrint "Downloading TortoiseSVN..."
+        inetc::get ${TortoiseUrl} "$INSTDIR\TortoiseSetup.msi"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            ExecWait 'msiexec /i "$INSTDIR\TortoiseSetup.msi" /passive /norestart INSTALLDIR="$INSTDIR\tortoisesvn" ADDLOCAL=ALL'
+        ${Else}
+            DetailPrint "Error  - $Status"
+        ${EndIf}
+    ${EndIf}
 
-   ; NSIS
-   ;SetRegView 32
-   ;ReadRegStr $R0 HKLM "SOFTWARE\NSIS" "Default"  ; Check to see if already installed
-   ;IfFileExists "$R0\makensis.exe" NSIS_ALREADY_INSTALLED 0
-   ;MessageBox MB_YESNO "Install Nullsoft Scriptable Installer (NSIS) v3.04?" IDYES nsistrue IDNO nsisfalse
-   ;nsistrue:
-   ;   ExecWait 'nsis-3.04-setup.exe /SD /D="$INSTDIR\nsis"'
-   ;nsisfalse:                         
-   ;NSIS_ALREADY_INSTALLED:
-   ;SetRegView 64
-   
-   ; EXTENSIONS
-   ExecWait '"$INSTDIR\install_extensions.bat" --install-extension'
-   ; Add 'johnstoncode.svn-scm' to enabledProposedApi list in subversion exension, this enabled the file explorer decorations
-   Push '$INSTDIR\resources\app\product.json'   ; < v 1.32
-   Push '"ms-vsliveshare.vsliveshare"]'
-   Push '"ms-vsliveshare.vsliveshare", "johnstoncode.svn-scm"]'
-   Call ReplaceInFile
-   Push '$INSTDIR\resources\app\product.json'   ; >= V 1.32
-   Push '"atlassian.atlascode"]'
-   Push '"atlassian.atlascode", "johnstoncode.svn-scm"]'
-   Call ReplaceInFile
+    ;
+    ; ANT/ANSICON
+    ;
+    ${If} $InstallAntAnsicon == YES
+        DetailPrint "Downloading Apache Ant..."
+        inetc::get ${AntUrl} "$INSTDIR\ant.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            ${If} $IsUpdateMode == YES ; remove current files
+                RMDir /r "$INSTDIR\ant"
+            ${EndIf}
+            DetailPrint "Unpacking Apache Ant..."
+            nsisunz::Unzip "$INSTDIR\ant.zip" "$INSTDIR"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\ant.zip"
+            Push "$INSTDIR\ant\bin"
+            ${If} $IsUpdateMode != YES
+                Call AddToPath
+                Push "ANT_HOME"
+                Push "$INSTDIR\ant"
+                ;Call AddToEnvVar
+                Call WriteEnvVar
+            ${Endif}
+        ${Else}
+            DetailPrint "Error  - $Status"
+        ${EndIf}
+        DetailPrint "Downloading Ansicon for Ant..."
+        inetc::get ${AnsiconUrl} "$INSTDIR\ansicon.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            ${If} $IsUpdateMode == YES ; remove current files
+                RMDir /r "$INSTDIR\ansicon"
+            ${EndIf}
+            DetailPrint "Unpacking Ansicon for Ant..."
+            nsisunz::Unzip "$INSTDIR\ansicon.zip" "$INSTDIR"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\ansicon.zip"
+            ;${If} $IsUpdateMode != YES
+                ;Push "$INSTDIR\ansicon\x64"
+                ;Call AddToPath
+            ;${Endif}
+        ${Else}
+            DetailPrint "Error  - $Status"
+        ${EndIf}
+    ${EndIf}
 
-   ;StrCmp $InsidersInstalled "YES" 0 insiders_extensions_done
-   ;ExecWait '"$INSTDIR\insiders\install_extensions.bat" --install-extension'
-   ; Add 'johnstoncode.svn-scm' to enabledProposedApi list in subversion exension, this enabled the file explorer decorations
-   ;Push '$INSTDIR\insiders\resources\app\product.json'   ; < v 1.32
-   ;Push '"ms-vsliveshare.vsliveshare"]'
-   ;Push '"ms-vsliveshare.vsliveshare", "johnstoncode.svn-scm"]'
-   ;Call ReplaceInFile
-   ;Push '$INSTDIR\insiders\resources\app\product.json'   ; >= V 1.32
-   ;Push '"atlassian.atlascode"]'
-   ;Push '"atlassian.atlascode", "johnstoncode.svn-scm"]'
-   ;insiders_extensions_done:
+    ;
+    ; GRADLE
+    ;
+    ${If} $InstallGradle == YES
+        DetailPrint "Downloading Gradle Build Tool..."
+        inetc::get ${GradleUrl} "$INSTDIR\gradle.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            ${If} $IsUpdateMode == YES ; remove current files
+                RMDir /r "$INSTDIR\gradle"
+            ${EndIf}
+            DetailPrint "Unpacking Gradle Build Tool..."
+            nsisunz::Unzip "$INSTDIR\gradle.zip" "$INSTDIR"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\gradle.zip"
+            ${If} $IsUpdateMode != YES
+                Push "$INSTDIR\gradle\bin"
+                Call AddToPath
+            ${Endif}
+        ${Else}
+            DetailPrint "Error  - $Status"
+        ${EndIf}
+    ${EndIf}
 
-   ; GLOBAL NODE MODULES
-   ; ExecWait 'cmd.exe "$INSTDIR\nodejs\npm" install -g eslint'
-   ;ExecWait '"$INSTDIR\install_node_modules.bat" install'
-   ;StrCmp $InsidersInstalled "YES" 0 insiders_nodemodules_done
-   ;ExecWait '"$INSTDIR\insiders\install_node_modules.bat" install'
-   ;insiders_nodemodules_done:
+    ;
+    ; DOTFUSCATOR CE
+    ;
+    ${If} $InstallDotfuscator == YES
+    ${AndIf} $DotfuscatorUrlVar != ""
+    ${AndIf} $DotfuscatorUrlVar != "http://"
+    ${AndIf} $DotfuscatorUrlVar != "https://"
+        DetailPrint "Downloading Dotfuscator Community Edition..."
+        inetc::get $DotfuscatorUrlVar "$INSTDIR\DotfuscatorCE.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            ${If} $IsUpdateMode == YES ; remove current files
+                RMDir /r "$INSTDIR\dotfuscator\ce"
+                RMDir "$INSTDIR\dotfuscator" ; dont remove if another edition is installed here (no /r)
+            ${EndIf}
+            CreateDirectory "$INSTDIR\dotfuscator"
+            DetailPrint "Unpacking Dotfuscator CE..."
+            nsisunz::Unzip "$INSTDIR\DotfuscatorCE.zip" "$INSTDIR\dotfuscator" ;will extract to 'ce' dir
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\DotfuscatorCE.zip"
+        ${Else}
+            DetailPrint "Error  - $Status"
+        ${EndIf}
+    ${ElseIf} $InstallDotfuscator == YES
+        DetailPrint "Downloading Dotfuscator Community Edition..."
+        DetailPrint "Error  - Manual URL entry for registered Dofuscator download required"
+    ${EndIf}
 
-   ; PYTHON PIP
-   Push "$INSTDIR\python\python37._pth" ; replace c:\Code with actual install dir
-   Push "c:\Code" 
-   Push "$INSTDIR"
-   Call ReplaceInFile
-   ExecWait '"$INSTDIR\python\install_pip.bat"' ; install pip
-   ExecWait '"$INSTDIR\python\install_pylint.bat"' ; install pylint
-   Delete "$INSTDIR\python\install_pip.bat"
-   Delete "$INSTDIR\python\install_pylint.bat"
-   Delete "$INSTDIR\python\python37._pth" ; this was a tmp setup in the installer for setting PATH in this env
-   ;Rename "$INSTDIR\python\python37._pth.save" "$INSTDIR\python\python37._pth" ; replace with default file
-   
-   ; SETTINGS.JSON
-   ; Check if 'settings.json' exists in the target directory   
-   ;IfFileExists "$INSTDIR\data\user-data\User\settings.json" SETTINGS_FILE_ALREADY_EXISTS 0
-   IfFileExists "$APPDATA\Code\User\settings.json" SETTINGS_FILE_ALREADY_EXISTS 0
-   ; Copy the file
-   ;File /oname=data\user-data\User\settings.json ..\build\settings.json
-   CreateDirectory "$APPDATA\Code"
-   CreateDirectory "$APPDATA\Code\User"
-   File /oname=$APPDATA\Code\User\settings.json ..\build\settings.json
-   ; replace c:\code in settings.json with actual install dir
-   ;Push "$INSTDIR\data\user-data\User\settings.json"
-   Push "$APPDATA\Code\User\settings.json"
-   Push "c:\Code" 
-   Push "$INSTDIR"
-   Call ReplaceInFile
-   SETTINGS_FILE_ALREADY_EXISTS:
-   
-   ; CUSTOM FILES STUFF
-   ExecWait '"$INSTDIR\copy_settings.bat"'
-   Delete "$INSTDIR\copy_settings.bat"
+    ;
+    ; NSIS
+    ;
+    ${If} $InstallNsis == YES
+        DetailPrint "Downloading Nullsoft Scriptable Installer (NSIS)..."
+        inetc::get ${NsisUrl} "$INSTDIR\nsis.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            ${If} $IsUpdateMode == YES ; remove current files
+                RMDir /r "$INSTDIR\nsis"
+            ${EndIf}
+            DetailPrint "Unpacking Nullsoft Scriptable Installer (NSIS)..."
+            nsisunz::Unzip "$INSTDIR\nsis.zip" "$INSTDIR"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\nsis.zip"
+            ${If} $IsUpdateMode != YES
+                Push "$INSTDIR\nsis"
+                Call AddToPath
+            ${EndIf}
+        ${Else}
+            DetailPrint "Error  - $Status"
+        ${EndIf}
+    ${EndIf}
 
-   ; ADD TO PATH ENVIRONMENT VARIABLE
-   Push "$INSTDIR\ant\bin"
-   Call AddToPath
-   Push "$INSTDIR\gradle\bin"
-   Call AddToPath
-   Push "$INSTDIR\python"
-   Call AddToPath
-   Push "$INSTDIR\python\Scripts"
-   Call AddToPath
-   Push "$INSTDIR\nodejs"
-   Call AddToPath
-   Push "$INSTDIR\nsis"
-   Call AddToPath
-   Push "$INSTDIR\nodejs\node_modules\typescript\bin"
-   Call AddToPath
-   Push "$INSTDIR\bin"
-   Call AddToPath
-   
-   ; ADD CUSTOM VARIABLES TO ENVIRONMENT
-   Push "ANT_HOME"
-   Push "$INSTDIR\ant"
-   Call AddToEnvVar
-   Push "CODE_HOME"
-   Push "$INSTDIR"
-   Call AddToEnvVar
-   Push "PYTHONPATH"
-   Push "$INSTDIR\python;$INSTDIR\python\DLLs;$INSTDIR\python\lib;$INSTDIR\python\lib\plat-win;$INSTDIR\python\lib\site-packages;$INSTDIR\python\Scripts"
-   Call AddToEnvVar
+    ;
+    ; PYTHON
+    ;
+    ${If} $InstallPython == YES
+        DetailPrint "Downloading Python for Windows..."
+        inetc::get ${PythonUrl} "$INSTDIR\python.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            ${If} $IsUpdateMode == YES ; remove current files
+                RMDir /r "$INSTDIR\python"
+            ${EndIf}
+            DetailPrint "Unpacking Python for Windows..."
+            nsisunz::Unzip "$INSTDIR\python.zip" "$INSTDIR"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\python.zip"
+            ;
+            ; PYTHON PIP
+            ;
+            ; Extract just python local installer dir
+            File /r /x *.json /x install_extensions.bat /x install_node_modules.bat /x *.inf /x nsis ..\build\*.*
+            Push "$INSTDIR\python\python37._pth" ; replace c:\Code with actual install dir
+            Push "c:\Code" 
+            Push "$INSTDIR"
+            Call ReplaceInFile
+            ExecWait '"$INSTDIR\python\install_pip.bat"' ; install pip
+            ExecWait '"$INSTDIR\python\install_pylint.bat"' ; install pylint
+            Delete "$INSTDIR\python\install_pip.bat"
+            Delete "$INSTDIR\python\install_pylint.bat"
+            Delete "$INSTDIR\python\python37._pth" ; this was a tmp setup in the installer for setting PATH in this env
+            ;Rename "$INSTDIR\python\python37._pth.save" "$INSTDIR\python\python37._pth" ; replace with default file
+            ${If} $IsUpdateMode != YES
+                Push "$INSTDIR\python"
+                Call AddToPath
+                Push "$INSTDIR\python\Scripts"
+                Call AddToPath
+                Push "PYTHONPATH"
+                Push "$INSTDIR\python;$INSTDIR\python\DLLs;$INSTDIR\python\lib;$INSTDIR\python\lib\plat-win;$INSTDIR\python\lib\site-packages;$INSTDIR\python\Scripts"
+                ;Call AddToEnvVar
+                Call WriteEnvVar
+            ${Endif}
+        ${Else}
+            DetailPrint "Error  - $Status"
+        ${EndIf}
+    ${EndIf}
 
-   ; ADD REGISTRY KEYS - VSCODE WINDOWS EXPLORER CONTEXT MENUS
-   WriteRegStr   HKCR                                                                                      \
-                 "*\shell\Open with VS Code"                                                               \
-                 ""                                                                                        \
-                 "Edit with VS Code"     
-   WriteRegStr   HKCR                                                                                      \
-                 "*\shell\Open with VS Code"                                                               \
-                 "Icon"                                                                                    \
-                 "$INSTDIR\Code.exe,0"     
-   WriteRegStr   HKCR                                                                                      \
-                 "*\shell\Open with VS Code\command"                                                       \
-                 ""                                                                                        \
-                 '"$INSTDIR\Code.exe" "%1"'     
-   WriteRegStr   HKCR                                                                                      \
-                 "Directory\shell\vscode"                                                                  \
-                 ""                                                                                        \
-                 "Open Folder as VS Code Project"     
-   WriteRegStr   HKCR                                                                                      \
-                 "Directory\shell\vscode"                                                                  \
-                 "Icon"                                                                                    \
-                 "$INSTDIR\Code.exe,0"     
-   WriteRegStr   HKCR                                                                                      \
-                 "Directory\shell\vscode\command"                                                          \
-                 ""                                                                                        \
-                 '"$INSTDIR\Code.exe" "%1"'     
-   WriteRegStr   HKCR                                                                                      \
-                 "Directory\Background\shell\vscode"                                                       \
-                 ""                                                                                        \
-                 "Open Folder as VS Code Project"     
-   WriteRegStr   HKCR                                                                                      \
-                 "Directory\Background\shell\vscode"                                                       \
-                 "Icon"                                                                                    \
-                 "$INSTDIR\Code.exe,0"     
-   WriteRegStr   HKCR                                                                                      \
-                 "Directory\Background\shell\vscode\command"                                               \
-                 ""                                                                                        \
-                 '"$INSTDIR\Code.exe" "%V"'     
+    ;
+    ; COMPILERS
+    ;
+    ${If} $InstallCompilers == YES
+        CreateDirectory "$INSTDIR\compilers"
+        DetailPrint "Downloading C/C++ Compiler 9.0 Package..."
+        inetc::get ${CompilerCCPlusPlus9Url} "$INSTDIR\CCPlusPlus9.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            ${If} $IsUpdateMode == YES ; remove current files
+                RMDir /r "$INSTDIR\compilers\c_c++\9.0"
+            ${EndIf}
+            CreateDirectory "$INSTDIR\compilers\c_c++"
+            DetailPrint "Unpacking C/C++ Compiler 9.0 Package..."
+            nsisunz::Unzip "$INSTDIR\CCPlusPlus9.zip" "$INSTDIR\compilers\c_c++"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\CCPlusPlus9.zip"
+        ${Else}
+            DetailPrint "Error  - $Status"
+        ${EndIf}
+        DetailPrint "Downloading C# Compiler 8.0 Package..."
+        inetc::get ${CompilerCSharp8Url} "$INSTDIR\CSharp8.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            ${If} $IsUpdateMode == YES ; remove current files
+                RMDir /r "$INSTDIR\compilers\c#\8.0"
+            ${EndIf}
+            CreateDirectory "$INSTDIR\compilers\c#"
+            DetailPrint "Unpacking C# Compiler 8.0 Package..."
+            nsisunz::Unzip "$INSTDIR\CSharp8.zip" "$INSTDIR\compilers\c#"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\CSharp8.zip"
+        ${Else}
+            DetailPrint "Error  - $Status"
+        ${EndIf}
+        DetailPrint "Downloading C# Compiler 15.0 Package..."
+        inetc::get ${CompilerCSharp15Url} "$INSTDIR\CSharp15.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            ${If} $IsUpdateMode == YES ; remove current files
+                RMDir /r "$INSTDIR\compilers\c#\15.0"
+            ${EndIf}
+            CreateDirectory "$INSTDIR\compilers\c#"
+            DetailPrint "Unpacking C# Compiler 15.0 Package...."
+            nsisunz::Unzip "$INSTDIR\CSharp15.zip" "$INSTDIR\compilers\c#"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\CSharp15.zip"
+        ${Else}
+            DetailPrint "Error  - $Status"
+        ${EndIf}
+    ${EndIf}
 
-   ; ADD REGISTRY KEYS - ADD/REMOVE PROGRAMS
-   ; Write information to registry so the program can be removed from the 'Add/Remove Programs' control panel
-   WriteRegStr   HKLM                                                                                        \
-                 "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"                   \
-                 "DisplayIcon"                                                                               \
-                 "$INSTDIR\code.exe"               
-   WriteRegStr   HKLM                                                                                        \
-                 "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"                   \
-                 "DisplayName"                                                                               \
-                 "${APPLICATION_NAME}"         
-   WriteRegStr   HKLM                                                                                        \
-                 "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"                   \
-                 "DisplayVersion"                                                                            \
-                 "${BUILD_LEVEL}"
-   WriteRegDWORD HKLM                                                                                        \
-                 "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"                   \
-                 "EstimatedSize"                                                                             \
-                 1259000
-   WriteRegStr   HKLM                                                                                        \
-                 "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"                   \
-                 "InstallLocation"                                                                           \
-                 "$INSTDIR"
-   WriteRegDWORD HKLM                                                                                        \
-                 "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"                   \
-                 "NoModify"                                                                                  \
-                 1
-   WriteRegDWORD HKLM                                                                                        \
-                 "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"                   \
-                 "NoRepair"                                                                                  \
-                 1
-   WriteRegStr   HKLM                                                                                        \
-                 "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"                   \
-                 "Publisher"                                                                                 \
-                 "Scott Meesseman"
-   WriteRegStr   HKLM                                                                                        \
-                 "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"                   \
-                 "UninstallString"                                                                           \
-                 "$INSTDIR\${UNINSTALL_FILE_NAME}"
+    ;
+    ; .NET SDK BUNDLES/PACKAGES
+    ;
+    ${If} $InstallNetSdks == YES
+        DetailPrint "Downloading .NET Framework Packages..."
+        inetc::get ${DotNetPackageUrl} "$INSTDIR\DotNetPackage.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            ${If} $IsUpdateMode == YES ; remove current files
+                RMDir /r "$INSTDIR\dotnet"
+            ${EndIf}
+            CreateDirectory "$INSTDIR\dotnet"
+            DetailPrint "Unpacking .NET Framework Packages...."
+            nsisunz::Unzip "$INSTDIR\DotNetPackage.zip" "$INSTDIR\dotnet"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\DotNetPackage.zip"
+        ${Else}
+            DetailPrint "Error  - $Status"
+        ${EndIf}
+    ${EndIf}
 
-   ; Set context to 'All Users'
-   SetShellVarContext "all"
+    ;
+    ; Create sdks directory structure if required
+    ;
+    ${If} $InstallLegacySdks == YES
+    ;${OrIf} $InstallNetSdks == YES
+        CreateDirectory "$INSTDIR\sdks"
+    ${EndIf}
 
-   ;Create uninstall file
-   WriteUninstaller "$INSTDIR\${UNINSTALL_FILE_NAME}"
+    ;
+    ; LEGACY SDKS
+    ;
+    ${If} $InstallLegacySdks == YES
+        DetailPrint "Downloading Legacy SDK for PJA - Wix..."
+        inetc::get ${LegacyWixUrl} "$INSTDIR\LegacyWix.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            ${If} $IsUpdateMode == YES ; remove current files
+                RMDir /r "$INSTDIR\sdks\wix"
+            ${EndIf}
+            DetailPrint "Unpacking Legacy SDK for PJA - Wix Package...."
+            nsisunz::Unzip "$INSTDIR\LegacyWix.zip" "$INSTDIR\sdks"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\LegacyWix.zip"
+        ${Else}
+            DetailPrint "Error  - $Status"
+        ${EndIf}
+        DetailPrint "Downloading Legacy SDK for PJA - AtlMfc..."
+        inetc::get ${LegacyAtlMfcUrl} "$INSTDIR\LegacyAtlMfc.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            ${If} $IsUpdateMode == YES ; remove current files
+                RMDir /r "$INSTDIR\sdks\atlmfc"
+            ${EndIf}
+            DetailPrint "Unpacking Legacy SDK for PJA - AtlMfc Package...."
+            nsisunz::Unzip "$INSTDIR\LegacyAtlMfc.zip" "$INSTDIR\sdks"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\LegacyAtlMfc.zip"
+        ${Else}
+            DetailPrint "Error  - $Status"
+        ${EndIf}
+        DetailPrint "Downloading Legacy SDK for PJA - Windows August 2009..."
+        inetc::get ${LegacyWindows2009Url} "$INSTDIR\WindowsAugust2009.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            ${If} $IsUpdateMode == YES ; remove current files
+                RMDir /r "$INSTDIR\sdks\windows\august2009"
+            ${EndIf}
+            CreateDirectory "$INSTDIR\sdks\windows"
+            DetailPrint "Unpacking Legacy SDK for PJA - Windows August 2009 Package...."
+            nsisunz::Unzip "$INSTDIR\WindowsAugust2009.zip" "$INSTDIR\sdks\windows"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\WindowsAugust2009.zip"
+        ${Else}
+            DetailPrint "Error  - $Status"
+        ${EndIf}
+    ${EndIf}
+
+    ; SETTINGS.JSON
+    ; Check if 'settings.json' exists in the target directory   
+    ;IfFileExists "$INSTDIR\data\user-data\User\settings.json" settingsexist 0
+    IfFileExists "$APPDATA\Code\User\settings.json" settingsexist 0
+    ; Copy the file
+    ;File /oname=data\user-data\User\settings.json ..\build\settings.json
+    CreateDirectory "$APPDATA\Code" ; APPDATA = AppData\Roaming
+    CreateDirectory "$APPDATA\Code\User"
+    File /oname=$APPDATA\Code\User\settings.json ..\build\settings.json
+    ; replace c:\code in settings.json with actual install dir
+    ${If} "$INSTDIR" != "c:\Code"
+        Push "$APPDATA\Code\User\settings.json"
+        ;Push "$INSTDIR\data\user-data\User\settings.json"
+        Push "c:\Code" 
+        Push "$INSTDIR"
+        Call ReplaceInFile
+    ${EndIf}
+    settingsexist:
+
+    ;
+    ; CUSTOM FILES STUFF (eslintrc) run in either install or update modes
+    ;
+    ExecWait '"$INSTDIR\copy_settings.bat"'
+    Delete "$INSTDIR\copy_settings.bat"
+
+    ;
+    ; ADD REGISTRY KEYS - VSCODE WINDOWS EXPLORER CONTEXT MENUS
+    ;
+    ${If} $IsUpdateMode != YES
+        WriteRegStr   HKCR "*\shell\Open with VS Code" "" "Edit with VS Code"     
+        WriteRegStr   HKCR "*\shell\Open with VS Code" "Icon" "$INSTDIR\Code.exe,0"     
+        WriteRegStr   HKCR "*\shell\Open with VS Code\command" "" '"$INSTDIR\Code.exe" "%1"'     
+        WriteRegStr   HKCR "Directory\shell\vscode" "" "Open Folder as VS Code Project"     
+        WriteRegStr   HKCR "Directory\shell\vscode" "Icon" "$INSTDIR\Code.exe,0"     
+        WriteRegStr   HKCR "Directory\shell\vscode\command" "" '"$INSTDIR\Code.exe" "%1"'     
+        WriteRegStr   HKCR "Directory\Background\shell\vscode" "" "Open Folder as VS Code Project"     
+        WriteRegStr   HKCR "Directory\Background\shell\vscode" "Icon" "$INSTDIR\Code.exe,0"     
+        WriteRegStr   HKCR "Directory\Background\shell\vscode\command" "" '"$INSTDIR\Code.exe" "%V"'     
+    ${EndIf}
+
+    ;
+    ; ADD REGISTRY KEYS - ADD/REMOVE PROGRAMS
+    ;
+    ${If} $IsUpdateMode != YES
+        Strcpy $0 "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"
+        WriteRegStr   HKLM "$0" "DisplayIcon" "$INSTDIR\code.exe"               
+        WriteRegStr   HKLM "$0" "DisplayName" "${APPLICATION_NAME}"         
+        WriteRegStr   HKLM "$0" "DisplayVersion" "${BUILD_LEVEL}"
+        WriteRegDWORD HKLM "$0" "EstimatedSize" 1259000
+        WriteRegStr   HKLM "$0" "InstallLocation" "$INSTDIR"
+        WriteRegDWORD HKLM "$0" "NoModify" 1
+        WriteRegDWORD HKLM "$0" "NoRepair" 1
+        WriteRegStr   HKLM "$0" "Publisher" "Scott Meesseman"
+        WriteRegStr   HKLM "$0" "UninstallString" "$INSTDIR\${UNINSTALL_FILE_NAME}"
+    ${EndIf}
+
+    ; Set context to 'All Users'
+    SetShellVarContext "all"
+
+    ;
+    ; CREATE UNINSTALLER
+    ;
+    ${If} $IsUpdateMode != YES
+        WriteUninstaller "$INSTDIR\${UNINSTALL_FILE_NAME}"
+    ${EndIf}
 
 SectionEnd
 
@@ -405,118 +698,223 @@ SectionEnd
 
 Section "Uninstall"
 
-   ; Explicitly set the registry view to be 64 bits
-   SetRegView 64
+    ;
+    ; Explicitly set the registry view to be 64 bits
+    ;
+    SetRegView 64
+    ;
+    ; Set context to 'All Users'
+    ;
+    SetShellVarContext "all"
 
-   ; Set context to 'All Users'
-   ;SetShellVarContext "all"
+    ;
+    ; CODE
+    ;
+    ${If} $InstallCode == YES
+        DetailPrint "Uninstalling Visual Studio Code..."
+        ; uninstall vscode
+        ; uninstaller for vscode exe installer (using zip not installer)
+        ;ExecWait '"$INSTDIR\unins000.exe" /SILENT /SUPPRESSMSGBOXES'
+        ; Extensions
+        ExecWait '"$INSTDIR\install_extensions.bat" --uninstall-extension'
+        ; Desktop shortcut
+        Delete "$DESKTOP\Code.lnk"
+        Push "$INSTDIR\bin"
+        Call un.RemoveFromPath
+        Push "CODE_HOME"
+        Call un.DeleteEnvVar
+        DeleteRegKey HKCR "*\shell\Open with VS Code"
+        DeleteRegKey HKCR "Directory\shell\vscode"
+        DeleteRegKey HKCR "Directory\Background\shell\vscode"
+        DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"
+        RMDir /r "$PROFILE\.vscode\extensions"
+        RMDir /r "$INSTDIR\bin"
+        RMDir /r "$INSTDIR\locales"
+        RMDir /r "$INSTDIR\resources"
+        RMDir /r "$INSTDIR\tools"
+        Delete "$INSTDIR\*.dll"
+        Delete "$INSTDIR\*.pak"
+        Delete "$INSTDIR\*.bin"
+        Delete "$INSTDIR\*.bat"
+        Delete "$INSTDIR\*.dat"
+        Delete "$INSTDIR\Code*"
+        MessageBox MB_YESNO "Delete user settings and cache?" IDYES 0 IDNO code1
+            RMDir /r "$APPDATA\Code"
+            RMDir /r "$PROFILE\AppData\Roaming\Code"
+            RMDir /r "$PROFILE\.vscode"
+        code1:
+    ${EndIf}
 
-   ; GLOBAL NODE MODULES
-   ExecWait '"$INSTDIR\install_node_modules.bat" uninstall'
+    ;
+    ; CODE INSIDERS
+    ;
+    ${If} $InstallInsiders == YES 
+        DetailPrint "Uninstalling Visual Studio Code Insiders..."
+        RMDir /r "$INSTDIR\insiders"
+        Delete "$DESKTOP\Code Insiders.lnk"
+    ${EndIf}
 
-   ; EXTENSIONS
-   ExecWait '"$INSTDIR\install_extensions.bat" --uninstall-extension'
-   RMDir /r "$PROFILE\.vscode\extensions"
-   
-   ; REMOVE LOCAL INSTALLATON DIRS FROM SETUP
-   RMDir /r "$INSTDIR\ant"
-   RMDir /r "$INSTDIR\ansicon"
-   RMDir /r "$INSTDIR\compilers"
-   RMDir /r "$INSTDIR\insiders"
-   RMDir /r "$INSTDIR\gradle"
-   RMDir /r "$INSTDIR\nodejs"
-   RMDir /r "$INSTDIR\nsis"
-   RMDir /r "$INSTDIR\python"
-   RMDir /r "$INSTDIR\sdks"
-   RMDir /r "$INSTDIR\bin"
-   RMDir /r "$INSTDIR\locales"
-   RMDir /r "$INSTDIR\resources"
-   RMDir /r "$INSTDIR\tools"
-   
-   ; DELETE USER SETTINGS IF USER SAYS ITS OK
-   MessageBox MB_YESNO "Delete user settings and cache?" IDYES true1 IDNO false1
-   true1:
-     ;RMDir /r "$INSTDIR\data"
-     RMDir /r "$PROFILE\.vscode"
-     RMDir /r "$APPDATA\Code"
-   false1:
-   
-   ; uninstall vscode
-   ; uninstaller for vscode exe installer
-   ;ExecWait '"$INSTDIR\unins000.exe" /SILENT /SUPPRESSMSGBOXES'
-   
-   ; UNINSTALL GIT IF USER SAYS ITS OK
-   ReadRegStr $R0 HKLM "SOFTWARE\GitForWindows" "InstallPath"  ; Check to see if already installed
-   IfFileExists "$R0\bin\git.exe" 0 false0
-   MessageBox MB_YESNO "Uninstall Git?" IDYES true0 IDNO false0
-   true0:
-     ExecWait '"$INSTDIR\git\unins000.exe" /SILENT /SUPPRESSMSGBOXES'
-     RMDir /r "$INSTDIR\git"
-   false0:
+    ;
+    ; NODEJS
+    ;
+    ${If} $InstallNodeJs == YES 
+        DetailPrint "Uninstalling NodeJs/NPM..."
+        ExecWait '"$INSTDIR\install_node_modules.bat" uninstall'
+        Push "$INSTDIR\nodejs"
+        Call un.RemoveFromPath
+        Push "$INSTDIR\nodejs\node_modules\typescript\bin"
+        Call un.RemoveFromPath
+        RMDir /r "$INSTDIR\nodejs"
+    ${EndIf}
+    
+    ;
+    ; GIT
+    ;
+    ${If} $InstallGit == YES 
+        DetailPrint "Uninstalling Git for Windows..."
+        ExecWait '"$INSTDIR\git\unins000.exe" /SILENT /SUPPRESSMSGBOXES'
+        RMDir /r "$INSTDIR\git"
+        Delete /REBOOTOK "$INSTDIR\GitSetup.exe"
+    ${EndIf}
 
-   ; UNINSTALL TORTOISESVN IF USER SAYS ITS OK
-   ReadRegStr $R0 HKLM "SOFTWARE\TortoiseSVN" "Directory"  ; Check to see if already installed
-   IfFileExists "$R0\bin\svn.exe" 0 false2
-   MessageBox MB_YESNO "Uninstall Tortoise SVN?" IDYES true2 IDNO false2
-   true2:
-     ExecWait 'msiexec /x "$INSTDIR\TortoiseSVN-1.11.1.28492-x64-svn-1.11.1.msi" /passive REBOOT=ReallySuppress MSIRESTARTMANAGERCONTROL=Disable'
-     RMDir /r "$INSTDIR\tortoisesvn"
-   false2:
+    ;
+    ; TORTOISESVN
+    ;
+    ${If} $InstallTortoise == YES 
+        DetailPrint "Uninstalling TortoiseSVN..."
+        ExecWait 'msiexec /x "$INSTDIR\TortoiseSVN-1.11.1.28492-x64-svn-1.11.1.msi" /passive REBOOT=ReallySuppress MSIRESTARTMANAGERCONTROL=Disable'
+        RMDir /r "$INSTDIR\tortoisesvn"
+        Delete /REBOOTOK "$INSTDIR\TortoiseSetup.msi"
+    ${EndIf}
 
-   ; UNINSTALL .NET472 DEV PACK
-   IfFileExists "$INSTDIR\NDP472-DevPack.exe" 0 DEVPACK_UNINSTALLED
-      ExecWait '"$INSTDIR\NDP472-DevPack.exe" /uninstall /passive /noreboot'
-   DEVPACK_UNINSTALLED:
+    ;
+    ; .NET472 DEV PACK
+    ;
+    ${If} $InstallNet472DevPack == YES 
+        DetailPrint "Uninstalling .NET 4.72 Dev and Targeting Pack..."
+        IfFileExists "$INSTDIR\NDP472-DevPack.exe" 0 net472pack1
+            ExecWait '"$INSTDIR\NDP472-DevPack.exe" /uninstall /passive /noreboot'
+            Delete /REBOOTOK "$INSTDIR\NDP472-DevPack.exe"
+        net472pack1:
+    ${EndIf}
 
-   Delete "$INSTDIR\*.*"
-   
-   ; REMOVE VARIABLES FROM PATH ENVIRONMENT VARIABLE
-   Push "$INSTDIR\ant\bin"
-   Call un.RemoveFromPath
-   Push "$INSTDIR\gradle\bin"
-   Call un.RemoveFromPath
-   Push "$INSTDIR\python"
-   Call un.RemoveFromPath
-   Push "$INSTDIR\python\scripts"
-   Call un.RemoveFromPath
-   Push "$INSTDIR\nodejs"
-   Call un.RemoveFromPath
-   Push "$INSTDIR\nodejs\node_modules\typescript\bin"
-   Call un.RemoveFromPath
-   Push "$INSTDIR\bin"
-   Call un.RemoveFromPath
-   Push "$INSTDIR\nsis"
-   Call un.RemoveFromPath
-   ; REMOVE CUSTOM ENVIRONMENT VARIABLES
-   ; TODO - This only sets var to empty string, want to delete var
-   Push "ANT_HOME"
-   Push "$INSTDIR\ant"
-   Call un.RemoveFromEnvVar
-   Push "CODE_HOME"
-   Push "$INSTDIR"
-   Call un.RemoveFromEnvVar
-   Push "PYTHONPATH"
-   Push "$INSTDIR\python;$INSTDIR\python\DLLs;$INSTDIR\python\lib;$INSTDIR\python\lib\plat-win;$INSTDIR\python\lib\site-packages;$INSTDIR\python\Scripts"
-   Call un.RemoveFromEnvVar
-   
-   ; Delete the desktop shortcut
-   Delete "$DESKTOP\Code.lnk"
+    ;
+    ; .NET SDKS
+    ;
+    ${If} $InstallNetSdks == YES 
+        DetailPrint "Uninstalling .NET Framework Packages..."
+        RMDir /r "$INSTDIR\dotnet"
+    ${EndIf}
 
-   ; DELETE REGISTRY KEYS
-   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"
-   DeleteRegKey HKCR "*\shell\Open with VS Code"
-   DeleteRegKey HKCR "Directory\shell\vscode"
-   DeleteRegKey HKCR "Directory\Background\shell\vscode"
+    ;
+    ; LEGACY SDKS
+    ;
+    ${If} $InstallLegacySdks == YES 
+        DetailPrint "Uninstalling Legacy SDKs for PJA..."
+        RMDir /r "$INSTDIR\sdks\windows"
+        RMDir /r "$INSTDIR\sdks\atlmfc"
+        RMDir /r "$INSTDIR\sdks\wix"
+    ${EndIf}
 
-   ; THIS WILL ONLY REMOVE THE BASE DIR IF IT IS EMPTY
-   RMDir "$INSTDIR"
+    ${If} $InstallNetSdks == YES 
+    ;${AndIf} $InstallLegacySdks == YES 
+        RMDir /r "$INSTDIR\sdks"
+    ${EndIf}
+
+    ;
+    ; ANT
+    ;
+    ${If} $InstallAntAnsicon == YES 
+        DetailPrint "Uninstalling Ant/Ansicon..."
+        Push "$INSTDIR\ant\bin"
+        Call un.RemoveFromPath
+        Push "ANT_HOME"
+        ;Push "$INSTDIR\ant"
+        ;Call un.RemoveFromEnvVar
+        Call un.DeleteEnvVar
+        RMDir /r "$INSTDIR\ant"
+        RMDir /r "$INSTDIR\ansicon"
+    ${EndIf}
+
+    ;
+    ; GRADLE
+    ;
+    ${If} $InstallGradle == YES 
+        DetailPrint "Uninstalling Gradle..."
+        Push "$INSTDIR\gradle\bin"
+        Call un.RemoveFromPath
+        RMDir /r "$INSTDIR\gradle"
+    ${EndIf}
+    
+    ;
+    ; COMPILERS PACK
+    ;
+    ${If} $InstallCompilers == YES 
+        DetailPrint "Uninstalling Compilers Pack..."
+        RMDir /r "$INSTDIR\compilers"
+    ${EndIf}
+
+    ;
+    ; DOTFUSCATOR
+    ;
+    ${If} $InstallDotfuscator == YES 
+        DetailPrint "Uninstalling Dotfuscator Community Edition..."
+        RMDir /r "$INSTDIR\dotfuscator\ce"
+        RMDir "$INSTDIR\dotfuscator"
+    ${EndIf}
+
+    ;
+    ; NSIS
+    ;
+    ${If} $InstallNsis == YES 
+        DetailPrint "Uninstalling Nullsoft Scriptable Installer (NSIS)..."
+        Push "$INSTDIR\nsis"
+        Call un.RemoveFromPath
+        RMDir /r "$INSTDIR\nsis"
+    ${EndIf}
+
+    ;
+    ; PYTHON
+    ;
+    ${If} $InstallPython == YES 
+        DetailPrint "Uninstalling Python for Windows..."
+        Push "$INSTDIR\python"
+        Call un.RemoveFromPath
+        Push "$INSTDIR\python\scripts"
+        Call un.RemoveFromPath
+        Push "PYTHONPATH"
+        ;Push "$INSTDIR\python;$INSTDIR\python\DLLs;$INSTDIR\python\lib;$INSTDIR\python\lib\plat-win;$INSTDIR\python\lib\site-packages;$INSTDIR\python\Scripts"
+        ;Call un.RemoveFromEnvVar
+        Call un.DeleteEnvVar
+        RMDir /r "$INSTDIR\python"
+    ${EndIf}
+
+    ;
+    ; DELETE UNINSTALL REGISTRY KEY IF COMPLETE UNINSTALL, REMOVE DIRS FINAL
+    ;
+    ${If} $InstallCode == YES 
+    ${AndIf} $InstallInsiders == YES
+    ${AndIf} $InstallNodeJs == YES
+    ${AndIf} $InstallAntAnsicon == YES
+    ${AndIf} $InstallCompilers == YES
+    ${AndIf} $InstallGit == YES
+    ${AndIf} $InstallTortoise == YES
+    ${AndIf} $InstallGradle == YES
+    ${AndIf} $InstallNetSdks == YES
+    ${AndIf} $InstallPython == YES
+    ${AndIf} $InstallLegacySdks == YES
+    ${AndIf} $InstallDotfuscator == YES
+    ${AndIf} $InstallNsis == YES
+    ${AndIf} $InstallNet472DevPack == YES
+        RMDir /r "$INSTDIR"
+    ${Else}
+        RMDir "$INSTDIR" 
+    ${EndIf}
 
 SectionEnd
 
 
 ;*********************************************************************
-;*                                                                   *
-;*   Function Definition                                             *
 ;*                                                                   * 
 ;*      .onInit                                                      * 
 ;*                                                                   * 
@@ -524,35 +922,799 @@ SectionEnd
 
 Function .onInit
 
-   ; Specify default directory
-   StrCpy $INSTDIR "c:\Code"
+    ; Specify default directory
+    StrCpy $INSTDIR "c:\Code"
 
-   SetRegView 64
-   ReadRegStr $R0 HKLM \
-   "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}" \
-   "UninstallString"
-   StrCmp $R0 "" done
-   
-   MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION \
-   "${APPLICATION_NAME} is already installed. $\n$\nClick `OK` to remove the \
-   previous version or `Cancel` to cancel this upgrade." \
-   IDOK uninst
-   Abort
- 
-   ;Run the uninstaller
-   uninst:
-   ClearErrors
-   ;Do not copy the uninstaller to a temp file
-   ExecWait '$R0 _?=$INSTDIR'
-   ;Exec $R0 ; supposedly lets uninstaller remove itself
-   IfErrors 0 done
-      ; need to delete uninstaller here?
+    SetRegView 64
+    ReadRegStr $R0 HKLM \
+    "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}" \
+    "InstallLocation"
 
-   ; TODO - a bug when running the installer after the uninstall none of the path vars
-   ; get registered.  Force user to re-run installer for now
-   Abort
+    StrCmp $R0 "" done
 
-   done:
+    MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION \
+        "${APPLICATION_NAME} is already installed.$\n$\nClick `OK` to \
+         select packages to update, or `Cancel` to quit.$\n$\nBefore \ 
+         updating,ensure that there are no instances of VSCode running \
+         or any of the packages are in use." \
+    IDOK update
+        Abort
+    update:
+        StrCpy $IsUpdateMode YES ; Set flag that this is update mode
+        ; Copy the current install location, install updates here
+        StrCpy $INSTDIR "$R0"
+    done:
 
 FunctionEnd
 
+
+;*********************************************************************
+;*                                                                   * 
+;*      dirPre                                                       * 
+;*                                                                   * 
+;*********************************************************************
+
+Function dirPre
+    ${If} $IsUpdateMode == YES ; skip insall dir window if update mode
+        Abort                  ; INSTDIR is set in .onInit
+    ${EndIf}
+FunctionEnd
+
+
+;*********************************************************************
+;*                                                                   * 
+;*      InstAuthPageCreate                                           * 
+;*                                                                   * 
+;*********************************************************************
+
+Function InstAuthPageCreate
+
+    ${If} $InstallDotfuscator != YES
+        Abort
+    ${EndIf}
+
+    nsDialogs::Create 1018
+    Pop $1
+
+    !insertmacro MUI_HEADER_TEXT "Visual Studio Code Based Development Environment" \
+                                 "Some chosen packages require registration" 
+
+    
+    ${NSD_CreateLabel} 0 20u 100% 10u "Enter the URL for Dotfuscator CE"
+    Pop $2
+
+    ${NSD_CreateText} 0 50u 100% 12u "https://"
+    Pop $3
+    
+    nsDialogs::Show
+    
+FunctionEnd
+
+
+;*********************************************************************
+;*                                                                   * 
+;*      InstAuthPageLeave                                            * 
+;*                                                                   * 
+;*********************************************************************
+
+Function InstAuthPageLeave
+
+    ;${NSD_GetText} $3 $DotfuscatorUrl
+    System::Call user32::GetWindowText(i r3, t .r4, i ${NSIS_MAX_STRLEN} i .n)
+    StrCpy $DotfuscatorUrlVar "$4"
+    DetailPrint "Dotfuscator url entered is $DotfuscatorUrlVar"
+
+FunctionEnd
+
+
+;*********************************************************************
+;*                                                                   * 
+;*      InstTypePageCreate                                           * 
+;*                                                                   * 
+;*********************************************************************
+
+Function InstTypePageCreate
+
+    nsDialogs::Create 1018
+    Pop $1
+
+    !insertmacro MUI_HEADER_TEXT "Visual Studio Code Based Development Environment" \
+                                 "Choose Packages to Install" 
+
+    ${If} $InstallsSaved != YES
+        ${If} $InstallCode == ""
+            StrCpy $InstallCode YES
+        ${EndIf}
+        ${If} $InstallInsiders == ""
+            StrCpy $InstallInsiders YES
+        ${EndIf}
+        ${If} $InstallNodeJs == ""
+            StrCpy $InstallNodeJs YES
+        ${Endif}
+        ${If} $InstallNet472DevPack == ""
+            StrCpy $InstallNet472DevPack YES
+        ${EndIf}
+        ${If} $InstallTortoise == ""
+            StrCpy $InstallTortoise YES
+        ${EndIf}
+        ${If} $InstallGit == ""
+            StrCpy $InstallGit YES
+        ${EndIf}
+        ${If} $InstallDotfuscator == ""
+            StrCpy $InstallDotfuscator YES
+        ${EndIf}
+        ${If} $InstallNsis == ""
+            StrCpy $InstallNsis YES
+        ${EndIf}
+        ${If} $InstallPython == ""
+            StrCpy $InstallPython YES
+        ${EndIf}
+        ${If} $InstallNetSdks == ""
+            StrCpy $InstallNetSdks YES
+        ${EndIf}
+        ${If} $InstallLegacySdks == ""
+            StrCpy $InstallLegacySdks YES
+        ${EndIf}
+        ${If} $InstallAntAnsicon == ""
+            StrCpy $InstallAntAnsicon YES
+        ${EndIf}
+        ${If} $InstallGradle == ""
+            StrCpy $InstallGradle YES
+        ${EndIf}
+        ${If} $InstallCompilers == ""
+            StrCpy $InstallCompilers YES
+        ${EndIf}
+    ${Endif}
+
+    SetRegView 64
+
+    ${NSD_CreateCheckBox} 0 20u 45% 10u "Visual Studio Code"
+    Pop $R9
+    ${If} $IsUpdateMode != YES
+        EnableWindow $R9 0
+    ${EndIf}
+    ${If} $InstallCode == YES 
+        ${NSD_Check} $R9
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 0 35u 45% 10u "Visual Studio Code Insiders"
+    Pop $2
+    IfFileExists "$INSTDIR\insiders\Code - Insiders.exe" 0 insidersdone
+        ${If} $InstallsSaved != YES
+            StrCpy $InstallInsiders NO
+        ${EndIf}
+    insidersdone:
+    ${If} $InstallInsiders == YES
+        ${NSD_Check} $2
+    ${EndIf}
+
+    DetailPrint "Install nodejs $InstallNodeJs"
+
+    ${NSD_CreateCheckBox} 0 50u 45% 10u "NodeJS and Package Manager (NPM)"
+    Pop $R6
+    ${If} $IsUpdateMode != YES
+        EnableWindow $R6 0
+        ${NSD_Check} $R6
+    ${EndIf}
+    IfFileExists "$INSTDIR\nodejs\npm.cmd" 0 nodejsdone
+        ${If} $InstallsSaved != YES
+            StrCpy $InstallNodeJs NO
+            EnableWindow $R6 1
+            ${NSD_Uncheck} $R6
+        ${Endif}
+    nodejsdone:
+    ${If} $InstallNodeJs == YES
+        ${NSD_Check} $R6
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 0 65u 45% 10u "Tortoise SVN + Cmd Line Tools"
+    Pop $4
+    ReadRegStr $R0 HKLM "SOFTWARE\TortoiseSVN" "Directory"  ; Check to see if already installed
+    IfFileExists "$R0\bin\svn.exe" 0 svndone
+        EnableWindow $4 0
+        ${If} $InstallsSaved != YES
+            StrCpy $InstallTortoise NO
+        ${EndIf}
+    svndone:
+    ${If} $InstallTortoise == YES 
+        ${NSD_Check} $4
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 0 80u 45% 10u "Git for Windows"
+    Pop $5
+    ReadRegStr $R0 HKLM "SOFTWARE\GitForWindows" "InstallPath"  ; Check to see if already installed
+    IfFileExists "$R0\bin\git.exe" 0 gitdone
+        EnableWindow $5 0
+        ${If} $InstallsSaved != YES
+            StrCpy $InstallGit NO
+        ${EndIf}
+    gitdone:
+    ${If} $InstallGit == YES
+        ${NSD_Check} $5
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 0 95u 45% 10u "Dotfuscator Community Edition"
+    Pop $6
+    IfFileExists "$INSTDIR\dotfuscator\ce\DotfuscatorCLI.exe" 0 dotfuscatordone
+        ${If} $InstallsSaved != YES
+            StrCpy $InstallDotfuscator NO
+        ${EndIf}
+    dotfuscatordone:
+    ${If} $InstallDotfuscator == YES
+        ${NSD_Check} $6
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 0 110u 45% 10u "C#/C/C++ Compiler Package"
+    Pop $R5
+    IfFileExists "$INSTDIR\compilers\c#\15.0\Bin\MSBuild.exe" 0 compilersdone
+        ${If} $InstallsSaved != YES
+            StrCpy $InstallCompilers NO
+        ${EndIf}
+    compilersdone:
+    ${If} $InstallCompilers == YES
+        ${NSD_Check} $R5
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 150u 20u 45% 10u "Apache Ant with Ansicon"
+    Pop $R3
+    IfFileExists "$INSTDIR\ant\bin\ant.bat" 0 antdone
+        ${If} $InstallsSaved != YES
+            StrCpy $InstallAntAnsicon NO
+        ${EndIf}
+    antdone:
+    ${If} $InstallAntAnsicon == YES
+        ${NSD_Check} $R3
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 150u 35u 45% 10u "Gradle Build Tool"
+    Pop $R4
+    IfFileExists "$INSTDIR\gradle\bin\gradle.bat" 0 gradledone
+        ${If} $InstallsSaved != YES
+            StrCpy $InstallGradle NO
+        ${EndIf}
+    gradledone:
+    ${If} $InstallGradle == YES
+        ${NSD_Check} $R4
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 150u 50u 45% 10u "Nullsoft Scriptable Installer (NSIS)"
+    Pop $7
+    IfFileExists "$INSTDIR\nsis\makensis.exe" 0 nsisdone
+        ${If} $InstallsSaved != YES
+            StrCpy $InstallNsis NO
+        ${EndIf}
+    nsisdone:
+    ${If} $InstallNsis == YES
+        ${NSD_Check} $7
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 150u 65u 45% 10u "Python for Windows"
+    Pop $8
+    IfFileExists "$INSTDIR\python\scripts\pip.exe" 0 pythondone
+        ${If} $InstallsSaved != YES
+            StrCpy $InstallPython NO
+        ${EndIf}
+    pythondone:
+    ${If} $InstallPython == YES 
+        ${NSD_Check} $8
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 150u 80u 45% 10u ".NET Framework Packages"
+    Pop $R1
+    IfFileExists "$INSTDIR\dotnet\net472\Accessibility.dll" 0 netsdksdone
+        ${If} $InstallsSaved != YES
+            StrCpy $InstallNetSdks NO
+        ${EndIf}
+    netsdksdone:
+    ${If} $InstallNetSdks == YES
+        ${NSD_Check} $R1
+    ${EndIf}
+    
+    ${NSD_CreateCheckBox} 150u 95u 45% 10u ".NET 4.72 Developer and Targeting Pack"
+    Pop $3
+    IfFileExists "$INSTDIR\NDP472-DevPack.exe" 0 net472done
+        ${If} $InstallsSaved != YES
+            StrCpy $InstallNet472DevPack NO
+        ${EndIf}
+    net472done:
+    ${If} $InstallNet472DevPack == YES
+        ${NSD_Check} $3
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 150u 110u 45% 10u "Legacy SDKs for PJA Projects"
+    Pop $R2
+    IfFileExists "$INSTDIR\sdks\atlmfc\lib\atl.lib" 0 legacysdksdone
+        ${If} $InstallsSaved != YES
+            StrCpy $InstallLegacySdks NO
+        ${EndIf}
+    legacysdksdone:
+    ${If} $InstallLegacySdks == YES
+        ${NSD_Check} $R2
+    ${EndIf}
+
+    nsDialogs::Show
+
+FunctionEnd
+
+
+;*********************************************************************
+;*                                                                   *
+;*   Function Definition                                             *
+;*                                                                   * 
+;*      InstTypePageLeave                                            * 
+;*                                                                   * 
+;*********************************************************************
+
+Function InstTypePageLeave
+
+    StrCpy $InstallsSaved YES
+
+    ${NSD_GetState} $R9 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallCode NO
+    ${Else}
+        StrCpy $InstallCode YES
+    ${EndIf}
+
+    ${NSD_GetState} $2 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallInsiders NO
+    ${Else}
+        StrCpy $InstallInsiders YES
+    ${EndIf}
+
+    ${NSD_GetState} $R6 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallNodeJs NO
+    ${Else}
+        StrCpy $InstallNodeJs YES
+    ${EndIf}
+
+    ${NSD_GetState} $3 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallNet472DevPack NO
+    ${Else}
+        StrCpy $InstallNet472DevPack YES
+    ${EndIf}
+
+    ${NSD_GetState} $4 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallTortoise NO
+    ${Else}
+        StrCpy $InstallTortoise YES
+    ${EndIf}
+
+    ${NSD_GetState} $5 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallGit NO
+    ${Else}
+        StrCpy $InstallGit YES
+    ${EndIf}
+
+    ${NSD_GetState} $6 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallDotfuscator NO
+    ${Else}
+        StrCpy $InstallDotfuscator YES
+    ${EndIf}
+
+    ${NSD_GetState} $7 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallNsis NO
+    ${Else}
+        StrCpy $InstallNsis YES
+    ${EndIf}
+
+    ${NSD_GetState} $8 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallPython NO
+    ${Else}
+        StrCpy $InstallPython YES
+    ${EndIf}
+
+    ${NSD_GetState} $R1 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallNetSdks NO
+    ${Else}
+        StrCpy $InstallNetSdks YES
+    ${EndIf}
+
+    ${NSD_GetState} $R2 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallLegacySdks NO
+    ${Else}
+        StrCpy $InstallLegacySdks YES
+    ${EndIf}
+
+    ${NSD_GetState} $R3 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallAntAnsicon NO
+    ${Else}
+        StrCpy $InstallAntAnsicon YES
+    ${EndIf}
+
+    ${NSD_GetState} $R4 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallGradle NO
+    ${Else}
+        StrCpy $InstallGradle YES
+    ${EndIf}
+
+    ${NSD_GetState} $R5 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallCompilers NO
+    ${Else}
+        StrCpy $InstallCompilers YES
+    ${EndIf}
+
+    ${If} $InstallCode == NO 
+    ${AndIf} $InstallInsiders == NO
+    ${AndIf} $InstallNodeJs == NO
+    ${AndIf} $InstallAntAnsicon == NO
+    ${AndIf} $InstallCompilers == NO
+    ${AndIf} $InstallGit == NO
+    ${AndIf} $InstallTortoise == NO
+    ${AndIf} $InstallGradle == NO
+    ${AndIf} $InstallNetSdks == NO
+    ${AndIf} $InstallPython == NO
+    ${AndIf} $InstallLegacySdks == NO
+    ${AndIf} $InstallDotfuscator == NO
+    ${AndIf} $InstallNsis == NO
+    ${AndIf} $InstallNet472DevPack == NO
+        MessageBox MB_OK|MB_ICONEXCLAMATION        \
+            "You must select at least one package to update" \
+        IDOK 0
+            Abort
+    ${Endif}
+
+FunctionEnd
+
+
+;*********************************************************************
+;*                                                                   * 
+;*      InstTypePageCreate                                           * 
+;*                                                                   * 
+;*********************************************************************
+
+Function un.InstTypePageCreate
+
+    nsDialogs::Create 1018
+    Pop $1
+
+    !insertmacro MUI_HEADER_TEXT "Visual Studio Code Based Development Environment" \
+                                 "Choose Packages to Uninstall" 
+
+    ${If} $InstallsSaved != YES
+        ${If} $InstallCode == ""
+            StrCpy $InstallCode YES
+        ${EndIf}
+        ${If} $InstallInsiders == ""
+            StrCpy $InstallInsiders YES
+        ${EndIf}
+        ${If} $InstallNodeJs == ""
+            StrCpy $InstallNodeJs YES
+        ${Endif}
+        ${If} $InstallNet472DevPack == ""
+            StrCpy $InstallNet472DevPack YES
+        ${EndIf}
+        ${If} $InstallTortoise == ""
+            StrCpy $InstallTortoise YES
+        ${EndIf}
+        ${If} $InstallGit == ""
+            StrCpy $InstallGit YES
+        ${EndIf}
+        ${If} $InstallDotfuscator == ""
+            StrCpy $InstallDotfuscator YES
+        ${EndIf}
+        ${If} $InstallNsis == ""
+            StrCpy $InstallNsis YES
+        ${EndIf}
+        ${If} $InstallPython == ""
+            StrCpy $InstallPython YES
+        ${EndIf}
+        ${If} $InstallNetSdks == ""
+            StrCpy $InstallNetSdks YES
+        ${EndIf}
+        ${If} $InstallLegacySdks == ""
+            StrCpy $InstallLegacySdks YES
+        ${EndIf}
+        ${If} $InstallAntAnsicon == ""
+            StrCpy $InstallAntAnsicon YES
+        ${EndIf}
+        ${If} $InstallGradle == ""
+            StrCpy $InstallGradle YES
+        ${EndIf}
+        ${If} $InstallCompilers == ""
+            StrCpy $InstallCompilers YES
+        ${EndIf}
+    ${Endif}
+
+    SetRegView 64
+
+    ${NSD_CreateCheckBox} 0 20u 45% 10u "Visual Studio Code"
+    Pop $R9
+    ${If} $InstallCode == YES 
+        ${NSD_Check} $R9
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 0 35u 45% 10u "Visual Studio Code Insiders"
+    Pop $2
+    ${IfNot} ${FileExists} "$INSTDIR\insiders\Code - Insiders.exe"
+        ${NSD_Uncheck} $2
+        EnableWindow $2 0
+        StrCpy $InstallInsiders NO
+    ${EndIf}
+    ${If} $InstallInsiders == YES
+        ${NSD_Check} $2
+    ${EndIf}
+    
+    ${NSD_CreateCheckBox} 0 50u 45% 10u "NodeJS and Package Manager (NPM)"
+    Pop $R6
+    ${IfNot} ${FileExists} "$INSTDIR\nodejs\npm.cmd"
+        ${NSD_Uncheck} $R6
+        EnableWindow $R6 0
+        StrCpy $InstallNodeJs NO
+    ${EndIf}
+    ${If} $InstallNodeJs == YES
+        ${NSD_Check} $R6
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 0 65u 45% 10u "Tortoise SVN + Cmd Line Tools"
+    Pop $4
+    ReadRegStr $R0 HKLM "SOFTWARE\TortoiseSVN" "Directory"  ; Check to see if already installed
+    ${IfNot} ${FileExists} "$R0\bin\svn.exe"
+        ${NSD_Uncheck} $4
+        EnableWindow $4 0
+        StrCpy $InstallTortoise NO
+    ${EndIf}
+    ${If} $InstallTortoise == YES
+        ${NSD_Check} $4
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 0 80u 45% 10u "Git for Windows"
+    Pop $5
+    ReadRegStr $R0 HKLM "SOFTWARE\GitForWindows" "InstallPath"  ; Check to see if already installed
+    ${IfNot} ${FileExists} "$R0\bin\git.exe"
+        ${NSD_Uncheck} $5
+        EnableWindow $5 0
+        StrCpy $InstallGit NO
+    ${EndIf}
+    ${If} $InstallGit == YES
+        ${NSD_Check} $5
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 0 95u 45% 10u "Dotfuscator Community Edition"
+    Pop $6
+    ${IfNot} ${FileExists} "$INSTDIR\dotfuscator\ce\DotfuscatorCLI.exe"
+        ${NSD_Uncheck} $6
+        EnableWindow $6 0
+        StrCpy $InstallDotfuscator NO
+    ${EndIf}
+    ${If} $InstallDotfuscator == YES
+        ${NSD_Check} $6
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 0 110u 45% 10u "C#/C/C++ Compiler Package"
+    Pop $R5
+    ${IfNot} ${FileExists} "$INSTDIR\compilers\c#\15.0\Bin\MSBuild.exe"
+        ${NSD_Uncheck} $R5
+        EnableWindow $R5 0
+        StrCpy $InstallCompilers NO
+    ${EndIf}
+    ${If} $InstallCompilers == YES
+        ${NSD_Check} $R5
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 150u 20u 45% 10u "Apache Ant with Ansicon"
+    Pop $R3
+    ${IfNot} ${FileExists} "$INSTDIR\ant\bin\ant.bat"
+        ${NSD_Uncheck} $R3
+        EnableWindow $R3 0
+        StrCpy $InstallAntAnsicon NO
+    ${EndIf}
+    ${If} $InstallAntAnsicon == YES
+        ${NSD_Check} $R3
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 150u 35u 45% 10u "Gradle Build Tool"
+    Pop $R4
+    ${IfNot} ${FileExists} "$INSTDIR\gradle\bin\gradle.bat"
+        ${NSD_Uncheck} $R4
+        EnableWindow $R4 0
+        StrCpy $InstallGradle NO
+    ${EndIf}
+    ${If} $InstallGradle == YES
+        ${NSD_Check} $R4
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 150u 50u 45% 10u "Nullsoft Scriptable Installer (NSIS)"
+    Pop $7
+    ${IfNot} ${FileExists} "$INSTDIR\nsis\makensis.exe"
+        ${NSD_Uncheck} $7
+        EnableWindow $7 0
+        StrCpy $InstallNsis NO
+    ${EndIf}
+    ${If} $InstallNsis == YES
+        ${NSD_Check} $7
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 150u 65u 45% 10u "Python for Windows"
+    Pop $8
+    ${IfNot} ${FileExists} "$INSTDIR\python\scripts\pip.exe"
+        ${NSD_Uncheck} $8
+        EnableWindow $8 0
+        StrCpy $InstallPython NO
+    ${EndIf}
+    ${If} $InstallPython == YES
+        ${NSD_Check} $8
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 150u 80u 45% 10u ".NET Framework Packages"
+    Pop $R1
+    ${IfNot} ${FileExists} "$INSTDIR\dotnet\net472\Accessibility.dll"
+        ${NSD_Uncheck} $R1
+        EnableWindow $R1 0
+        StrCpy $InstallNetSdks NO
+    ${EndIf}
+    ${If} $InstallNetSdks == YES
+        ${NSD_Check} $R1
+    ${EndIf}
+    
+    ${NSD_CreateCheckBox} 150u 95u 45% 10u ".NET 4.72 Targeting and Developer Pack"
+    Pop $3
+    ${IfNot} ${FileExists} "$INSTDIR\NDP472-DevPack.exe"
+        ${NSD_Uncheck} $3
+        EnableWindow $3 0
+        StrCpy $InstallNet472DevPack NO
+    ${EndIf}
+    ${If} $InstallNet472DevPack == YES
+        ${NSD_Check} $3
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 150u 110u 45% 10u "Legacy SDKs for PJA Projects"
+    Pop $R2
+    ${IfNot} ${FileExists} "$INSTDIR\sdks\atlmfc\lib\atl.lib"
+        ${NSD_Uncheck} $R2
+        EnableWindow $R2 0
+        StrCpy $InstallLegacySdks NO
+    ${EndIf}
+    ${If} $InstallLegacySdks == YES
+        ${NSD_Check} $R2
+    ${EndIf}
+
+    nsDialogs::Show
+
+FunctionEnd
+
+
+;*********************************************************************
+;*                                                                   *
+;*   Function Definition                                             *
+;*                                                                   * 
+;*      un.InstTypePageLeave                                         * 
+;*                                                                   * 
+;*********************************************************************
+
+Function un.InstTypePageLeave
+    
+    StrCpy $InstallsSaved YES
+
+    ${NSD_GetState} $R9 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallCode NO
+    ${Else}
+        StrCpy $InstallCode YES
+    ${EndIf}
+
+    ${NSD_GetState} $2 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallInsiders NO
+    ${Else}
+        StrCpy $InstallInsiders YES
+    ${EndIf}
+
+    ${NSD_GetState} $R6 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallNodeJs NO
+    ${Else}
+        StrCpy $InstallNodeJs YES
+    ${EndIf}
+
+    ${NSD_GetState} $3 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallNet472DevPack NO
+    ${Else}
+        StrCpy $InstallNet472DevPack YES
+    ${EndIf}
+
+    ${NSD_GetState} $4 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallTortoise NO
+    ${Else}
+        StrCpy $InstallTortoise YES
+    ${EndIf}
+
+    ${NSD_GetState} $5 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallGit NO
+    ${Else}
+        StrCpy $InstallGit YES
+    ${EndIf}
+
+    ${NSD_GetState} $6 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallDotfuscator NO
+    ${Else}
+        StrCpy $InstallDotfuscator YES
+    ${EndIf}
+
+    ${NSD_GetState} $7 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallNsis NO
+    ${Else}
+        StrCpy $InstallNsis YES
+    ${EndIf}
+
+    ${NSD_GetState} $8 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallPython NO
+    ${Else}
+        StrCpy $InstallPython YES
+    ${EndIf}
+
+    ${NSD_GetState} $R1 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallNetSdks NO
+    ${Else}
+        StrCpy $InstallNetSdks YES
+    ${EndIf}
+
+    ${NSD_GetState} $R2 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallLegacySdks NO
+    ${Else}
+        StrCpy $InstallLegacySdks YES
+    ${EndIf}
+
+    ${NSD_GetState} $R3 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallAntAnsicon NO
+    ${Else}
+        StrCpy $InstallAntAnsicon YES
+    ${EndIf}
+
+    ${NSD_GetState} $R4 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallGradle NO
+    ${Else}
+        StrCpy $InstallGradle YES
+    ${EndIf}
+
+    ${NSD_GetState} $R5 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallCompilers NO
+    ${Else}
+        StrCpy $InstallCompilers YES
+    ${EndIf}
+
+    ${If} $InstallCode == NO 
+    ${AndIf} $InstallInsiders == NO
+    ${AndIf} $InstallNodeJs == NO
+    ${AndIf} $InstallAntAnsicon == NO
+    ${AndIf} $InstallCompilers == NO
+    ${AndIf} $InstallGit == NO
+    ${AndIf} $InstallTortoise == NO
+    ${AndIf} $InstallGradle == NO
+    ${AndIf} $InstallNetSdks == NO
+    ${AndIf} $InstallPython == NO
+    ${AndIf} $InstallLegacySdks == NO
+    ${AndIf} $InstallDotfuscator == NO
+    ${AndIf} $InstallNsis == NO
+    ${AndIf} $InstallNet472DevPack == NO
+        MessageBox MB_OK|MB_ICONEXCLAMATION        \
+            "You must select at least one package to remove or uninstall" \
+        IDOK 0
+            Abort
+    ${Endif}
+
+FunctionEnd
