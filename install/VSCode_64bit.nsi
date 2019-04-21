@@ -64,6 +64,7 @@
 !include "x64.nsh"
 !include "StrRep.nsh"
 !include "ReplaceInFile.nsh"
+!include "nsDialogs.nsh"
 
 ;*********************************************************************
 ;*                                                                   *
