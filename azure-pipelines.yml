@@ -50,6 +50,12 @@ jobs:
           command: custom
           verbose: true
           customCommand: 'run build-installer'
+      - task: Npm@1
+        displayName: 'Run semantic-release-dry'
+        inputs:
+          command: custom
+          verbose: false
+          customCommand: 'run semantic-release-dry'
   #- job: Linux
   #  pool:
   #    name: Hosted Ubuntu 1604
