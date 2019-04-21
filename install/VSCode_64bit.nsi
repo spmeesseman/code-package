@@ -51,11 +51,7 @@
 !define LegacyWixUrl "${PackageBaseUrl}/sdks/wix.zip?raw=true"
 !define LegacyAtlMfcUrl "${PackageBaseUrl}/sdks/atlmfc.zip?raw=true"
 !define LegacyWindows2009Url "${PackageBaseUrl}/sdks/windows/august2009.zip?raw=true"
-!define Net35PackageUrl "${PackageBaseUrl}/dotnet/net35.zip?raw=true"
-!define Net40PackageUrl "${PackageBaseUrl}/dotnet/net40.zip?raw=true"
-!define Net452PackageUrl "${PackageBaseUrl}/dotnet/net452.zip?raw=true"
-!define Net461PackageUrl "${PackageBaseUrl}/dotnet/net461.zip?raw=true"
-!define Net472PackageUrl "${PackageBaseUrl}/dotnet/net472.zip?raw=true"
+!define DotNetPackageUrl "${PackageBaseUrl}/dotnet/dotnet.zip?raw=true"
 
 ;*********************************************************************
 ;*                                                                   *
@@ -219,11 +215,9 @@ Section "Install"
 
     ;
     ; VSCODE EXTENSIONS
+    ; Use install_extensions.bat from installer package extracted above
     ;
     ${If} $IsUpdateMode != YES
-        ; EXTENSIONS
-        ;CreateDirectory "$PROFILE\.vscode"
-        ;CreateDirectory "$PROFILE\.vscode\extensions"
         ExecWait '"$INSTDIR\install_extensions.bat" --install-extension'
     ${EndIf}
     
@@ -549,132 +543,75 @@ Section "Install"
     ${EndIf}
 
     ;
-    ; Create sdks directory structure if required
+    ; .NET SDK BUNDLES/PACKAGES
     ;
-    ${If} $InstallLegacySdks == YES
-        CreateDirectory "$INSTDIR\sdks"
-        CreateDirectory "$INSTDIR\sdks\windows"
-    ${ElseIf} $InstallNetSdks == YES
-        CreateDirectory "$INSTDIR\sdks"
+    ${If} $InstallNetSdks == YES
+        DetailPrint "Downloading .NET Framework Packages..."
+        inetc::get ${DotNetPackageUrl} "$INSTDIR\DotNetPackage.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            ${If} $IsUpdateMode == YES ; remove current files
+                RMDir /r "$INSTDIR\dotnet"
+            ${EndIf}
+            CreateDirectory "$INSTDIR\dotnet"
+            DetailPrint "Unpacking .NET Framework Packages...."
+            nsisunz::Unzip "$INSTDIR\DotNetPackage.zip" "$INSTDIR\dotnet"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\DotNetPackage.zip"
+        ${Else}
+            DetailPrint "Error  - $Status"
+        ${EndIf}
     ${EndIf}
 
     ;
-    ; .NET SDK BUNDLES
+    ; Create sdks directory structure if required
     ;
-    ${If} $InstallNetSdks == YES
-        DetailPrint "Downloading .NET SDKs..."
-        DetailPrint "Downloading .NET 3.5 Package..."
-        inetc::get ${Net35PackageUrl} "$INSTDIR\Net35Package.zip"
-        Pop $Status ; 'OK' when sucessful
-        ${If} $Status == OK 
-            ${If} $IsUpdateMode == YES ; remove current files
-                RMDir /r "$INSTDIR\sdks\net35"
-            ${EndIf}
-            DetailPrint "Unpacking .NET 3.5 Package...."
-            nsisunz::Unzip "$INSTDIR\Net35Package.zip" "$INSTDIR\sdks"
-            Pop $Status ; 'success' when sucessful
-            Delete "$INSTDIR\Net35Package.zip"
-        ${Else}
-            DetailPrint "Error  - $Status"
-        ${EndIf}
-        DetailPrint "Downloading .NET 4 Package..."
-        inetc::get ${Net40PackageUrl} "$INSTDIR\Net40Package.zip"
-        Pop $Status ; 'OK' when sucessful
-        ${If} $Status == OK 
-            ${If} $IsUpdateMode == YES ; remove current files
-                RMDir /r "$INSTDIR\sdks\net40"
-            ${EndIf}
-            DetailPrint "Unpacking .NET 4 Package...."
-            nsisunz::Unzip "$INSTDIR\Net40Package.zip" "$INSTDIR\sdks"
-            Pop $Status ; 'success' when sucessful
-            Delete "$INSTDIR\Net40Package.zip"
-        ${Else}
-            DetailPrint "Error  - $Status"
-        ${EndIf}
-        DetailPrint "Downloading .NET 4.52 Package..."
-        inetc::get ${Net452PackageUrl} "$INSTDIR\Net452Package.zip"
-        Pop $Status ; 'OK' when sucessful
-        ${If} $Status == OK 
-            ${If} $IsUpdateMode == YES ; remove current files
-                RMDir /r "$INSTDIR\sdks\net452"
-            ${EndIf}
-            DetailPrint "Unpacking .NET 4.52Package...."
-            nsisunz::Unzip "$INSTDIR\Net452Package.zip" "$INSTDIR\sdks"
-            Pop $Status ; 'success' when sucessful
-            Delete "$INSTDIR\Net452Package.zip"
-        ${Else}
-            DetailPrint "Error  - $Status"
-        ${EndIf}
-        DetailPrint "Downloading .NET 4.61 Package..."
-        inetc::get ${Net461PackageUrl} "$INSTDIR\Net461Package.zip"
-        Pop $Status ; 'OK' when sucessful
-        ${If} $Status == OK 
-            ${If} $IsUpdateMode == YES ; remove current files
-                RMDir /r "$INSTDIR\sdks\net461"
-            ${EndIf}
-            DetailPrint "Unpacking .NET 4.61 Package...."
-            nsisunz::Unzip "$INSTDIR\Net461Package.zip" "$INSTDIR\sdks"
-            Pop $Status ; 'success' when sucessful
-            Delete "$INSTDIR\Net461Package.zip"
-        ${Else}
-            DetailPrint "Error  - $Status"
-        ${EndIf}
-        DetailPrint "Downloading .NET 4.72 Package..."
-        inetc::get ${Net472PackageUrl} "$INSTDIR\Net472Package.zip"
-        Pop $Status ; 'OK' when sucessful
-        ${If} $Status == OK 
-            ${If} $IsUpdateMode == YES ; remove current files
-                RMDir /r "$INSTDIR\sdks\net472"
-            ${EndIf}
-            DetailPrint "Unpacking .NET 4.72 Packagee...."
-            nsisunz::Unzip "$INSTDIR\Net472Package.zip" "$INSTDIR\sdks"
-            Pop $Status ; 'success' when sucessful
-            Delete "$INSTDIR\Net472Package.zip"
-        ${Else}
-            DetailPrint "Error  - $Status"
-        ${EndIf}
+    ${If} $InstallLegacySdks == YES
+    ;${OrIf} $InstallNetSdks == YES
+        CreateDirectory "$INSTDIR\sdks"
     ${EndIf}
 
     ;
     ; LEGACY SDKS
     ;
     ${If} $InstallLegacySdks == YES
-        DetailPrint "Downloading Legacy SDK - Wix..."
+        DetailPrint "Downloading Legacy SDK for PJA - Wix..."
         inetc::get ${LegacyWixUrl} "$INSTDIR\LegacyWix.zip"
         Pop $Status ; 'OK' when sucessful
         ${If} $Status == OK 
             ${If} $IsUpdateMode == YES ; remove current files
                 RMDir /r "$INSTDIR\sdks\wix"
             ${EndIf}
-            DetailPrint "Unpacking Legacy SDK - Wix Package...."
+            DetailPrint "Unpacking Legacy SDK for PJA - Wix Package...."
             nsisunz::Unzip "$INSTDIR\LegacyWix.zip" "$INSTDIR\sdks"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\LegacyWix.zip"
         ${Else}
             DetailPrint "Error  - $Status"
         ${EndIf}
-        DetailPrint "Downloading Legacy SDK - AtlMfc..."
+        DetailPrint "Downloading Legacy SDK for PJA - AtlMfc..."
         inetc::get ${LegacyAtlMfcUrl} "$INSTDIR\LegacyAtlMfc.zip"
         Pop $Status ; 'OK' when sucessful
         ${If} $Status == OK 
             ${If} $IsUpdateMode == YES ; remove current files
                 RMDir /r "$INSTDIR\sdks\atlmfc"
             ${EndIf}
-            DetailPrint "Unpacking Legacy SDK - AtlMfc Package...."
+            DetailPrint "Unpacking Legacy SDK for PJA - AtlMfc Package...."
             nsisunz::Unzip "$INSTDIR\LegacyAtlMfc.zip" "$INSTDIR\sdks"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\LegacyAtlMfc.zip"
         ${Else}
             DetailPrint "Error  - $Status"
         ${EndIf}
-        DetailPrint "Downloading Legacy SDK - Windows August 2009..."
+        DetailPrint "Downloading Legacy SDK for PJA - Windows August 2009..."
         inetc::get ${LegacyWindows2009Url} "$INSTDIR\WindowsAugust2009.zip"
         Pop $Status ; 'OK' when sucessful
         ${If} $Status == OK 
             ${If} $IsUpdateMode == YES ; remove current files
                 RMDir /r "$INSTDIR\sdks\windows\august2009"
             ${EndIf}
-            DetailPrint "Unpacking Legacy SDK - Windows August 2009 Package...."
+            CreateDirectory "$INSTDIR\sdks\windows"
+            DetailPrint "Unpacking Legacy SDK for PJA - Windows August 2009 Package...."
             nsisunz::Unzip "$INSTDIR\WindowsAugust2009.zip" "$INSTDIR\sdks\windows"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\WindowsAugust2009.zip"
@@ -693,9 +630,9 @@ Section "Install"
     CreateDirectory "$APPDATA\Code\User"
     File /oname=$APPDATA\Code\User\settings.json ..\build\settings.json
     ; replace c:\code in settings.json with actual install dir
-    ;Push "$INSTDIR\data\user-data\User\settings.json"
     ${If} "$INSTDIR" != "c:\Code"
         Push "$APPDATA\Code\User\settings.json"
+        ;Push "$INSTDIR\data\user-data\User\settings.json"
         Push "c:\Code" 
         Push "$INSTDIR"
         Call ReplaceInFile
@@ -777,7 +714,7 @@ Section "Uninstall"
     ${If} $InstallCode == YES
         DetailPrint "Uninstalling Visual Studio Code..."
         ; uninstall vscode
-        ; uninstaller for vscode exe installer
+        ; uninstaller for vscode exe installer (using zip not installer)
         ;ExecWait '"$INSTDIR\unins000.exe" /SILENT /SUPPRESSMSGBOXES'
         ; Extensions
         ExecWait '"$INSTDIR\install_extensions.bat" --uninstall-extension'
@@ -786,8 +723,6 @@ Section "Uninstall"
         Push "$INSTDIR\bin"
         Call un.RemoveFromPath
         Push "CODE_HOME"
-        ;Push "$INSTDIR"
-        ;Call un.RemoveFromEnvVar
         Call un.DeleteEnvVar
         DeleteRegKey HKCR "*\shell\Open with VS Code"
         DeleteRegKey HKCR "Directory\shell\vscode"
@@ -857,7 +792,7 @@ Section "Uninstall"
     ; .NET472 DEV PACK
     ;
     ${If} $InstallNet472DevPack == YES 
-        DetailPrint "Uninstalling .NET 4.72 Dev Pack..."
+        DetailPrint "Uninstalling .NET 4.72 Dev and Targeting Pack..."
         IfFileExists "$INSTDIR\NDP472-DevPack.exe" 0 net472pack1
             ExecWait '"$INSTDIR\NDP472-DevPack.exe" /uninstall /passive /noreboot'
             Delete /REBOOTOK "$INSTDIR\NDP472-DevPack.exe"
@@ -868,26 +803,22 @@ Section "Uninstall"
     ; .NET SDKS
     ;
     ${If} $InstallNetSdks == YES 
-        DetailPrint "Uninstalling .NET SDKs..."
-        RMDir /r "$INSTDIR\sdks\net35"
-        RMDir /r "$INSTDIR\sdks\net40"
-        RMDir /r "$INSTDIR\sdks\net452"
-        RMDir /r "$INSTDIR\sdks\net461"
-        RMDir /r "$INSTDIR\sdks\net472"
+        DetailPrint "Uninstalling .NET Framework Packages..."
+        RMDir /r "$INSTDIR\dotnet"
     ${EndIf}
 
     ;
     ; LEGACY SDKS
     ;
     ${If} $InstallLegacySdks == YES 
-        DetailPrint "Uninstalling Legacy SDKs..."
+        DetailPrint "Uninstalling Legacy SDKs for PJA..."
         RMDir /r "$INSTDIR\sdks\windows"
         RMDir /r "$INSTDIR\sdks\atlmfc"
         RMDir /r "$INSTDIR\sdks\wix"
     ${EndIf}
 
     ${If} $InstallNetSdks == YES 
-    ${AndIf} $InstallLegacySdks == YES 
+    ;${AndIf} $InstallLegacySdks == YES 
         RMDir /r "$INSTDIR\sdks"
     ${EndIf}
 
@@ -1269,9 +1200,9 @@ Function InstTypePageCreate
         ${NSD_Check} $8
     ${EndIf}
 
-    ${NSD_CreateCheckBox} 150u 80u 45% 10u ".NET SDKs (3.5, 4.0, 4.52, 4.61, 4.72)"
+    ${NSD_CreateCheckBox} 150u 80u 45% 10u ".NET Framework Packages"
     Pop $R1
-    IfFileExists "$INSTDIR\sdks\atlmfc\lib\atl.lib" 0 netsdksdone
+    IfFileExists "$INSTDIR\dotnet\net472\Accessibility.dll" 0 netsdksdone
         ${If} $InstallsSaved != YES
             StrCpy $InstallNetSdks NO
         ${EndIf}
@@ -1280,7 +1211,7 @@ Function InstTypePageCreate
         ${NSD_Check} $R1
     ${EndIf}
     
-    ${NSD_CreateCheckBox} 150u 95u 45% 10u ".NET 4.72 Developer Pack"
+    ${NSD_CreateCheckBox} 150u 95u 45% 10u ".NET 4.72 Developer and Targeting Pack"
     Pop $3
     IfFileExists "$INSTDIR\NDP472-DevPack.exe" 0 net472done
         ${If} $InstallsSaved != YES
@@ -1291,7 +1222,7 @@ Function InstTypePageCreate
         ${NSD_Check} $3
     ${EndIf}
 
-    ${NSD_CreateCheckBox} 150u 110u 45% 10u "Legacy SDKs (Atl, Mfc, Windows, Wix)"
+    ${NSD_CreateCheckBox} 150u 110u 45% 10u "Legacy SDKs for PJA Projects"
     Pop $R2
     IfFileExists "$INSTDIR\sdks\atlmfc\lib\atl.lib" 0 legacysdksdone
         ${If} $InstallsSaved != YES
@@ -1544,7 +1475,7 @@ Function un.InstTypePageCreate
     ${NSD_CreateCheckBox} 0 80u 45% 10u "Git for Windows"
     Pop $5
     ReadRegStr $R0 HKLM "SOFTWARE\GitForWindows" "InstallPath"  ; Check to see if already installed
-    ${IfNot} ${FileExists} "$R0\bin\svn.exe"
+    ${IfNot} ${FileExists} "$R0\bin\git.exe"
         ${NSD_Uncheck} $5
         EnableWindow $5 0
         StrCpy $InstallGit NO
@@ -1619,9 +1550,9 @@ Function un.InstTypePageCreate
         ${NSD_Check} $8
     ${EndIf}
 
-    ${NSD_CreateCheckBox} 150u 80u 45% 10u ".NET SDKs (3.5, 4.0, 4.52, 4.61, 4.72)"
+    ${NSD_CreateCheckBox} 150u 80u 45% 10u ".NET Framework Packages"
     Pop $R1
-    ${IfNot} ${FileExists} "$INSTDIR\sdks\net472\Accessibility.dll"
+    ${IfNot} ${FileExists} "$INSTDIR\dotnet\net472\Accessibility.dll"
         ${NSD_Uncheck} $R1
         EnableWindow $R1 0
         StrCpy $InstallNetSdks NO
@@ -1630,7 +1561,7 @@ Function un.InstTypePageCreate
         ${NSD_Check} $R1
     ${EndIf}
     
-    ${NSD_CreateCheckBox} 150u 95u 45% 10u ".NET 4.72 Developer Pack"
+    ${NSD_CreateCheckBox} 150u 95u 45% 10u ".NET 4.72 Targeting and Developer Pack"
     Pop $3
     ${IfNot} ${FileExists} "$INSTDIR\NDP472-DevPack.exe"
         ${NSD_Uncheck} $3
@@ -1641,7 +1572,7 @@ Function un.InstTypePageCreate
         ${NSD_Check} $3
     ${EndIf}
 
-    ${NSD_CreateCheckBox} 150u 110u 45% 10u "Legacy SDKs (Atl, Mfc, Windows, Wix)"
+    ${NSD_CreateCheckBox} 150u 110u 45% 10u "Legacy SDKs for PJA Projects"
     Pop $R2
     ${IfNot} ${FileExists} "$INSTDIR\sdks\atlmfc\lib\atl.lib"
         ${NSD_Uncheck} $R2
@@ -1782,7 +1713,7 @@ Function un.InstTypePageLeave
     ${AndIf} $InstallNsis == NO
     ${AndIf} $InstallNet472DevPack == NO
         MessageBox MB_OK|MB_ICONEXCLAMATION        \
-            "You must select at least one package to update" \
+            "You must select at least one package to remove or uninstall" \
         IDOK 0
             Abort
     ${Endif}
