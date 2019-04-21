@@ -45,15 +45,14 @@
 !define AntUrl "${PackageBaseUrl}/ant/ant.zip?raw=true"
 !define AnsiconUrl "${PackageBaseUrl}/ansicon/ansicon.zip?raw=true"
 !define GradleUrl "${PackageBaseUrl}/gradle/gradle.zip?raw=true"
-!define CompilerCCPlusPlus9Url "${PackageBaseUrl}/compilers/c_c++/9.0.zip?raw=true"
-!define CompilerCSharp8Url "${PackageBaseUrl}/compilers/c#/8.0.zip?raw=true"
-!define CompilerCSharp15Url "${PackageBaseUrl}/compilers/c#/15.0.zip?raw=true"
-!define CompilerCCPlusPlusUrl "${PackageBaseUrl}/compilers/c_c++/9.0.zip?raw=true"
+!define CompilerCCPlusPlus9Url "${PackageBaseUrl}/compilers/C_C%2B%2B/9.0.zip?raw=true"
+!define CompilerCSharp8Url "${PackageBaseUrl}/compilers/C%23/8.0.zip?raw=true"
+!define CompilerCSharp15Url "${PackageBaseUrl}/compilers/C%23/15.0.zip?raw=true"
 !define LegacyWixUrl "${PackageBaseUrl}/sdks/wix.zip?raw=true"
 !define LegacyAtlMfcUrl "${PackageBaseUrl}/sdks/atlmfc.zip?raw=true"
 !define LegacyWindows2009Url "${PackageBaseUrl}/sdks/windows/august2009.zip?raw=true"
 !define Net35PackageUrl "${PackageBaseUrl}/dotnet/net35.zip?raw=true"
-!define Net40PackageUrl "${PackageBaseUrl}/dotnet/net40zip?raw=true"
+!define Net40PackageUrl "${PackageBaseUrl}/dotnet/net40.zip?raw=true"
 !define Net452PackageUrl "${PackageBaseUrl}/dotnet/net452.zip?raw=true"
 !define Net461PackageUrl "${PackageBaseUrl}/dotnet/net461.zip?raw=true"
 !define Net472PackageUrl "${PackageBaseUrl}/dotnet/net472.zip?raw=true"
@@ -157,14 +156,17 @@ Section "Install"
                 By continuing you are agreeing to Microsoft licensing terms." \
                 IDOK vscodetrue
             RMDir "$INSTDIR" ; Don't remove if not empty (/r)
+            DetailPrint "Code installation cancelled by user - exit installation"
             Abort
         vscodetrue:
+        DetailPrint "Downloading Visual Studio Code..."
         ;NSISdl::download ${CodeDownloadUrl} "$INSTDIR\VSCode.exe" ; old built-in method doesnt work
         inetc::get ${CodeDownloadUrl} "$INSTDIR\VSCode.zip"
         ; 'OK' when sucessful
         Pop $Status
         StrCmp $Status "OK" status0_success 0
             RMDir "$INSTDIR" ; Don't remove if not empty (/r)
+            DetailPrint "Code installation failure on download - exit installation"
             Abort
         status0_success:
         ${If} $IsUpdateMode == YES ; remove current code files
@@ -178,6 +180,7 @@ Section "Install"
             Delete "$INSTDIR\Code*"
         ${EndIf}
         ;ExecWait '"$INSTDIR\VSCode.exe" /SILENT /MERGETASKS="!runcode,addcontextmenufiles,addcontextmenufolders,associatewithfiles" /NORESTART /NOCANCEL /SUPPRESSMSGBOXES /DIR="$INSTDIR"'
+        DetailPrint "Unpacking Visual Studio Code..."
         nsisunz::Unzip "$INSTDIR\VSCode.zip" "$INSTDIR"
         Pop $Status ; 'success' when sucessful
         Delete "$INSTDIR\VSCode.zip"
@@ -191,10 +194,6 @@ Section "Install"
             Call WriteEnvVar
         ${Endif}
         ${If} $IsUpdateMode != YES
-            ; EXTENSIONS
-            ${If} $IsUpdateMode != YES ; remove current files
-                ExecWait '"$INSTDIR\install_extensions.bat" --install-extension'
-            ${EndIf}
             ; Add 'johnstoncode.svn-scm' to enabledProposedApi list in subversion exension, this enabled the file explorer decorations
             ; located in code installation resources/app/product.json
             Push '$INSTDIR\resources\app\product.json'   ; < v 1.32
@@ -205,24 +204,6 @@ Section "Install"
             Push '"atlassian.atlascode"]'
             Push '"atlassian.atlascode", "johnstoncode.svn-scm"]'
             Call ReplaceInFile
-            ; SETTINGS.JSON
-            ; Check if 'settings.json' exists in the target directory   
-            ;IfFileExists "$INSTDIR\data\user-data\User\settings.json" SETTINGS_FILE_ALREADY_EXISTS 0
-            IfFileExists "$APPDATA\Code\User\settings.json" settingsexist 0
-            ; Copy the file
-            ;File /oname=data\user-data\User\settings.json ..\build\settings.json
-            CreateDirectory "$APPDATA\Code" ; APPDATA = AppData\Roaming
-            CreateDirectory "$APPDATA\Code\User"
-            File /oname=$APPDATA\Code\User\settings.json ..\build\settings.json
-            ; replace c:\code in settings.json with actual install dir
-            ;Push "$INSTDIR\data\user-data\User\settings.json"
-            ${If} "$INSTDIR" != "c:\Code"
-                Push "$APPDATA\Code\User\settings.json"
-                Push "c:\Code" 
-                Push "$INSTDIR"
-                Call ReplaceInFile
-            ${EndIf}
-            settingsexist:
         ${Endif}
     ${Endif}
 
@@ -237,35 +218,15 @@ Section "Install"
     File /r /x settings.json /x nsis /x python ..\build\*.*
 
     ;
-    ; NODEJS
+    ; VSCODE EXTENSIONS
     ;
-    ${If} $InstallNodeJs == YES
-        DetailPrint "Downloading Visual Studio Code..."
-        inetc::get ${NodeJsUrl} "$INSTDIR\NodeJs.zip"
-        Pop $Status ; 'OK' when sucessful
-        ${If} $Status == OK 
-            ${If} $IsUpdateMode == YES ; remove current files
-                ; Remove global node modules gracefully
-                ExecWait '"$INSTDIR\install_node_modules.bat" uninstall'
-                RMDir /r "$INSTDIR\nodejs"
-            ${EndIf}
-            nsisunz::Unzip "$INSTDIR\NodeJs.zip" "$INSTDIR"
-            Pop $Status ; 'success' when sucessful
-            Delete "$INSTDIR\NodeJs.zip"
-            ; INSTALL GLOBAL NODE MODULES
-            ExecWait '"$INSTDIR\install_node_modules.bat" install'
-            ${If} $IsUpdateMode != YES
-                Push "$INSTDIR\nodejs"
-                Call AddToPath
-                Push "$INSTDIR\nodejs\node_modules\typescript\bin"
-                Call AddToPath
-            ${Endif}
-        ${Else}
-            DetailPrint "Error  - $Status"
-            DetailPrint "Code installation failure - exit installation"
-        ${EndIf}
+    ${If} $IsUpdateMode != YES
+        ; EXTENSIONS
+        ;CreateDirectory "$PROFILE\.vscode"
+        ;CreateDirectory "$PROFILE\.vscode\extensions"
+        ExecWait '"$INSTDIR\install_extensions.bat" --install-extension'
     ${EndIf}
-
+    
     ;
     ; VSCODE Insiders (latest/current version)
     ;
@@ -279,12 +240,43 @@ Section "Install"
                 RMDir /r "$INSTDIR\insiders"
             ${EndIf}
             CreateDirectory "$INSTDIR\insiders"
+            DetailPrint "Unpacking Visual Studio Code Insiders..."
             nsisunz::Unzip "$INSTDIR\VSCodeInsiders.zip" "$INSTDIR\insiders"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\VSCodeInsiders.zip"
             ${If} $IsUpdateMode != YES
                 CreateShortCut "$DESKTOP\Code Insiders.lnk" "$INSTDIR\insiders\Code - Insiders.exe"
             ${EndIf}
+        ${Else}
+            DetailPrint "Error  - $Status"
+        ${EndIf}
+    ${EndIf}
+
+    ;
+    ; NODEJS
+    ;
+    ${If} $InstallNodeJs == YES
+        DetailPrint "Downloading NodeJS and NPM..."
+        inetc::get ${NodeJsUrl} "$INSTDIR\NodeJs.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            ${If} $IsUpdateMode == YES ; remove current files
+                ; Remove global node modules gracefully
+                ExecWait '"$INSTDIR\install_node_modules.bat" uninstall'
+                RMDir /r "$INSTDIR\nodejs"
+            ${EndIf}
+            DetailPrint "Unpacking NodeJS and NPM..."
+            nsisunz::Unzip "$INSTDIR\NodeJs.zip" "$INSTDIR"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\NodeJs.zip"
+            ; INSTALL GLOBAL NODE MODULES
+            ExecWait '"$INSTDIR\install_node_modules.bat" install'
+            ${If} $IsUpdateMode != YES
+                Push "$INSTDIR\nodejs"
+                Call AddToPath
+                Push "$INSTDIR\nodejs\node_modules\typescript\bin"
+                Call AddToPath
+            ${Endif}
         ${Else}
             DetailPrint "Error  - $Status"
         ${EndIf}
@@ -348,6 +340,7 @@ Section "Install"
             ${If} $IsUpdateMode == YES ; remove current files
                 RMDir /r "$INSTDIR\ant"
             ${EndIf}
+            DetailPrint "Unpacking Apache Ant..."
             nsisunz::Unzip "$INSTDIR\ant.zip" "$INSTDIR"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\ant.zip"
@@ -369,6 +362,7 @@ Section "Install"
             ${If} $IsUpdateMode == YES ; remove current files
                 RMDir /r "$INSTDIR\ansicon"
             ${EndIf}
+            DetailPrint "Unpacking Ansicon for Ant..."
             nsisunz::Unzip "$INSTDIR\ansicon.zip" "$INSTDIR"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\ansicon.zip"
@@ -392,6 +386,7 @@ Section "Install"
             ${If} $IsUpdateMode == YES ; remove current files
                 RMDir /r "$INSTDIR\gradle"
             ${EndIf}
+            DetailPrint "Unpacking Gradle Build Tool..."
             nsisunz::Unzip "$INSTDIR\gradle.zip" "$INSTDIR"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\gradle.zip"
@@ -420,6 +415,7 @@ Section "Install"
                 RMDir "$INSTDIR\dotfuscator" ; dont remove if another edition is installed here (no /r)
             ${EndIf}
             CreateDirectory "$INSTDIR\dotfuscator"
+            DetailPrint "Unpacking Dotfuscator CE..."
             nsisunz::Unzip "$INSTDIR\DotfuscatorCE.zip" "$INSTDIR\dotfuscator" ;will extract to 'ce' dir
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\DotfuscatorCE.zip"
@@ -442,6 +438,7 @@ Section "Install"
             ${If} $IsUpdateMode == YES ; remove current files
                 RMDir /r "$INSTDIR\nsis"
             ${EndIf}
+            DetailPrint "Unpacking Nullsoft Scriptable Installer (NSIS)..."
             nsisunz::Unzip "$INSTDIR\nsis.zip" "$INSTDIR"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\nsis.zip"
@@ -465,6 +462,7 @@ Section "Install"
             ${If} $IsUpdateMode == YES ; remove current files
                 RMDir /r "$INSTDIR\python"
             ${EndIf}
+            DetailPrint "Unpacking Python for Windows..."
             nsisunz::Unzip "$INSTDIR\python.zip" "$INSTDIR"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\python.zip"
@@ -502,6 +500,7 @@ Section "Install"
     ; COMPILERS
     ;
     ${If} $InstallCompilers == YES
+        CreateDirectory "$INSTDIR\compilers"
         DetailPrint "Downloading C/C++ Compiler 9.0 Package..."
         inetc::get ${CompilerCCPlusPlus9Url} "$INSTDIR\CCPlusPlus9.zip"
         Pop $Status ; 'OK' when sucessful
@@ -509,7 +508,9 @@ Section "Install"
             ${If} $IsUpdateMode == YES ; remove current files
                 RMDir /r "$INSTDIR\compilers\c_c++\9.0"
             ${EndIf}
-            nsisunz::Unzip "$INSTDIR\CCPlusPlus9.zip" "$INSTDIR\compilers"
+            CreateDirectory "$INSTDIR\compilers\c_c++"
+            DetailPrint "Unpacking C/C++ Compiler 9.0 Package..."
+            nsisunz::Unzip "$INSTDIR\CCPlusPlus9.zip" "$INSTDIR\compilers\c_c++"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\CCPlusPlus9.zip"
         ${Else}
@@ -522,7 +523,9 @@ Section "Install"
             ${If} $IsUpdateMode == YES ; remove current files
                 RMDir /r "$INSTDIR\compilers\c#\8.0"
             ${EndIf}
-            nsisunz::Unzip "$INSTDIR\CSharp8.zip" "$INSTDIR\compilers"
+            CreateDirectory "$INSTDIR\compilers\c#"
+            DetailPrint "Unpacking C# Compiler 8.0 Package..."
+            nsisunz::Unzip "$INSTDIR\CSharp8.zip" "$INSTDIR\compilers\c#"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\CSharp8.zip"
         ${Else}
@@ -535,7 +538,9 @@ Section "Install"
             ${If} $IsUpdateMode == YES ; remove current files
                 RMDir /r "$INSTDIR\compilers\c#\15.0"
             ${EndIf}
-            nsisunz::Unzip "$INSTDIR\CSharp15.zip" "$INSTDIR\compilers"
+            CreateDirectory "$INSTDIR\compilers\c#"
+            DetailPrint "Unpacking C# Compiler 15.0 Package...."
+            nsisunz::Unzip "$INSTDIR\CSharp15.zip" "$INSTDIR\compilers\c#"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\CSharp15.zip"
         ${Else}
@@ -565,6 +570,7 @@ Section "Install"
             ${If} $IsUpdateMode == YES ; remove current files
                 RMDir /r "$INSTDIR\sdks\net35"
             ${EndIf}
+            DetailPrint "Unpacking .NET 3.5 Package...."
             nsisunz::Unzip "$INSTDIR\Net35Package.zip" "$INSTDIR\sdks"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\Net35Package.zip"
@@ -578,6 +584,7 @@ Section "Install"
             ${If} $IsUpdateMode == YES ; remove current files
                 RMDir /r "$INSTDIR\sdks\net40"
             ${EndIf}
+            DetailPrint "Unpacking .NET 4 Package...."
             nsisunz::Unzip "$INSTDIR\Net40Package.zip" "$INSTDIR\sdks"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\Net40Package.zip"
@@ -591,6 +598,7 @@ Section "Install"
             ${If} $IsUpdateMode == YES ; remove current files
                 RMDir /r "$INSTDIR\sdks\net452"
             ${EndIf}
+            DetailPrint "Unpacking .NET 4.52Package...."
             nsisunz::Unzip "$INSTDIR\Net452Package.zip" "$INSTDIR\sdks"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\Net452Package.zip"
@@ -604,6 +612,7 @@ Section "Install"
             ${If} $IsUpdateMode == YES ; remove current files
                 RMDir /r "$INSTDIR\sdks\net461"
             ${EndIf}
+            DetailPrint "Unpacking .NET 4.61 Package...."
             nsisunz::Unzip "$INSTDIR\Net461Package.zip" "$INSTDIR\sdks"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\Net461Package.zip"
@@ -617,6 +626,7 @@ Section "Install"
             ${If} $IsUpdateMode == YES ; remove current files
                 RMDir /r "$INSTDIR\sdks\net472"
             ${EndIf}
+            DetailPrint "Unpacking .NET 4.72 Packagee...."
             nsisunz::Unzip "$INSTDIR\Net472Package.zip" "$INSTDIR\sdks"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\Net472Package.zip"
@@ -636,6 +646,7 @@ Section "Install"
             ${If} $IsUpdateMode == YES ; remove current files
                 RMDir /r "$INSTDIR\sdks\wix"
             ${EndIf}
+            DetailPrint "Unpacking Legacy SDK - Wix Package...."
             nsisunz::Unzip "$INSTDIR\LegacyWix.zip" "$INSTDIR\sdks"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\LegacyWix.zip"
@@ -649,6 +660,7 @@ Section "Install"
             ${If} $IsUpdateMode == YES ; remove current files
                 RMDir /r "$INSTDIR\sdks\atlmfc"
             ${EndIf}
+            DetailPrint "Unpacking Legacy SDK - AtlMfc Package...."
             nsisunz::Unzip "$INSTDIR\LegacyAtlMfc.zip" "$INSTDIR\sdks"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\LegacyAtlMfc.zip"
@@ -662,6 +674,7 @@ Section "Install"
             ${If} $IsUpdateMode == YES ; remove current files
                 RMDir /r "$INSTDIR\sdks\windows\august2009"
             ${EndIf}
+            DetailPrint "Unpacking Legacy SDK - Windows August 2009 Package...."
             nsisunz::Unzip "$INSTDIR\WindowsAugust2009.zip" "$INSTDIR\sdks\windows"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\WindowsAugust2009.zip"
@@ -669,6 +682,25 @@ Section "Install"
             DetailPrint "Error  - $Status"
         ${EndIf}
     ${EndIf}
+
+    ; SETTINGS.JSON
+    ; Check if 'settings.json' exists in the target directory   
+    ;IfFileExists "$INSTDIR\data\user-data\User\settings.json" settingsexist 0
+    IfFileExists "$APPDATA\Code\User\settings.json" settingsexist 0
+    ; Copy the file
+    ;File /oname=data\user-data\User\settings.json ..\build\settings.json
+    CreateDirectory "$APPDATA\Code" ; APPDATA = AppData\Roaming
+    CreateDirectory "$APPDATA\Code\User"
+    File /oname=$APPDATA\Code\User\settings.json ..\build\settings.json
+    ; replace c:\code in settings.json with actual install dir
+    ;Push "$INSTDIR\data\user-data\User\settings.json"
+    ${If} "$INSTDIR" != "c:\Code"
+        Push "$APPDATA\Code\User\settings.json"
+        Push "c:\Code" 
+        Push "$INSTDIR"
+        Call ReplaceInFile
+    ${EndIf}
+    settingsexist:
 
     ;
     ; CUSTOM FILES STUFF (eslintrc) run in either install or update modes
@@ -760,6 +792,7 @@ Section "Uninstall"
         DeleteRegKey HKCR "*\shell\Open with VS Code"
         DeleteRegKey HKCR "Directory\shell\vscode"
         DeleteRegKey HKCR "Directory\Background\shell\vscode"
+        DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"
         RMDir /r "$PROFILE\.vscode\extensions"
         RMDir /r "$INSTDIR\bin"
         RMDir /r "$INSTDIR\locales"
@@ -769,11 +802,12 @@ Section "Uninstall"
         Delete "$INSTDIR\*.pak"
         Delete "$INSTDIR\*.bin"
         Delete "$INSTDIR\*.bat"
+        Delete "$INSTDIR\*.dat"
         Delete "$INSTDIR\Code*"
         MessageBox MB_YESNO "Delete user settings and cache?" IDYES 0 IDNO code1
-            ;RMDir /r "$INSTDIR\data"
-            RMDir /r "$PROFILE\.vscode"
             RMDir /r "$APPDATA\Code"
+            RMDir /r "$PROFILE\AppData\Roaming\Code"
+            RMDir /r "$PROFILE\.vscode"
         code1:
     ${EndIf}
 
@@ -782,7 +816,7 @@ Section "Uninstall"
     ;
     ${If} $InstallInsiders == YES 
         DetailPrint "Uninstalling Visual Studio Code Insiders..."
-        RMDir /r "$INSTDIR\insdiers"
+        RMDir /r "$INSTDIR\insiders"
         Delete "$DESKTOP\Code Insiders.lnk"
     ${EndIf}
 
@@ -804,13 +838,9 @@ Section "Uninstall"
     ;
     ${If} $InstallGit == YES 
         DetailPrint "Uninstalling Git for Windows..."
-        ReadRegStr $R0 HKLM "SOFTWARE\GitForWindows" "InstallPath"  ; Check to see if already installed
-        IfFileExists "$R0\bin\git.exe" 0 git1
-        MessageBox MB_YESNO "Uninstall Git?" IDYES 0 IDNO git1
-            ExecWait '"$INSTDIR\git\unins000.exe" /SILENT /SUPPRESSMSGBOXES'
-            RMDir /r "$INSTDIR\git"
-            Delete "$INSTDIR\GitSetup.exe"
-        git1:
+        ExecWait '"$INSTDIR\git\unins000.exe" /SILENT /SUPPRESSMSGBOXES'
+        RMDir /r "$INSTDIR\git"
+        Delete /REBOOTOK "$INSTDIR\GitSetup.exe"
     ${EndIf}
 
     ;
@@ -818,13 +848,9 @@ Section "Uninstall"
     ;
     ${If} $InstallTortoise == YES 
         DetailPrint "Uninstalling TortoiseSVN..."
-        ReadRegStr $R0 HKLM "SOFTWARE\TortoiseSVN" "Directory"  ; Check to see if already installed
-        IfFileExists "$R0\bin\svn.exe" 0 svn1
-        MessageBox MB_YESNO "Uninstall Tortoise SVN?" IDYES 0 IDNO svn1
-            ExecWait 'msiexec /x "$INSTDIR\TortoiseSVN-1.11.1.28492-x64-svn-1.11.1.msi" /passive REBOOT=ReallySuppress MSIRESTARTMANAGERCONTROL=Disable'
-            RMDir /r "$INSTDIR\tortoisesvn"
-            Delete "$INSTDIR\TortoiseSetup.msi"
-        svn1:
+        ExecWait 'msiexec /x "$INSTDIR\TortoiseSVN-1.11.1.28492-x64-svn-1.11.1.msi" /passive REBOOT=ReallySuppress MSIRESTARTMANAGERCONTROL=Disable'
+        RMDir /r "$INSTDIR\tortoisesvn"
+        Delete /REBOOTOK "$INSTDIR\TortoiseSetup.msi"
     ${EndIf}
 
     ;
@@ -834,6 +860,7 @@ Section "Uninstall"
         DetailPrint "Uninstalling .NET 4.72 Dev Pack..."
         IfFileExists "$INSTDIR\NDP472-DevPack.exe" 0 net472pack1
             ExecWait '"$INSTDIR\NDP472-DevPack.exe" /uninstall /passive /noreboot'
+            Delete /REBOOTOK "$INSTDIR\NDP472-DevPack.exe"
         net472pack1:
     ${EndIf}
 
@@ -857,6 +884,11 @@ Section "Uninstall"
         RMDir /r "$INSTDIR\sdks\windows"
         RMDir /r "$INSTDIR\sdks\atlmfc"
         RMDir /r "$INSTDIR\sdks\wix"
+    ${EndIf}
+
+    ${If} $InstallNetSdks == YES 
+    ${AndIf} $InstallLegacySdks == YES 
+        RMDir /r "$INSTDIR\sdks"
     ${EndIf}
 
     ;
@@ -914,7 +946,6 @@ Section "Uninstall"
     ;
     ; PYTHON
     ;
-    
     ${If} $InstallPython == YES 
         DetailPrint "Uninstalling Python for Windows..."
         Push "$INSTDIR\python"
@@ -945,15 +976,10 @@ Section "Uninstall"
     ${AndIf} $InstallDotfuscator == YES
     ${AndIf} $InstallNsis == YES
     ${AndIf} $InstallNet472DevPack == YES
-        DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"
-        RMDir /r "$INSTDIR\sdks"
-        Delete "$INSTDIR\*.bat"
+        RMDir /r "$INSTDIR"
     ${Else}
-        ; THIS WILL ONLY REMOVE THE BASE DIR IF IT IS EMPTY (no /r)
-        RMDir "$INSTDIR\sdks"
+        RMDir "$INSTDIR" 
     ${EndIf}
-
-    RMDir "$INSTDIR" 
 
 SectionEnd
 
@@ -1143,6 +1169,8 @@ Function InstTypePageCreate
     IfFileExists "$INSTDIR\nodejs\npm.cmd" 0 nodejsdone
         ${If} $InstallsSaved != YES
             StrCpy $InstallNodeJs NO
+            EnableWindow $R6 1
+            ${NSD_Uncheck} $R6
         ${Endif}
     nodejsdone:
     ${If} $InstallNodeJs == YES
@@ -1476,7 +1504,7 @@ Function un.InstTypePageCreate
     ${NSD_CreateCheckBox} 0 20u 45% 10u "Visual Studio Code"
     Pop $R9
     ${If} $InstallCode == YES 
-        ${NSD_Check} $2
+        ${NSD_Check} $R9
     ${EndIf}
 
     ${NSD_CreateCheckBox} 0 35u 45% 10u "Visual Studio Code Insiders"
@@ -1549,7 +1577,7 @@ Function un.InstTypePageCreate
 
     ${NSD_CreateCheckBox} 150u 20u 45% 10u "Apache Ant with Ansicon"
     Pop $R3
-    ${IfNot} ${FileExists} "$INSTDIR\compilers\c#\15.0\Bin\MSBuild.exe"
+    ${IfNot} ${FileExists} "$INSTDIR\ant\bin\ant.bat"
         ${NSD_Uncheck} $R3
         EnableWindow $R3 0
         StrCpy $InstallAntAnsicon NO
