@@ -1,5 +1,17 @@
 Change Log
 
+## [2.0.1](https://github.com/spmeesseman/code-package/compare/v2.0.0...v2.0.1) (2019-04-22)
+
+
+### Bug Fixes
+
+* insiders edition install does not include extensions ([f96128d](https://github.com/spmeesseman/code-package/commit/f96128d))
+
+
+### Documentation
+
+* **readme:** update build by me section ([6e818ce](https://github.com/spmeesseman/code-package/commit/6e818ce))
+
 # [2.0.0](https://github.com/spmeesseman/code-package/compare/v1.3.2...v2.0.0) (2019-04-21)
 
 

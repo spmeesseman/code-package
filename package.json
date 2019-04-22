@@ -3,7 +3,7 @@
 	"displayName": "Code Package",
 	"description": "Bundled Code Package",
 	"publisher": "spmeesseman",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"homepage": "https://github.com/spmeesseman/code-package/blob/master/README.md",
 	"repository": {
 		"type": "git",
@@ -13,9 +13,9 @@
 		"url": "https://github.com/spmeesseman/code-package/issues"
 	},
 	"files": [
-        "install",
-        "script",
-        "src/Build.bat"
+		"install",
+		"script",
+		"src/Build.bat"
 	],
 	"devDependencies": {
 		"@semantic-release/changelog": "^3.0.2",
