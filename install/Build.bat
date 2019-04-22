@@ -30,10 +30,10 @@ if "%1" == "--pj" (
 
 mkdir dist
 mkdir ..\build
-rem mkdir ..\build\data
-rem mkdir ..\build\data\extensions
-rem mkdir ..\build\data\user-data
-rem mkdir ..\build\data\user-data\User
+mkdir ..\build\data
+mkdir ..\build\data\extensions
+mkdir ..\build\data\user-data
+mkdir ..\build\data\user-data\User
 
 rem update version to package.json
 for /f %%i in ('..\build\nodejs\node -e "console.log(require('../package.json').version);"') do set version=%%i

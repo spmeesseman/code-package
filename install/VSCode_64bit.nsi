@@ -145,6 +145,16 @@ Section "Install"
     SetOutPath "$INSTDIR"
     
     ;
+    ; EXTRACT THE INSTALLERS LOCAL FILES - WITHOUT SETTINGS.JSON, PYTHON and TEMP NSIS folder
+    ; MAKENSIS.EXE is running from the temp ../build/nsis folder
+    ; Only extract settings.json later, after extensions are installed and it doesnt exist already, 
+    ; and we are not in update mode
+    ; Only extract python dir later, if we are installing/updating it
+    ; This would be just the *.bat files, and git.inf, as of 4.18.19
+    ;
+    File /r /x settings.json /x nsis /x python ..\build\*.*
+
+    ;
     ; VSCODE BASE (latest/current version)
     ;
     ${If} $InstallCode == YES
@@ -175,6 +185,8 @@ Section "Install"
             Delete "$INSTDIR\*.bin"
             Delete "$INSTDIR\Code*"
         ${EndIf}
+        CreateDirectory "$INSTDIR\data"
+        CreateDirectory "$INSTDIR\data\extensions"
         ;ExecWait '"$INSTDIR\VSCode.exe" /SILENT /MERGETASKS="!runcode,addcontextmenufiles,addcontextmenufolders,associatewithfiles" /NORESTART /NOCANCEL /SUPPRESSMSGBOXES /DIR="$INSTDIR"'
         DetailPrint "Unpacking Visual Studio Code..."
         nsisunz::Unzip "$INSTDIR\VSCode.zip" "$INSTDIR"
@@ -201,26 +213,30 @@ Section "Install"
             Push '"atlassian.atlascode", "johnstoncode.svn-scm"]'
             Call ReplaceInFile
         ${Endif}
+        ${IfNot} ${FileExists} "$INSTDIR\data\extensions\spmeesseman.vscode-taskexplorer\extension.js"
+            ; Install extensions
+            ExecWait '"$INSTDIR\install_extensions.bat" --install-extension code'
+        ${EndIf}
+        ; SETTINGS.JSON
+        ; Check if 'settings.json' exists in the target directory   
+        IfFileExists "$INSTDIR\data\user-data\User\settings.json" settingsexist 0
+        ;IfFileExists "$APPDATA\Code\User\settings.json" settingsexist 0
+        ; Copy the file
+        File /oname=data\user-data\User\settings.json ..\build\settings.json
+        ;CreateDirectory "$APPDATA\Code" ; APPDATA = AppData\Roaming
+        ;CreateDirectory "$APPDATA\Code\User"
+        ;File /oname=$APPDATA\Code\User\settings.json ..\build\settings.json
+        ; replace c:\code in settings.json with actual install dir
+        ${If} "$INSTDIR" != "c:\Code"
+            ;Push "$APPDATA\Code\User\settings.json"
+            Push "$INSTDIR\data\user-data\User\settings.json"
+            Push "c:\Code" 
+            Push "$INSTDIR"
+            Call ReplaceInFile
+        ${EndIf}
+        settingsexist:
     ${Endif}
 
-    ;
-    ; EXTRACT THE INSTALLERS LOCAL FILES - WITHOUT SETTINGS.JSON, PYTHON and TEMP NSIS folder
-    ; MAKENSIS.EXE is running from the temp ../build/nsis folder
-    ; Only extract settings.json later, after extensions are installed and it doesnt exist already, 
-    ; and we are not in update mode
-    ; Only extract python dir later, if we are installing/updating it
-    ; This would be just the *.bat files, and git.inf, as of 4.18.19
-    ;
-    File /r /x settings.json /x nsis /x python ..\build\*.*
-
-    ;
-    ; VSCODE EXTENSIONS
-    ; Use install_extensions.bat from installer package extracted above
-    ;
-    ${If} $IsUpdateMode != YES
-        ExecWait '"$INSTDIR\install_extensions.bat" --install-extension'
-    ${EndIf}
-    
     ;
     ; VSCODE Insiders (latest/current version)
     ;
@@ -234,6 +250,8 @@ Section "Install"
                 RMDir /r "$INSTDIR\insiders"
             ${EndIf}
             CreateDirectory "$INSTDIR\insiders"
+	    CreateDirectory "$INSTDIR\insiders\data"
+            CreateDirectory "$INSTDIR\insiders\data\extensions"
             DetailPrint "Unpacking Visual Studio Code Insiders..."
             nsisunz::Unzip "$INSTDIR\VSCodeInsiders.zip" "$INSTDIR\insiders"
             Pop $Status ; 'success' when sucessful
@@ -244,6 +262,38 @@ Section "Install"
         ${Else}
             DetailPrint "Error  - $Status"
         ${EndIf}
+        ${If} $IsUpdateMode != YES
+            ; Add 'johnstoncode.svn-scm' to enabledProposedApi list in subversion exension, this enabled the file explorer decorations
+            ; located in code installation resources/app/product.json
+            Push '$INSTDIR\insiders\resources\app\product.json'   ; >= V 1.33
+            Push '"ms-vscode.vscode-remote-extensionpack"]'
+            Push '"ms-vscode.vscode-remote-extensionpack", "johnstoncode.svn-scm"]'
+            Call ReplaceInFile
+        ${Endif}
+        ${IfNot} ${FileExists} "$INSTDIR\data\extensions\spmeesseman.vscode-taskexplorer\extension.js"
+            ; Install extensions
+            File "/oname=$INSTDIR\insiders\install_extensions.bat" ..\build\install_extensions.bat
+            ExecWait '"$INSTDIR\insiders\install_extensions.bat" --install-extension code-insiders'
+        ${EndIf}
+        ; SETTINGS.JSON
+        ; Check if 'settings.json' exists in the target directory   
+        IfFileExists "$INSTDIR\insiders\data\user-data\User\settings.json" settingsexist2 0
+        ;IfFileExists "$APPDATA\Code\User\settings.json" settingsexist2 0
+        ; Copy the file
+        File /oname=data\user-data\User\settings.json ..\build\settings.json
+        ;CreateDirectory "$APPDATA\Code - Insiders" ; APPDATA = AppData\Roaming
+        ;CreateDirectory "$APPDATA\Code - Insiders\User"
+        ;File /oname=$APPDATA\Code - Insiders\User\settings.json ..\build\settings.json
+        ; replace c:\code in settings.json with actual install dir
+        ${If} "$INSTDIR" != "c:\Code"
+            ;Push "$APPDATA\Code\User\settings.json"
+            Push "$INSTDIR\insiders\data\user-data\User\settings.json"
+            Push "c:\Code" 
+            Push "$INSTDIR\insiders"
+            Call ReplaceInFile
+        ${EndIf}
+        settingsexist2:
+
     ${EndIf}
 
     ;
@@ -620,25 +670,6 @@ Section "Install"
         ${EndIf}
     ${EndIf}
 
-    ; SETTINGS.JSON
-    ; Check if 'settings.json' exists in the target directory   
-    ;IfFileExists "$INSTDIR\data\user-data\User\settings.json" settingsexist 0
-    IfFileExists "$APPDATA\Code\User\settings.json" settingsexist 0
-    ; Copy the file
-    ;File /oname=data\user-data\User\settings.json ..\build\settings.json
-    CreateDirectory "$APPDATA\Code" ; APPDATA = AppData\Roaming
-    CreateDirectory "$APPDATA\Code\User"
-    File /oname=$APPDATA\Code\User\settings.json ..\build\settings.json
-    ; replace c:\code in settings.json with actual install dir
-    ${If} "$INSTDIR" != "c:\Code"
-        Push "$APPDATA\Code\User\settings.json"
-        ;Push "$INSTDIR\data\user-data\User\settings.json"
-        Push "c:\Code" 
-        Push "$INSTDIR"
-        Call ReplaceInFile
-    ${EndIf}
-    settingsexist:
-
     ;
     ; CUSTOM FILES STUFF (eslintrc) run in either install or update modes
     ;
@@ -717,7 +748,7 @@ Section "Uninstall"
         ; uninstaller for vscode exe installer (using zip not installer)
         ;ExecWait '"$INSTDIR\unins000.exe" /SILENT /SUPPRESSMSGBOXES'
         ; Extensions
-        ExecWait '"$INSTDIR\install_extensions.bat" --uninstall-extension'
+        ExecWait '"$INSTDIR\install_extensions.bat" --uninstall-extension code'
         ; Desktop shortcut
         Delete "$DESKTOP\Code.lnk"
         Push "$INSTDIR\bin"
@@ -728,7 +759,8 @@ Section "Uninstall"
         DeleteRegKey HKCR "Directory\shell\vscode"
         DeleteRegKey HKCR "Directory\Background\shell\vscode"
         DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPLICATION_NAME}"
-        RMDir /r "$PROFILE\.vscode\extensions"
+        ;RMDir /r "$PROFILE\.vscode\extensions"
+        RMDir /r "$INSTDIR\data\extensions"
         RMDir /r "$INSTDIR\bin"
         RMDir /r "$INSTDIR\locales"
         RMDir /r "$INSTDIR\resources"
@@ -738,11 +770,13 @@ Section "Uninstall"
         Delete "$INSTDIR\*.bin"
         Delete "$INSTDIR\*.bat"
         Delete "$INSTDIR\*.dat"
+        Delete "$INSTDIR\*.bin"
         Delete "$INSTDIR\Code*"
         MessageBox MB_YESNO "Delete user settings and cache?" IDYES 0 IDNO code1
-            RMDir /r "$APPDATA\Code"
-            RMDir /r "$PROFILE\AppData\Roaming\Code"
-            RMDir /r "$PROFILE\.vscode"
+            ;RMDir /r "$APPDATA\Code"
+            ;RMDir /r "$PROFILE\AppData\Roaming\Code"
+            ;RMDir /r "$PROFILE\.vscode"
+            RMDir /r "$INSTDIR\data"
         code1:
     ${EndIf}
 
@@ -751,8 +785,28 @@ Section "Uninstall"
     ;
     ${If} $InstallInsiders == YES 
         DetailPrint "Uninstalling Visual Studio Code Insiders..."
-        RMDir /r "$INSTDIR\insiders"
+        ; Extensions
+        ExecWait '"$INSTDIR\insiders\install_extensions.bat" --uninstall-extension code-insiders'
         Delete "$DESKTOP\Code Insiders.lnk"
+	    ;RMDir /r "$PROFILE\.vscode\extensions"
+        RMDir /r "$INSTDIR\insiders\data\extensions"
+        RMDir /r "$INSTDIR\insiders\bin"
+        RMDir /r "$INSTDIR\insiders\locales"
+        RMDir /r "$INSTDIR\insiders\resources"
+        RMDir /r "$INSTDIR\insiders\tools"
+        Delete "$INSTDIR\insiders\*.dll"
+        Delete "$INSTDIR\insiders\*.pak"
+        Delete "$INSTDIR\insiders\*.bin"
+        Delete "$INSTDIR\insiders\*.bat"
+        Delete "$INSTDIR\insiders\*.dat"
+        Delete "$INSTDIR\insiders\*.bin"
+        Delete "$INSTDIR\insiders\Code*"
+        MessageBox MB_YESNO "Delete Insiders user settings and cache?" IDYES 0 IDNO code2
+            ;RMDir /r "$APPDATA\Code - Insiders"
+            ;RMDir /r "$PROFILE\AppData\Roaming\Code - Insiders"
+            ;RMDir /r "$PROFILE\.vscode-insiders"
+            RMDir /r "$INSTDIR\insiders\data"
+        code2:
     ${EndIf}
 
     ;
