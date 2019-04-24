@@ -1143,8 +1143,6 @@ Function InstTypePageCreate
         ${NSD_Check} $2
     ${EndIf}
 
-    DetailPrint "Install nodejs $InstallNodeJs"
-
     ${NSD_CreateCheckBox} 0 50u 45% 10u "NodeJS and Package Manager (NPM)"
     Pop $R6
     ${If} $IsUpdateMode != YES
@@ -1615,7 +1613,7 @@ Function un.InstTypePageCreate
         ${NSD_Check} $R1
     ${EndIf}
     
-    ${NSD_CreateCheckBox} 150u 95u 45% 10u ".NET 4.72 Targeting and Developer Pack"
+    ${NSD_CreateCheckBox} 150u 95u 45% 10u ".NET 4.72 Targeting and Dev Pack"
     Pop $3
     ${IfNot} ${FileExists} "$INSTDIR\NDP472-DevPack.exe"
         ${NSD_Uncheck} $3
