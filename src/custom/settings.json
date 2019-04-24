@@ -51,7 +51,6 @@
     ],
     "taskExplorer.includeAnt": [
         "**/install/*.xml",
-        "**/install/script/*.xml",
         "**/script/*.xml"
     ],
     "taskExplorer.exclude": [
