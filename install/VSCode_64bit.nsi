@@ -9,7 +9,7 @@
 !define APPLICATION_NAME     "Code Package"
 
 ; Define build level
-!define BUILD_LEVEL          "2.0.0"
+!define BUILD_LEVEL          "2.0.2"
 
 ; Define install file name
 !define INSTALL_FILE_NAME    "code-package-x64.exe"
@@ -90,6 +90,7 @@ Var InstallGradle
 Var InstallCompilers
 Var InstallsSaved
 Var DotfuscatorUrlVar
+;var /GLOBAL WithOption
 
 ;*********************************************************************
 ;*                                                                   *
@@ -99,6 +100,8 @@ Var DotfuscatorUrlVar
 
 ; This value is displayed in the lower left of each dialog window
 BrandingText " "
+
+;ComponentText "Select the components you want to install."
 
 ; Force CRC checking
 CRCCheck force
@@ -118,6 +121,7 @@ ShowUninstDetails show
 ; Specify the pages to display when performing an Install
 Page custom InstTypePageCreate InstTypePageLeave
 Page custom InstAuthPageCreate InstAuthPageLeave
+;!insertmacro MUI_PAGE_COMPONENTS
 !define MUI_PAGE_CUSTOMFUNCTION_PRE dirPre
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
@@ -701,10 +705,12 @@ Section "Install"
         WriteRegStr   HKLM "$0" "DisplayVersion" "${BUILD_LEVEL}"
         WriteRegDWORD HKLM "$0" "EstimatedSize" 1259000
         WriteRegStr   HKLM "$0" "InstallLocation" "$INSTDIR"
-        WriteRegDWORD HKLM "$0" "NoModify" 1
+        WriteRegDWORD HKLM "$0" "NoModify" 0
         WriteRegDWORD HKLM "$0" "NoRepair" 1
         WriteRegStr   HKLM "$0" "Publisher" "Scott Meesseman"
+        WriteRegStr   HKLM "$0" "ModifyPath" "$INSTDIR\${INSTALL_FILE_NAME}"
         WriteRegStr   HKLM "$0" "UninstallString" "$INSTDIR\${UNINSTALL_FILE_NAME}"
+        WriteRegStr   HKLM "$0" "QuietUninstallString" "$\"$INSTDIR\${UNINSTALL_FILE_NAME}$\" /S"
     ${EndIf}
 
     ; Set context to 'All Users'
@@ -714,10 +720,24 @@ Section "Install"
     ; CREATE UNINSTALLER
     ;
     ${If} $IsUpdateMode != YES
+        CopyFiles "$EXEPATH" "$INSTDIR"
         WriteUninstaller "$INSTDIR\${UNINSTALL_FILE_NAME}"
     ${EndIf}
 
 SectionEnd
+
+
+;SectionGroup /e "Visual Studio Code"
+; 
+;    Section "Stable" vscode_stable
+;        
+;    SectionEnd
+;    
+;    Section "Insiders" vscode_insiders
+;
+;    SectionEnd
+; 
+;SectionGroupEnd
 
 
 ;*********************************************************************
@@ -1005,6 +1025,47 @@ FunctionEnd
 
 ;*********************************************************************
 ;*                                                                   * 
+;*      .onSelChange                                                 * 
+;*                                                                   * 
+;*********************************************************************
+
+; For testing MUI_PAGE_COMPONENTS
+
+;Function .onSelChange
+;
+;    ;
+;    ; VSCode Stable
+;    ;
+;    SectionGetFlags ${vscode_stable} $R0
+;    IntOp $R0 $R0 & ${SF_SELECTED}
+;    ${If} $R0 == ${SF_SELECTED}
+;        ;!insertmacro ClearSectionFlag ${sec2} ${SF_RO}
+;        StrCpy $InstallCode YES
+;    ${Else}
+;        ;!insertmacro UnSelectSection ${sec2}
+;        ;!insertmacro SetSectionFlag ${sec2} ${SF_RO}
+;        StrCpy $InstallCode NO
+;    ${EndIf}
+;
+;    ;
+;    ; VSCode Insiders
+;    ;
+;    ;SectionGetFlags ${Sec2} $WithOption
+;    SectionGetFlags ${vscode_insiders} $R0
+;    ${If} $R0 == ${SF_SELECTED}
+;        ;!insertmacro ClearSectionFlag ${sec2} ${SF_RO}
+;        StrCpy $InstallInsiders YES
+;    ${Else}
+;        ;!insertmacro UnSelectSection ${sec2}
+;        ;!insertmacro SetSectionFlag ${sec2} ${SF_RO}
+;        StrCpy $InstallInsiders NO
+;    ${EndIf}
+;
+;FunctionEnd
+
+
+;*********************************************************************
+;*                                                                   * 
 ;*      dirPre                                                       * 
 ;*                                                                   * 
 ;*********************************************************************
@@ -1263,7 +1324,7 @@ Function InstTypePageCreate
         ${NSD_Check} $R1
     ${EndIf}
     
-    ${NSD_CreateCheckBox} 150u 95u 45% 10u ".NET 4.72 Developer and Targeting Pack"
+    ${NSD_CreateCheckBox} 150u 95u 45% 10u ".NET 4.72 Targeting and Dev Pack"
     Pop $3
     IfFileExists "$INSTDIR\NDP472-DevPack.exe" 0 net472done
         ${If} $InstallsSaved != YES
