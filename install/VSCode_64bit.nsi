@@ -703,7 +703,7 @@ Section "Install"
         WriteRegStr   HKLM "$0" "DisplayIcon" "$INSTDIR\code.exe"               
         WriteRegStr   HKLM "$0" "DisplayName" "${APPLICATION_NAME}"         
         WriteRegStr   HKLM "$0" "DisplayVersion" "${BUILD_LEVEL}"
-        WriteRegDWORD HKLM "$0" "EstimatedSize" 1259000
+        WriteRegDWORD HKLM "$0" "EstimatedSize" 3480000
         WriteRegStr   HKLM "$0" "InstallLocation" "$INSTDIR"
         WriteRegDWORD HKLM "$0" "NoModify" 0
         WriteRegDWORD HKLM "$0" "NoRepair" 1
