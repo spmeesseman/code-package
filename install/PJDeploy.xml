@@ -32,30 +32,6 @@
    <!--
    **********************************************************************
    *                                                                    *
-   *  Define SharePoint server information                              *
-   *                                                                    *
-   **********************************************************************
-   -->
-   
-   <property
-      name="sharepoint_server"
-      value="pjainc.pjvista.com@SSL"/>
-
-   <property
-      name="sharepoint_share"
-      value="DavWWWRoot"/>
-
-   <property
-      name="sharepoint_directory"
-      value="Shared Documents\Tech Support\Application Installation and Configuration"/>
-
-   <property
-      name="sharepoint_path"
-      value="\\${sharepoint_server}\${sharepoint_share}\${sharepoint_directory}\${project_name}\${version}"/>
-   
-   <!--
-   **********************************************************************
-   *                                                                    *
    *  Define SoftwareImages server information                          *
    *                                                                    *
    **********************************************************************
@@ -97,27 +73,6 @@
       <!--
       **********************************************************************
       *                                                                    *
-      *  Copy files to SharePoint                                          *
-      *                                                                    *
-      **********************************************************************
-      -->
-
-      <!-- Display a message -->
-      <echo message="SharePoint        : ${sharepoint_path}"/>
-
-      <!-- Create the version directory -->
-      <mkdir dir="${sharepoint_path}"/>
-
-      <!-- Copy to SharePoint -->
-      <copy todir="${sharepoint_path}" verbose="true" >
-         <fileset dir="..\doc"
-            includes="*.pdf"/>
-      </copy>
-
-      
-      <!--
-      **********************************************************************
-      *                                                                    *
       *  Copy files to SoftwareImages                                      *
       *                                                                    *
       **********************************************************************
@@ -133,7 +88,7 @@
            to the target directory -->
 		<copy todir="${target_path1}" verbose="true" >
          <resources>
-            <file file="dist/CodePackage_x64.exe" />
+            <file file="dist/code-package-x64.exe" />
             <file file="history.txt" />
          </resources>
       </copy>
