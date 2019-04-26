@@ -23,7 +23,7 @@
    <!-- Define property names and values -->
    <property 
       name="version" 
-      value="1.2.1"/>
+      value="2.0.2"/>
    
    <property 
       name="project_name" 

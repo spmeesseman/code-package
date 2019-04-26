@@ -2,19 +2,16 @@
 @echo off
 cd %~dp0
 
-rem CI skip edit files
-if "%1" == "--edit-files" (
-    rem Edit the History
-    notepad history.txt
-
-    rem Edit the Installation document
-    rem "..\doc\Code Installation.docx"
-
-    rem Edit the Setup script
-    notepad VSCode_64bit.nsi
+set pj=""
+if "%1" == "--pj" (
+    set pj=--pj
+)
+if "%2" == "--pj" (
+    set pj=--pj
 )
 
-if "%1" == "--pj" (
+
+if "%pj%" == "--pj" (
     copy /Y VSCode_64bit.nsi VSCode_64bit.nsi.tmp
     rem use pj header
     cscript //B ..\script\substitute.vbs installerhdr.bmp pja24bit.bmp VSCode_64bit.nsi > VSCode_64bit.nsi.new
@@ -26,6 +23,18 @@ if "%1" == "--pj" (
     rem move /Y VSCode_64bit.nsi.new3 VSCode_64bit.nsi
     rem del /Q VSCode_64bit.nsi.new2
     del /Q VSCode_64bit.nsi.new
+)
+
+rem CI skip edit files
+if "%1" == "--edit-files" (
+    rem Edit the History
+    notepad history.txt
+
+    rem Edit the Installation document
+    rem "..\doc\Code Installation.docx"
+
+    rem Edit the Setup script
+    notepad VSCode_64bit.nsi
 )
 
 mkdir dist
@@ -51,6 +60,6 @@ if not exist ..\build\nsis\  (
 rem Compile the Setup script
 ..\build\nsis\makensis VSCode_64bit.nsi
 
-if "%1" == "--pj" (
+if "%pj%" == "--pj" (
     move /Y VSCode_64bit.nsi.tmp VSCode_64bit.nsi
 )

@@ -24,6 +24,7 @@ The following software is redistributed locally by code-package:
 |Ansicon|1.88|Jason Hood|Yes|
 |Dotfuscator|5.26.0|GPL-compatible|Yes|
 |Git|2.21.0|GPL|Yes|
+|Gradle|5.3.1|GPL|Yes|
 |NodeJS|10.15.3|Node.js|Yes|
 |Python|3.7.3|GPL-compatible|Yes|
 |Tortoise SVN|1.11.1|GPLv2|No|

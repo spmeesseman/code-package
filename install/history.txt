@@ -531,8 +531,8 @@ April 15th, 2019
     This has been fixed.
 
 
-Version 2.0.0
-
+Version 2.0.2
+April 26th, 2019
 -------------------------------------------------------------------------------
 ********************************************************************************
 ***                                                                            *
@@ -550,5 +550,32 @@ Version 2.0.0
 ***                                                                            *
 ********************************************************************************
 
-1.  
+1.  Packages can now be selected individually for installation, update or for 
+    removal.
+
+    The currently available packages are listed below, along with their current 
+    versions:
+
+        Visual Studio Code Stable       : Always latest available
+        Visual Studio Code Insiders     : Always latest available
+        Apache Ant                      : 1.10.5
+        Ansicon for Apache Ant          : 1.88
+        Compiler Package                : C/C++ 9.0, C# 9.0, C# 15.0
+        DotNET Developer Pack           : 4.72
+        DotNET Framework Packages       : 3.5, 4.0, 4.52, 4.61, 4.72
+        Git for Windows                 : 2.21.0
+        Gradle Build Tool               : 5.3.1
+        NodeJS and Node Package Manager : 10.15.3
+        Python for Windows              : 3.7.3
+        TortoiseSVN and SVN Tools       : 1.11.1
+        Legacy Wix Package              : 2009
+        Legacy Atl/Mfc Package          : 2009
+        Legacy Windows SDK              : August 2009
+
+2.  A "Change" button in the Windows Add/Remove Programs list will allow to add, 
+    remove, or update individual packages on demand (i.e. easy VSCode updates).
+
+3.  The installer will detect when the application is already installed, and if
+    so will skip the prompt for the the installation directory, eliminating the 
+    chance to install to the wrong folder.
 
