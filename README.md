@@ -2,11 +2,6 @@
 
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 [![Greenkeeper badge](https://badges.greenkeeper.io/spmeesseman/code-package.svg?token=d5ee317b562beed19aaa376b57290da1622c76d687092eb10b1d301dbdbbfb1b&ts=1555022335792)](https://greenkeeper.io/)
-[![Known Vulnerabilities](https://snyk.io/test/github/spmeesseman/code-package/badge.svg)](https://snyk.io/test/github/spmeesseman/code-package)
-[![Average time to resolve an issue](https://isitmaintained.com/badge/resolution/spmeesseman/code-package.svg)](https://isitmaintained.com/project/spmeesseman/code-package "Average time to resolve an issue")
-[![Percentage of issues still open](https://isitmaintained.com/badge/open/spmeesseman/code-package.svg)](https://isitmaintained.com/project/spmeesseman/code-package "Percentage of issues still open")
-[![Dependencies Status](https://david-dm.org/spmeesseman/code-package/status.svg)](https://david-dm.org/spmeesseman/code-package)
-[![DevDependencies Status](https://david-dm.org/spmeesseman/code-package/dev-status.svg)](https://david-dm.org/spmeesseman/code-package?type=dev)
 
 > Bundles several 3rd party libraries and development tools to be used within the Visual Sudio Code IDE.  Install and go!
 
@@ -39,30 +34,3 @@ The following software is not included and is not redistributed locally within c
 |VSCode Extensions|Latest|Online|N/A|Yes|
 |.NET Targeting Pack|4.72|Online|Microsoft|No|
 |Git for Windows|2.21.0|Online|GPLv2|No|
-
-## Feedback & Contributing
-
-* Please report any bugs, suggestions or documentation requests via the
-  [Issues](https://github.com/spmeesseman/code-package/issues)
-* Feel free to submit
-  [pull requests](https://github.com/spmeesseman/code-package/pulls)
-* [Contributors](https://github.com/spmeesseman/code-package/graphs/contributors)
-
-## Builds by spmeesseman
-
-|Package|Use Case|Repository|Marketplace|
-|-|-|-|-|
-|code-package|Code Dev Environment|[GitHub](https://github.com/spmeesseman/code-package)|[GIthub Releases](https://github.com/spmeesseman/code-package/releases)|
-|conventional-changelog-spm|Semantic-Release|[GitHub](https://github.com/spmeesseman/conventional-changelog-spm)|[Npmjs.org Registry](https://www.npmjs.com/package/conventional-changelog-spm)|
-|extjs-pkg-fontawesome|ExtJS Open Tooling|[GitHub](https://github.com/spmeesseman/extjs-pkg-fontawesome)|[Npmjs.org Registry](https://www.npmjs.com/package/extjs-pkg-fontawesome)|
-|extjs-pkg-fontawesome-pro|ExtJS Open Tooling|[GitHub](https://github.com/spmeesseman/extjs-pkg-fontawesome-pro)|[Npmjs.org Private Registry](https://www.npmjs.com/package/@spmeesseman/extjs-pkg-fontawesome-pro)|
-|extjs-pkg-plyr|ExtJS Open Tooling|[GitHub](https://github.com/spmeesseman/extjs-pkg-plyr)|[Npmjs.org Registry](https://www.npmjs.com/package/extjs-pkg-plyr)|
-|extjs-pkg-tinymce|ExtJS Open Tooling|[GitHub](https://github.com/spmeesseman/extjs-pkg-tinymce)|[Npmjs.org Registry](https://www.npmjs.com/package/extjs-pkg-tinymce)|
-|extjs-pkg-websocket|ExtJS Open Tooling|[GitHub](https://github.com/spmeesseman/extjs-pkg-websocket)|[Npmjs.org Registry](https://www.npmjs.com/package/extjs-pkg-websocket)|
-|extjs-pkg-webworker|ExtJS Open Tooling|[GitHub](https://github.com/spmeesseman/extjs-pkg-webworker)|[Npmjs.org Registry](https://www.npmjs.com/package/extjs-pkg-webworker)|
-|extjs-server-net|ExtJS Open Tooling|SVN (Private)|Private|
-|extjs-theme-graphite-small|ExtJS Open Tooling|[GitHub](https://github.com/spmeesseman/extjs-theme-graphite-small)|[Npmjs.org Private Registry](https://www.npmjs.com/package/@spmeesseman/extjs-theme-graphite-small)|
-|extjs-theme-amethyst|ExtJS Open Tooling|[GitHub](https://github.com/spmeesseman/extjs-theme-amethyst)|[Npmjs.org Registry](https://www.npmjs.com/package/extjs-theme-amethyst)|
-|svn-scm-ext|Visual Studio Code|[GitHub](https://github.com/spmeesseman/svn-scm-ext)|[Visual Studio Marketplace](https://marketplace.visualstudio.com/itemdetails?itemName=spmeesseman.svn-scm-ext)|
-|vscode-taskexplorer|Visual Studio Code|[GitHub](https://github.com/spmeesseman/vscode-taskexplorer)|[Visual Studio Marketplace](https://marketplace.visualstudio.com/itemdetails?itemName=spmeesseman.vscode-taskexplorer)|
-|vscode-vslauncher|Visual Studio Code|[GitHub](https://github.com/spmeesseman/vscode-vslauncher)|[Visual Studio Marketplace](https://marketplace.visualstudio.com/itemdetails?itemName=spmeesseman.vscode-vslauncher)|
