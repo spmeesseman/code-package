@@ -33,6 +33,7 @@
 !define CodeDownloadUrl "https://update.code.visualstudio.com/latest/win32-x64-archive/stable"
 !define CodeInsidersDownloadUrl "https://update.code.visualstudio.com/latest/win32-x64-archive/insider"
 !define GitDownloadUrl "https://github.com/git-for-windows/git/releases/download/v2.21.0.windows.1/Git-2.21.0-64-bit.exe"
+!define NugetCliUrl "https://dist.nuget.org/win-x86-commandline/v4.9.4/nuget.exe"
 !define Net472DownloadUrl "https://go.microsoft.com/fwlink/?LinkId=874338"
 ; Private URLs (requires manual auth/url, for registered ce users only)
 !define DotfuscatorUrl "http://app1.spmeesseman.com/download/code-package/dotfuscator-ce.zip" ; will throw 404
@@ -613,6 +614,12 @@ Section "Install"
             Pop $Status ; 'success' when sucessful
             Delete "$INSTDIR\DotNetPackage.zip"
         ${Else}
+            DetailPrint "Error  - $Status"
+        ${EndIf}
+
+        inetc::get ${NugetCliUrl} "$INSTDIR\bin"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status != OK
             DetailPrint "Error  - $Status"
         ${EndIf}
     ${EndIf}
