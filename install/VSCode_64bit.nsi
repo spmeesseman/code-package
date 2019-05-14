@@ -38,7 +38,7 @@
 ; Private URLs (requires manual auth/url, for registered ce users only)
 !define DotfuscatorUrl "http://app1.spmeesseman.com/download/code-package/dotfuscator-ce.zip" ; will throw 404
 ; Repo URLs
-!define PackageBaseUrl "https://github.com/spmeesseman/code-package/blob/dl-installer/src"
+!define PackageBaseUrl "https://github.com/spmeesseman/code-package/blob/master/src"
 !define TortoiseUrl "${PackageBaseUrl}/tortoisesvn/tortoisesvn.msi?raw=true"
 !define NodeJsUrl "${PackageBaseUrl}/nodejs/nodejs.zip?raw=true"
 !define NsisUrl "${PackageBaseUrl}/nsis/nsis.zip?raw=true"

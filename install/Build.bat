@@ -18,7 +18,7 @@ if "%pj%" == "--pj" (
     rem // pj package owner
     cscript //B ..\script\substitute.vbs "Scott Meesseman" "Perry Johnson & Associates" VSCode_64bit.nsi.new > VSCode_64bit.nsi.new2
     rem pj download url (not ready yet, use test download links)
-    rem cscript //B ..\script\substitute.vbs "https://github.com/spmeesseman/code-package/blob/${DOWNLOAD_BRANCH_NAME}/src" "https://svn.perryjohnson01.com/code/package" VSCode_64bit.nsi.new2 > VSCode_64bit.nsi.new3
+    rem cscript //B ..\script\substitute.vbs "https://github.com/spmeesseman/code-package/blob/master/src" "https://svn.development.pjats.com/code-package/src" VSCode_64bit.nsi.new2 > VSCode_64bit.nsi.new3
     move /Y VSCode_64bit.nsi.new2 VSCode_64bit.nsi
     rem move /Y VSCode_64bit.nsi.new3 VSCode_64bit.nsi
     rem del /Q VSCode_64bit.nsi.new2

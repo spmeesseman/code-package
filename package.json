@@ -33,8 +33,8 @@
 		"build": "src\\Build.bat",
 		"build-installer": "install\\Build.bat",
 		"build-pj-installer": "install\\Build.bat --pj",
-		"pj-sync": "ant -logger org.apache.tools.ant.listener.AnsiColorLogger -f script/syncpj.xml -Dpjproj=\"..\\..\\Code\" copy_to",
-		"pj-release": "ant -logger org.apache.tools.ant.listener.AnsiColorLogger -f install/PJDeploy.xml DeployPackage",
+		"app-publish": "app-publisher -p pja",
+		"app-publish-dry": "app-publisher -p pja --dry-run",
 		"semantic-release": "semantic-release --no-ci",
 		"semantic-release-dry": "semantic-release --dry-run"
 	},
