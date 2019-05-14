@@ -1,5 +1,25 @@
 Change Log
 
+## [2.0.3](https://github.com/spmeesseman/code-package/compare/v2.0.2...v2.0.3) (2019-05-14)
+
+
+### Build System
+
+* **nsis:** add nuget cli download [skip ci] ([25a752d](https://github.com/spmeesseman/code-package/commit/25a752d))
+* **npm:** fix invalid attribute publisher->author [skip ci] ([649b686](https://github.com/spmeesseman/code-package/commit/649b686))
+* update size param in registry uninstall section [skip ci] ([76ade40](https://github.com/spmeesseman/code-package/commit/76ade40))
+* updated deploy file ([2264a5d](https://github.com/spmeesseman/code-package/commit/2264a5d))
+
+
+### Code Refactoring
+
+* remove verbosity bump in common.nsh ([58b8cc9](https://github.com/spmeesseman/code-package/commit/58b8cc9))
+
+
+### Documentation
+
+* **readme:** update builds list [skip ci] ([cb5f0e0](https://github.com/spmeesseman/code-package/commit/cb5f0e0))
+
 ## [2.0.2](https://github.com/spmeesseman/code-package/compare/v2.0.1...v2.0.2) (2019-04-25)
 
 ## [2.0.1](https://github.com/spmeesseman/code-package/compare/v2.0.0...v2.0.1) (2019-04-22)
