@@ -11,6 +11,7 @@
     "historyLineLen":   80,
     "installerRelease": "Y",
     "installerScript":  "install\\VSCode_64bit.nsi",
+    "interactive":      "Y",
     "notepadEdits":     "Y",
     "pathToDist":       "install\\dist",
     "skipDeployPush":   "N",

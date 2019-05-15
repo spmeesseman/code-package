@@ -579,3 +579,39 @@ April 26th, 2019
     so will skip the prompt for the the installation directory, eliminating the 
     chance to install to the wrong folder.
 
+
+Version 2.0.4
+May 15th, 2019
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB+                               *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+***    An Internet connection is required during installation to download and  *
+***    install Code extensions and required node modules.                      *
+***                                                                            *
+********************************************************************************
+
+1.  Build System - C#
+
+    The C# compiler package has been updated with missing build targets.
+
+2.  Build System - NSIS
+
+    Removed verbosity bump in the common.nsh include file.
+
+3.  Code Refactoring - Settings
+
+    Added some new common settings for Task Explorer:
+
+        Path to Gradle
+        Path to Make
+        Path to Python
+
