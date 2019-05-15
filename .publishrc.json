@@ -2,7 +2,7 @@
     "projectName":      "code-package",
     "command": {
         "buildCommand": [
-            "npm run build-prod",
+            "npm run build",
             "npm run build-pj-installer"
         ]
     },

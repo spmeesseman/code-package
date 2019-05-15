@@ -44,14 +44,6 @@ mkdir ..\build\data\extensions
 mkdir ..\build\data\user-data
 mkdir ..\build\data\user-data\User
 
-rem update version to package.json
-for /f %%i in ('..\build\nodejs\node -e "console.log(require('../package.json').version);"') do set version=%%i
-echo Current package.json version is %version%
-rem set /p newversion=Enter the new version #: 
-rem echo New version is %newversion%
-rem cscript //B ..\script\substitute.vbs %version% %newversion% VSCode_64bit.nsi > VSCode_64bit.nsi.new
-rem move /Y VSCode_64bit.nsi.new VSCode_64bit.nsi
-
 rem Extract nsis for use, this will not be included in installer, nsi script will use "/x nsis" to exclude it
 if not exist ..\build\nsis\  (
     ..\script\7za.exe e -tzip ..\src\nsis\nsis.zip -o..\build -r -spf
