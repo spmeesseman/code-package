@@ -42,6 +42,7 @@
 !define TortoiseUrl "${PackageBaseUrl}/tortoisesvn/tortoisesvn.msi?raw=true"
 !define NodeJsUrl "${PackageBaseUrl}/nodejs/nodejs.zip?raw=true"
 !define NsisUrl "${PackageBaseUrl}/nsis/nsis.zip?raw=true"
+!define PhpUrl "${PackageBaseUrl}/php/php.zip?raw=true"
 !define PythonUrl "${PackageBaseUrl}/python/python.zip?raw=true"
 !define AntUrl "${PackageBaseUrl}/ant/ant.zip?raw=true"
 !define AnsiconUrl "${PackageBaseUrl}/ansicon/ansicon.zip?raw=true"
@@ -83,6 +84,7 @@ Var InstallTortoise
 Var InstallGit
 Var InstallDotfuscator
 Var InstallNsis
+Var InstallPhp
 Var InstallPython
 Var InstallLegacySdks
 Var InstallNetSdks
@@ -493,6 +495,30 @@ Section "Install"
             Delete "$INSTDIR\nsis.zip"
             ${If} $IsUpdateMode != YES
                 Push "$INSTDIR\nsis"
+                Call AddToPath
+            ${EndIf}
+        ${Else}
+            DetailPrint "Error  - $Status"
+        ${EndIf}
+    ${EndIf}
+
+    ;
+    ; PHP
+    ;
+    ${If} $InstallPhp == YES
+        DetailPrint "Downloading PHP for Windows..."
+        inetc::get ${PhpUrl} "$INSTDIR\php.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            ${If} $IsUpdateMode == YES ; remove current files
+                RMDir /r "$INSTDIR\php"
+            ${EndIf}
+            DetailPrint "Unpacking PHP for Windows..."
+            nsisunz::Unzip "$INSTDIR\php.zip" "$INSTDIR"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\php.zip"
+            ${If} $IsUpdateMode != YES
+                Push "$INSTDIR\php"
                 Call AddToPath
             ${EndIf}
         ${Else}
@@ -956,6 +982,16 @@ Section "Uninstall"
     ${EndIf}
 
     ;
+    ; PHP
+    ;
+    ${If} $InstallPhp == YES 
+        DetailPrint "Uninstalling PHP for Windows..."
+        Push "$INSTDIR\php"
+        Call un.RemoveFromPath
+        RMDir /r "$INSTDIR\php"
+    ${EndIf}
+
+    ;
     ; PYTHON
     ;
     ${If} $InstallPython == YES 
@@ -987,6 +1023,7 @@ Section "Uninstall"
     ${AndIf} $InstallLegacySdks == YES
     ${AndIf} $InstallDotfuscator == YES
     ${AndIf} $InstallNsis == YES
+    ${AndIf} $InstallPhp == YES
     ${AndIf} $InstallNet472DevPack == YES
         RMDir /r "$INSTDIR"
     ${Else}
@@ -1169,6 +1206,9 @@ Function InstTypePageCreate
         ${If} $InstallNsis == ""
             StrCpy $InstallNsis YES
         ${EndIf}
+        ${If} $InstallPhp == ""
+            StrCpy $InstallPhp YES
+        ${EndIf}
         ${If} $InstallPython == ""
             StrCpy $InstallPython YES
         ${EndIf}
@@ -1274,6 +1314,17 @@ Function InstTypePageCreate
     compilersdone:
     ${If} $InstallCompilers == YES
         ${NSD_Check} $R5
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 0 125u 45% 10u "PHP for Windows"
+    Pop $R7
+    IfFileExists "$INSTDIR\php\php-win.exe" 0 phpdone
+        ${If} $InstallsSaved != YES
+            StrCpy $InstallPhp NO
+        ${EndIf}
+    phpdone:
+    ${If} $InstallPhp == YES
+        ${NSD_Check} $R7
     ${EndIf}
 
     ${NSD_CreateCheckBox} 150u 20u 45% 10u "Apache Ant with Ansicon"
@@ -1426,6 +1477,13 @@ Function InstTypePageLeave
         StrCpy $InstallNsis YES
     ${EndIf}
 
+    ${NSD_GetState} $R7 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallPhp NO
+    ${Else}
+        StrCpy $InstallPhp YES
+    ${EndIf}
+
     ${NSD_GetState} $8 $0
     ${If} $0 != ${BST_CHECKED}
         StrCpy $InstallPython NO
@@ -1481,6 +1539,7 @@ Function InstTypePageLeave
     ${AndIf} $InstallLegacySdks == NO
     ${AndIf} $InstallDotfuscator == NO
     ${AndIf} $InstallNsis == NO
+    ${AndIf} $InstallPhp == NO
     ${AndIf} $InstallNet472DevPack == NO
         MessageBox MB_OK|MB_ICONEXCLAMATION        \
             "You must select at least one package to update" \
@@ -1529,6 +1588,9 @@ Function un.InstTypePageCreate
         ${EndIf}
         ${If} $InstallNsis == ""
             StrCpy $InstallNsis YES
+        ${EndIf}
+        ${If} $InstallPhp == ""
+            StrCpy $InstallPhp YES
         ${EndIf}
         ${If} $InstallPython == ""
             StrCpy $InstallPython YES
@@ -1624,6 +1686,17 @@ Function un.InstTypePageCreate
     ${EndIf}
     ${If} $InstallCompilers == YES
         ${NSD_Check} $R5
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 150u 125u 45% 10u "PHP for Windows"
+    Pop $R7
+    ${IfNot} ${FileExists} "$INSTDIR\php\php-win.exe"
+        ${NSD_Uncheck} $R7
+        EnableWindow $R7 0
+        StrCpy $InstallPhp NO
+    ${EndIf}
+    ${If} $InstallPhp == YES
+        ${NSD_Check} $R7
     ${EndIf}
 
     ${NSD_CreateCheckBox} 150u 20u 45% 10u "Apache Ant with Ansicon"
@@ -1776,6 +1849,13 @@ Function un.InstTypePageLeave
         StrCpy $InstallNsis YES
     ${EndIf}
 
+    ${NSD_GetState} $R7 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallPhp NO
+    ${Else}
+        StrCpy $InstallPhp YES
+    ${EndIf}
+
     ${NSD_GetState} $8 $0
     ${If} $0 != ${BST_CHECKED}
         StrCpy $InstallPython NO
@@ -1831,6 +1911,7 @@ Function un.InstTypePageLeave
     ${AndIf} $InstallLegacySdks == NO
     ${AndIf} $InstallDotfuscator == NO
     ${AndIf} $InstallNsis == NO
+    ${AndIf} $InstallPhp == NO
     ${AndIf} $InstallNet472DevPack == NO
         MessageBox MB_OK|MB_ICONEXCLAMATION        \
             "You must select at least one package to remove or uninstall" \

@@ -15,13 +15,13 @@ The following software is redistributed locally by code-package:
 
 |Package|Version|License|Required|
 |-|-|-|-|-|
-|Apache Ant|1.10.5|Apache 2.0|Yes|
-|Ansicon|1.88|Jason Hood|Yes|
-|Dotfuscator|5.26.0|GPL-compatible|Yes|
-|Git|2.21.0|GPL|Yes|
-|Gradle|5.3.1|GPL|Yes|
+|Apache Ant|1.10.5|Apache 2.0|No|
+|Ansicon|1.88|Jason Hood|No|
+|Dotfuscator|5.26.0|GPL-compatible|No|
+|Gradle|5.3.1|GPL|No|
 |NodeJS|10.15.3|Node.js|Yes|
-|Python|3.7.3|GPL-compatible|Yes|
+|PHP|7.3.5|GPL-compatible|No|
+|Python|3.7.3|GPL-compatible|No|
 |Tortoise SVN|1.11.1|GPLv2|No|
 
 ## Remote/Downloaded Software (non-redistributed)

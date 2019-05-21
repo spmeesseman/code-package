@@ -14,6 +14,7 @@
     "taskExplorer.pathToNsis": "c:\\Code\\nsis\\nsis.exe",
     "taskExplorer.pathToPython": "c:\\Code\\python\\python.exe",
     "python.pythonPath": "c:\\Code\\python\\python.exe",
+    "php.validate.executablePath": "c:\\Code\\php\\php.exe",
     "diffEditor.renderSideBySide": true,
     "git.autofetch": true,
     "typescript.format.placeOpenBraceOnNewLineForFunctions": true,
