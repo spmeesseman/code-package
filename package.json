@@ -12,7 +12,7 @@
 		"url": "https://github.com/spmeesseman/code-package.git"
 	},
 	"bugs": {
-		"url": "http://bugzilla.development.pjats.com/code-package"
+		"url": "https://github.com/spmeesseman/code-package/issues"
 	},
 	"files": [
 		"install",
