@@ -35,6 +35,7 @@
 !define GitDownloadUrl "https://github.com/git-for-windows/git/releases/download/v2.21.0.windows.1/Git-2.21.0-64-bit.exe"
 !define NugetCliUrl "https://dist.nuget.org/win-x86-commandline/v4.9.4/nuget.exe"
 !define Net472DownloadUrl "https://go.microsoft.com/fwlink/?LinkId=874338"
+!define CygwinDownloadUrl "https://www.cygwin.com/setup-x86_64.exe"
 ; Private URLs (requires manual auth/url, for registered ce users only)
 !define DotfuscatorUrl "http://app1.spmeesseman.com/download/code-package/dotfuscator-ce.zip" ; will throw 404
 ; Repo URLs
@@ -85,6 +86,7 @@ Var InstallGit
 Var InstallDotfuscator
 Var InstallNsis
 Var InstallPhp
+Var InstallCygwin
 Var InstallPython
 Var InstallLegacySdks
 Var InstallNetSdks
@@ -190,7 +192,7 @@ Section "Install"
             Delete "$INSTDIR\*.dll"
             Delete "$INSTDIR\*.pak"
             Delete "$INSTDIR\*.bin"
-            Delete "$INSTDIR\Code*"
+            Delete "$INSTDIR\Code.*"
         ${EndIf}
         CreateDirectory "$INSTDIR\data"
         CreateDirectory "$INSTDIR\data\extensions"
@@ -375,6 +377,25 @@ Section "Install"
         Pop $Status ; 'OK' when sucessful
         ${If} $Status == OK 
             ExecWait 'msiexec /i "$INSTDIR\TortoiseSetup.msi" /passive /norestart INSTALLDIR="$INSTDIR\tortoisesvn" ADDLOCAL=ALL'
+        ${Else}
+            DetailPrint "Error  - $Status"
+        ${EndIf}
+    ${EndIf}
+
+    
+    ;
+    ; CYGWIN
+    ;
+    ${If} $InstallCygwin == YES
+        DetailPrint "Downloading Cygwin for Windows Setup..."
+        inetc::get ${CygwinDownloadUrl} "$INSTDIR\cygwin-setup.exe"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            ExecWait '$INSTDIR\cygwin-setup.exe --quiet-mode --upgrade-also --delete-orphans --disable-buggy-antivirus \
+                     --root "$INSTDIR\cygwin64" --site http://cygwin.mirror.constant.com --verbose \
+                     --local-package-dir "$INSTDIR\cygwin64\downloads" --arch x64 \
+                     --packages "gcc-core,make,automake,autoconf,readline,libncursesw-devel,libiconv,zlib-devel,gettext,\
+                       git,curl,jq,libcurl,openssh,cygrunsrv,more,grep,stat,cygpath" --prune-install'
         ${Else}
             DetailPrint "Error  - $Status"
         ${EndIf}
@@ -570,7 +591,7 @@ Section "Install"
             DetailPrint "Error  - $Status"
         ${EndIf}
     ${EndIf}
-
+    
     ;
     ; COMPILERS
     ;
@@ -750,7 +771,7 @@ Section "Install"
     SetShellVarContext "all"
 
     ;
-    ; CREATE UNINSTALLER
+    ; CREATE UNINSTALLER AND COPY INSTALLER TO INSTALLDIR
     ;
     ${If} $IsUpdateMode != YES
         CopyFiles "$EXEPATH" "$INSTDIR"
@@ -896,6 +917,16 @@ Section "Uninstall"
     ${EndIf}
 
     ;
+    ; CYGWIN
+    ;
+    ${If} $InstallCygwin == YES 
+        DetailPrint "Uninstalling Cygwin..."
+        ExecWait '$INSTDIR\cygwin-setup.exe --uninstall'
+        RMDir /r "$INSTDIR\cygwin64"
+        Delete /REBOOTOK "$INSTDIR\cygwin-setup.exe"
+    ${EndIf}
+
+    ;
     ; .NET472 DEV PACK
     ;
     ${If} $InstallNet472DevPack == YES 
@@ -1017,6 +1048,7 @@ Section "Uninstall"
     ${AndIf} $InstallCompilers == YES
     ${AndIf} $InstallGit == YES
     ${AndIf} $InstallTortoise == YES
+    ${AndIf} $InstallCygwin == YES
     ${AndIf} $InstallGradle == YES
     ${AndIf} $InstallNetSdks == YES
     ${AndIf} $InstallPython == YES
@@ -1197,6 +1229,9 @@ Function InstTypePageCreate
         ${If} $InstallTortoise == ""
             StrCpy $InstallTortoise YES
         ${EndIf}
+        ${If} $InstallCygwin == ""
+            StrCpy $InstallCygwin YES
+        ${EndIf}
         ${If} $InstallGit == ""
             StrCpy $InstallGit YES
         ${EndIf}
@@ -1316,14 +1351,14 @@ Function InstTypePageCreate
         ${NSD_Check} $R5
     ${EndIf}
 
-    ${NSD_CreateCheckBox} 0 125u 45% 10u "PHP for Windows"
+    ${NSD_CreateCheckBox} 0 125u 45% 10u "Cygwin for Windows"
     Pop $R7
-    IfFileExists "$INSTDIR\php\php-win.exe" 0 phpdone
+    IfFileExists "$INSTDIR\cygwin64\bin\bash.exe" 0 cygwindone
         ${If} $InstallsSaved != YES
-            StrCpy $InstallPhp NO
+            StrCpy $InstallCygwin NO
         ${EndIf}
-    phpdone:
-    ${If} $InstallPhp == YES
+    cygwindone:
+    ${If} $InstallCygwin == YES
         ${NSD_Check} $R7
     ${EndIf}
 
@@ -1404,6 +1439,17 @@ Function InstTypePageCreate
         ${NSD_Check} $R2
     ${EndIf}
 
+    ${NSD_CreateCheckBox} 150u 125u 45% 10u "PHP for Windows"
+    Pop $R8
+    IfFileExists "$INSTDIR\php\php-win.exe" 0 phpdone
+        ${If} $InstallsSaved != YES
+            StrCpy $InstallPhp NO
+        ${EndIf}
+    phpdone:
+    ${If} $InstallPhp == YES
+        ${NSD_Check} $R8
+    ${EndIf}
+
     nsDialogs::Show
 
 FunctionEnd
@@ -1456,6 +1502,13 @@ Function InstTypePageLeave
         StrCpy $InstallTortoise YES
     ${EndIf}
 
+    ${NSD_GetState} $R7 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallCygwin NO
+    ${Else}
+        StrCpy $InstallCygwin YES
+    ${EndIf}
+
     ${NSD_GetState} $5 $0
     ${If} $0 != ${BST_CHECKED}
         StrCpy $InstallGit NO
@@ -1477,7 +1530,7 @@ Function InstTypePageLeave
         StrCpy $InstallNsis YES
     ${EndIf}
 
-    ${NSD_GetState} $R7 $0
+    ${NSD_GetState} $R8 $0
     ${If} $0 != ${BST_CHECKED}
         StrCpy $InstallPhp NO
     ${Else}
@@ -1533,6 +1586,7 @@ Function InstTypePageLeave
     ${AndIf} $InstallCompilers == NO
     ${AndIf} $InstallGit == NO
     ${AndIf} $InstallTortoise == NO
+    ${AndIf} $InstallCygwin == NO
     ${AndIf} $InstallGradle == NO
     ${AndIf} $InstallNetSdks == NO
     ${AndIf} $InstallPython == NO
@@ -1579,6 +1633,9 @@ Function un.InstTypePageCreate
         ${EndIf}
         ${If} $InstallTortoise == ""
             StrCpy $InstallTortoise YES
+        ${EndIf}
+        ${If} $InstallCygwin == ""
+            StrCpy $InstallCygwin YES
         ${EndIf}
         ${If} $InstallGit == ""
             StrCpy $InstallGit YES
@@ -1688,14 +1745,14 @@ Function un.InstTypePageCreate
         ${NSD_Check} $R5
     ${EndIf}
 
-    ${NSD_CreateCheckBox} 150u 125u 45% 10u "PHP for Windows"
+    ${NSD_CreateCheckBox} 150u 125u 45% 10u "Cygwin for Windows"
     Pop $R7
-    ${IfNot} ${FileExists} "$INSTDIR\php\php-win.exe"
+    ${IfNot} ${FileExists} "$INSTDIR\cygwin64\bin\bash.exe"
         ${NSD_Uncheck} $R7
         EnableWindow $R7 0
-        StrCpy $InstallPhp NO
+        StrCpy $InstallCygwin NO
     ${EndIf}
-    ${If} $InstallPhp == YES
+    ${If} $InstallCygwin == YES
         ${NSD_Check} $R7
     ${EndIf}
 
@@ -1776,6 +1833,17 @@ Function un.InstTypePageCreate
         ${NSD_Check} $R2
     ${EndIf}
 
+    ${NSD_CreateCheckBox} 150u 125u 45% 10u "PHP for Windows"
+    Pop $R7
+    ${IfNot} ${FileExists} "$INSTDIR\php\php-win.exe"
+        ${NSD_Uncheck} $R8
+        EnableWindow $R8 0
+        StrCpy $InstallPhp NO
+    ${EndIf}
+    ${If} $InstallPhp == YES
+        ${NSD_Check} $R8
+    ${EndIf}
+
     nsDialogs::Show
 
 FunctionEnd
@@ -1828,6 +1896,13 @@ Function un.InstTypePageLeave
         StrCpy $InstallTortoise YES
     ${EndIf}
 
+    ${NSD_GetState} $R7 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallCygwin NO
+    ${Else}
+        StrCpy $InstallCygwin YES
+    ${EndIf}
+
     ${NSD_GetState} $5 $0
     ${If} $0 != ${BST_CHECKED}
         StrCpy $InstallGit NO
@@ -1849,7 +1924,7 @@ Function un.InstTypePageLeave
         StrCpy $InstallNsis YES
     ${EndIf}
 
-    ${NSD_GetState} $R7 $0
+    ${NSD_GetState} $R8 $0
     ${If} $0 != ${BST_CHECKED}
         StrCpy $InstallPhp NO
     ${Else}
@@ -1904,6 +1979,7 @@ Function un.InstTypePageLeave
     ${AndIf} $InstallAntAnsicon == NO
     ${AndIf} $InstallCompilers == NO
     ${AndIf} $InstallGit == NO
+    ${AndIf} $InstallCygwin == NO
     ${AndIf} $InstallTortoise == NO
     ${AndIf} $InstallGradle == NO
     ${AndIf} $InstallNetSdks == NO
