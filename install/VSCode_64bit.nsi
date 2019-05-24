@@ -394,8 +394,12 @@ Section "Install"
             ExecWait '$INSTDIR\cygwin-setup.exe --quiet-mode --upgrade-also --delete-orphans --disable-buggy-antivirus \
                      --root "$INSTDIR\cygwin64" --site http://cygwin.mirror.constant.com --verbose \
                      --local-package-dir "$INSTDIR\cygwin64\downloads" --arch x64 \
-                     --packages "gcc-core,make,automake,autoconf,readline,libncursesw-devel,libiconv,zlib-devel,gettext,\
-                       git,curl,jq,libcurl,openssh,cygrunsrv,more,grep,stat,cygpath" --prune-install'
+                     --packages "gcc-core,gcc-g++,make,automake,autoconf,readline,libncursesw-devel,libiconv,zlib-devel,gettext,\
+                       apache2-devel,libtool,git,curl,jq,libcurl,openssh,cygrunsrv,more,grep,stat,cygpath" --prune-install'
+            ${If} $IsUpdateMode != YES
+                Push "$INSTDIR\cygwin64\bin"
+                Call AddToPath
+            ${Endif}
         ${Else}
             DetailPrint "Error  - $Status"
         ${EndIf}
@@ -930,7 +934,9 @@ Section "Uninstall"
     ;
     ${If} $InstallCygwin == YES 
         DetailPrint "Uninstalling Cygwin..."
-        ExecWait '$INSTDIR\cygwin-setup.exe --uninstall'
+        ;ExecWait '$INSTDIR\cygwin-setup.exe --uninstall'
+        Push "$INSTDIR\cygwin64\bin"
+        Call un.RemoveFromPath
         RMDir /r "$INSTDIR\cygwin64"
         Delete /REBOOTOK "$INSTDIR\cygwin-setup.exe"
     ${EndIf}
