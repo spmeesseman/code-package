@@ -12,7 +12,7 @@
     "installerRelease": "Y",
     "installerScript":  "install\\VSCode_64bit.nsi",
     "installerSkipBuild": "Y",
-    "interactive":      "Y",
+    "interactive":      "N",
     "notepadEdits":     "Y",
     "pathToDist":       "install\\dist",
     "skipDeployPush":   "N",
