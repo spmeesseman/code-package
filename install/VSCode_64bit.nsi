@@ -773,9 +773,18 @@ Section "Install"
     ;
     ; CREATE UNINSTALLER AND COPY INSTALLER TO INSTALLDIR
     ;
+    WriteUninstaller "$INSTDIR\${UNINSTALL_FILE_NAME}"
     ${If} $IsUpdateMode != YES
         CopyFiles "$EXEPATH" "$INSTDIR"
-        WriteUninstaller "$INSTDIR\${UNINSTALL_FILE_NAME}"
+    ${Else}
+        ;
+        ; If this is the previously installed installer file running, cant copy it on itself
+        ; If this is a new installer, copy it into the installdir for 'Change' functionality in
+        ; the Windows Add/Remove Programs list
+        ;
+        ${If} "$INSTDIR" != "$EXEDIR"
+            CopyFiles "$EXEPATH" "$INSTDIR"
+        ${EndIf}
     ${EndIf}
 
 SectionEnd
