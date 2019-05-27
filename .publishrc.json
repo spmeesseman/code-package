@@ -1,22 +1,60 @@
 {
-    "projectName":      "code-package",
-    "command": {
-        "buildCommand": [
-            "npm run build",
-            "npm run build-pj-installer"
-        ]
-    },
-    "historyFile":      "doc\\history.txt",
-    "historyHdrFile":   "install\\history-hdr.txt",
-    "historyLineLen":   80,
-    "installerRelease": "Y",
-    "installerScript":  "install\\VSCode_64bit.nsi",
-    "installerSkipBuild": "Y",
-    "interactive":      "N",
-    "notepadEdits":     "Y",
-    "pathToDist":       "install\\dist",
-    "skipDeployPush":   "N",
-    "svnRepo":          "pja",
-    "testEmailRecip":   "smeesseman@pjats.com",
-    "versionText":      "Version"
+    "projectName":       "code-package",
+    "bugs":              "",
+    "buildCommand": [
+        "npm run build",
+        "npm run build-pj-installer"
+    ],
+    "changelogFile":     "CHANGELOG.md",
+    "deployCommand":     "",
+    "emailNotification": "Y",
+    "emailServer":       "10.0.7.50",
+    "emailRecip":        "productrelease@pjats.com",
+    "emailSender":       "productbuild@pjats.com",
+    "distRelease":       "Y",
+    "distReleasePath":   "\\\\192.168.68.120\\d$\\softwareimages",
+    "distDocPath":       "\\\\pjainc.pjvista.com@SSL\\DavWWWRoot\\Shared Documents\\Tech Support\\Application Installation and Configuration",
+    "githubRelease":     "N",
+    "historyFile":       "doc\\history.txt",
+    "historyHdrFile":    "install\\history-hdr.txt",
+    "historyLineLen":    80,
+    "homePage":          "",
+    "interactive":       "N",
+    "npmRelease":        "N",
+    "nugetRelease":      "N",
+    "pathToDist":        "install\\dist",
+    "pathtoRoot":        ".",
+    "pathtoMainRoot":    "",
+    "pathPreRoot":       "",
+    "postBuildCommand":  "",
+    "runs": [
+    {
+        "repoType":      "svn",
+        "repo":          "https://svn.development.pjats.com/repos/pja/code-package/trunk",
+        "homePage":      "https://projects.development.pjats.com/code-package",
+        "bugs":          "https://projects.development.pjats.com/code-package/ticket/1"
+    },{
+        "repoType":      "git",
+        "repo":          "https://github.com/spmeesseman/code-package.git",
+        "homePage":      "https://github.com/spmeesseman/code-package/blob/master/README.md",
+        "bugs":          "https://github.com/spmeesseman/code-package/issues",
+        "textEditor":    "",
+        "githubRelease": "Y",
+        "distRelease":   "N",
+        "emailNotification": "N"
+    }],
+    "skipCommit":        "N",
+    "skipDeployPush":    "N",
+    "testEmailRecip":    "smeesseman@pjats.com",
+    "testMode":          "N",
+    "testModeVcRevert":  "Y",
+    "textEditor":        "notepad++",
+    "vcTag":             "Y",
+    "vcTagPrefix":       "",
+    "versionFiles": [
+        "install\\VSCode_64bit.nsi"
+    ],
+    "versionText":       "Version",
+    "writeLog":          "N"
 }
+
