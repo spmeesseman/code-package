@@ -2,14 +2,14 @@
 	"name": "@spmeesseman/code-package",
 	"version": "2.1.0",
 	"displayName": "Code Package",
-	"description": "Bundled Code Package",
+	"description": "Bundled Visual Studio Code Development Environment",
 	"author": {
-		"name": "@spmeesseman/Scott Meesseman"
+		"name": "Scott Meesseman"
 	},
 	"homepage": "https://github.com/spmeesseman/code-package/blob/master/README.md",
 	"repository": {
 		"type": "git",
-		"url": "https://svn.development.pjats.com/pja/code-package/trunk"
+		"url": "https://github.com/spmeesseman/code-package.git"
 	},
 	"bugs": {
 		"url": "https://github.com/spmeesseman/code-package/issues"
@@ -23,24 +23,18 @@
 		"@semantic-release/changelog": "^3.0.2",
 		"@semantic-release/exec": "^3.3.0",
 		"@semantic-release/git": "^7.0.8",
-		"@types/node": "^11.13.0",
-		"commitizen": "^3.0.7",
 		"conventional-changelog-spm": "^1.2.3",
-		"cz-conventional-changelog": "^2.1.0",
-		"semantic-release": "^15.13.3"
+		"semantic-release": "^15.13.14"
 	},
 	"scripts": {
 		"build": "src\\Build.bat",
 		"build-installer": "install\\Build.bat",
 		"build-pj-installer": "install\\Build.bat --pj",
-		"app-publish": "app-publisher -p pja",
-		"app-publish-dry": "app-publisher -p pja --dry-run",
+		"app-publish": "app-publisher -p ps",
+		"app-publish-dry": "app-publisher -p ps --dry-run",
 		"semantic-release": "semantic-release --no-ci",
 		"semantic-release-dry": "semantic-release --dry-run"
 	},
-	"config": {
-		"commitizen": {
-			"path": "cz-conventional-changelog"
-		}
-	}
+	"dependencies": {},
+	"optionalDependencies": {}
 }

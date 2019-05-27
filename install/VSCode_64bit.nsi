@@ -44,6 +44,7 @@
 !define NodeJsUrl "${PackageBaseUrl}/nodejs/nodejs.zip?raw=true"
 !define NsisUrl "${PackageBaseUrl}/nsis/nsis.zip?raw=true"
 !define PhpUrl "${PackageBaseUrl}/php/php.zip?raw=true"
+!define NotepadUrl "${PackageBaseUrl}/notepad++/npp.zip?raw=true"
 !define PythonUrl "${PackageBaseUrl}/python/python.zip?raw=true"
 !define AntUrl "${PackageBaseUrl}/ant/ant.zip?raw=true"
 !define AnsiconUrl "${PackageBaseUrl}/ansicon/ansicon.zip?raw=true"
@@ -86,6 +87,7 @@ Var InstallGit
 Var InstallDotfuscator
 Var InstallNsis
 Var InstallPhp
+Var InstallNotepad
 Var InstallCygwin
 Var InstallPython
 Var InstallLegacySdks
@@ -733,6 +735,31 @@ Section "Install"
     ${EndIf}
 
     ;
+    ; Notepad++
+    ;
+    ${If} $InstallNotepad == YES
+        DetailPrint "Downloading Notepad++ for Windows..."
+        inetc::get ${NotepadUrl} "$INSTDIR\npp.zip"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            ${If} $IsUpdateMode == YES ; remove current files
+                RMDir /r "$INSTDIR\notepad++"
+            ${EndIf}
+            CreateDirectory "$INSTDIR\notepad++"
+            DetailPrint "Unpacking Notepad++..."
+            nsisunz::Unzip "$INSTDIR\npp.zip" "$INSTDIR\notepad++"
+            Pop $Status ; 'success' when sucessful
+            Delete "$INSTDIR\npp.zip"
+            ${If} $IsUpdateMode != YES
+                Push "$INSTDIR\npp"
+                Call AddToPath
+            ${EndIf}
+        ${Else}
+            DetailPrint "Error  - $Status"
+        ${EndIf}
+    ${EndIf}
+
+    ;
     ; CUSTOM FILES STUFF (eslintrc) run in either install or update modes
     ;
     ExecWait '"$INSTDIR\copy_settings.bat"'
@@ -1054,6 +1081,16 @@ Section "Uninstall"
     ${EndIf}
 
     ;
+    ; Notepad++
+    ;
+    ${If} $InstallNotepad == YES 
+        DetailPrint "Uninstalling Notepad++..."
+        Push "$INSTDIR\notepad++"
+        Call un.RemoveFromPath
+        RMDir /r "$INSTDIR\notepad++"
+    ${EndIf}
+
+    ;
     ; DELETE UNINSTALL REGISTRY KEY IF COMPLETE UNINSTALL, REMOVE DIRS FINAL
     ;
     ${If} $InstallCode == YES 
@@ -1071,6 +1108,7 @@ Section "Uninstall"
     ${AndIf} $InstallDotfuscator == YES
     ${AndIf} $InstallNsis == YES
     ${AndIf} $InstallPhp == YES
+    ${AndIf} $InstallNotepad == YES
     ${AndIf} $InstallNet472DevPack == YES
         RMDir /r "$INSTDIR"
     ${Else}
@@ -1259,6 +1297,9 @@ Function InstTypePageCreate
         ${If} $InstallPhp == ""
             StrCpy $InstallPhp YES
         ${EndIf}
+        ${If} $InstallNotepad == ""
+            StrCpy $InstallNotepad YES
+        ${EndIf}
         ${If} $InstallPython == ""
             StrCpy $InstallPython YES
         ${EndIf}
@@ -1375,6 +1416,17 @@ Function InstTypePageCreate
     cygwindone:
     ${If} $InstallCygwin == YES
         ${NSD_Check} $R7
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 0 140u 45% 10u "Notepad++"
+    Pop $1
+    IfFileExists "$INSTDIR\notepad++\notepad++.exe" 0 notepaddone
+        ${If} $InstallsSaved != YES
+            StrCpy $InstallNotepad NO
+        ${EndIf}
+    notepaddone:
+    ${If} $InstallNotepad == YES
+        ${NSD_Check} $1
     ${EndIf}
 
     ${NSD_CreateCheckBox} 150u 20u 45% 10u "Apache Ant with Ansicon"
@@ -1552,6 +1604,13 @@ Function InstTypePageLeave
         StrCpy $InstallPhp YES
     ${EndIf}
 
+    ${NSD_GetState} $1 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallNotepad NO
+    ${Else}
+        StrCpy $InstallNotepad YES
+    ${EndIf}
+
     ${NSD_GetState} $8 $0
     ${If} $0 != ${BST_CHECKED}
         StrCpy $InstallPython NO
@@ -1609,6 +1668,7 @@ Function InstTypePageLeave
     ${AndIf} $InstallDotfuscator == NO
     ${AndIf} $InstallNsis == NO
     ${AndIf} $InstallPhp == NO
+    ${AndIf} $InstallNotepad == NO
     ${AndIf} $InstallNet472DevPack == NO
         MessageBox MB_OK|MB_ICONEXCLAMATION        \
             "You must select at least one package to update" \
@@ -1663,6 +1723,9 @@ Function un.InstTypePageCreate
         ${EndIf}
         ${If} $InstallPhp == ""
             StrCpy $InstallPhp YES
+        ${EndIf}
+        ${If} $InstallNotepad == ""
+            StrCpy $InstallNotepad YES
         ${EndIf}
         ${If} $InstallPython == ""
             StrCpy $InstallPython YES
@@ -1760,7 +1823,7 @@ Function un.InstTypePageCreate
         ${NSD_Check} $R5
     ${EndIf}
 
-    ${NSD_CreateCheckBox} 150u 125u 45% 10u "Cygwin for Windows"
+    ${NSD_CreateCheckBox} 0 125u 45% 10u "Cygwin for Windows"
     Pop $R7
     ${IfNot} ${FileExists} "$INSTDIR\cygwin64\bin\bash.exe"
         ${NSD_Uncheck} $R7
@@ -1769,6 +1832,17 @@ Function un.InstTypePageCreate
     ${EndIf}
     ${If} $InstallCygwin == YES
         ${NSD_Check} $R7
+    ${EndIf}
+
+    ${NSD_CreateCheckBox} 0 140u 45% 10u "Notepad++"
+    Pop $1
+    ${IfNot} ${FileExists} "$INSTDIR\notepad++\notepad++.exe"
+        ${NSD_Uncheck} $1
+        EnableWindow $1 0
+        StrCpy $InstallNotepad NO
+    ${EndIf}
+    ${If} $InstallNotepad == YES
+        ${NSD_Check} $1
     ${EndIf}
 
     ${NSD_CreateCheckBox} 150u 20u 45% 10u "Apache Ant with Ansicon"
@@ -1849,7 +1923,7 @@ Function un.InstTypePageCreate
     ${EndIf}
 
     ${NSD_CreateCheckBox} 150u 125u 45% 10u "PHP for Windows"
-    Pop $R7
+    Pop $R8
     ${IfNot} ${FileExists} "$INSTDIR\php\php-win.exe"
         ${NSD_Uncheck} $R8
         EnableWindow $R8 0
@@ -1946,6 +2020,13 @@ Function un.InstTypePageLeave
         StrCpy $InstallPhp YES
     ${EndIf}
 
+    ${NSD_GetState} $1 $0
+    ${If} $0 != ${BST_CHECKED}
+        StrCpy $InstallNotepad NO
+    ${Else}
+        StrCpy $InstallNotepad YES
+    ${EndIf}
+
     ${NSD_GetState} $8 $0
     ${If} $0 != ${BST_CHECKED}
         StrCpy $InstallPython NO
@@ -2003,6 +2084,7 @@ Function un.InstTypePageLeave
     ${AndIf} $InstallDotfuscator == NO
     ${AndIf} $InstallNsis == NO
     ${AndIf} $InstallPhp == NO
+    ${AndIf} $InstallNotepad == NO
     ${AndIf} $InstallNet472DevPack == NO
         MessageBox MB_OK|MB_ICONEXCLAMATION        \
             "You must select at least one package to remove or uninstall" \
