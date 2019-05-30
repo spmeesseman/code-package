@@ -1,7 +1,7 @@
 # Bundled Visual Studio Code Development Environment
 
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
-[![Greenkeeper badge](https://badges.greenkeeper.io/spmeesseman/code-package.svg?token=d5ee317b562beed19aaa376b57290da1622c76d687092eb10b1d301dbdbbfb1b&ts=1555022335792)](https://greenkeeper.io/)
+[![app-publisher](https://app1.development.pjats.com/res/img/app-publisher-badge.svg)](https://npm.development.pjats.com/-/web/detail/@perryjohnson/app-publisher)
 
 > Bundles several 3rd party libraries and development tools to be used within the Visual Sudio Code IDE.  Install and go!
 

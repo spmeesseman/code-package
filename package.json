@@ -14,27 +14,25 @@
 	"bugs": {
 		"url": "https://github.com/spmeesseman/code-package/issues"
 	},
-	"files": [
-		"install",
-		"script",
-		"src/Build.bat"
-	],
 	"devDependencies": {
-		"@semantic-release/changelog": "^3.0.2",
-		"@semantic-release/exec": "^3.3.0",
-		"@semantic-release/git": "^7.0.8",
-		"conventional-changelog-spm": "^1.2.3",
-		"semantic-release": "^15.13.14"
+		"@perryjohnson/app-publisher": "^1.4.5"
 	},
 	"scripts": {
 		"build": "src\\Build.bat",
 		"build-installer": "install\\Build.bat",
 		"build-pj-installer": "install\\Build.bat --pj",
 		"app-publish": "app-publisher -p ps",
-		"app-publish-dry": "app-publisher -p ps --dry-run",
-		"semantic-release": "semantic-release --no-ci",
-		"semantic-release-dry": "semantic-release --dry-run"
+		"app-publish-dry": "app-publisher -p ps --dry-run"
 	},
-	"dependencies": {},
-	"optionalDependencies": {}
+	"files": [
+		"install",
+		"script",
+		"src/Build.bat"
+	],
+	"keywords": [
+		"vscode",
+		"development",
+		"programming"
+	],
+	"dependencies": {}
 }
