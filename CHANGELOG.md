@@ -1,3 +1,26 @@
+# CODE-PACKAGE CHANGE LOG
+
+## Version 2.1.1 (June 26th, 2019)
+
+### Build System
+
+- **ap:** update publishrc to 1.5 config
+- **npm:** correct registry for spmeesseman package scope
+- add zips for vc15 compiler x86 and x64 package
+
+### Minor Features
+
+- add extension to view file propertires from file explorer context menu
+- add java extension
+
+### Code Refactoring
+
+- remove installer piece that modifies product.json file to add johnstoncode.svn-scm extension to proposed api list, since extension prompts user to do this now on startup.
+
+### Code Styling
+
+- cleanup, remove semantic-release dependencies
+
 Change Log
 
 ## [2.0.3](https://github.com/spmeesseman/code-package/compare/v2.0.2...v2.0.3) (2019-05-14)
@@ -227,3 +250,4 @@ Change Log
 # 1.0.0 (2019-03-19)
 
 # 1.0.0 (2019-03-19)
+
