@@ -212,18 +212,20 @@ Section "Install"
             ;Call AddToEnvVar
             Call WriteEnvVar
         ${Endif}
-        ${If} $IsUpdateMode != YES
-            ; Add 'johnstoncode.svn-scm' to enabledProposedApi list in subversion exension, this enabled the file explorer decorations
-            ; located in code installation resources/app/product.json
-            Push '$INSTDIR\resources\app\product.json'   ; < v 1.32
-            Push '"ms-vsliveshare.vsliveshare"]'
-            Push '"ms-vsliveshare.vsliveshare", "johnstoncode.svn-scm"]'
-            Call ReplaceInFile
-            Push '$INSTDIR\resources\app\product.json'   ; >= V 1.32
-            Push '"atlassian.atlascode"]'
-            Push '"atlassian.atlascode", "johnstoncode.svn-scm"]'
-            Call ReplaceInFile
-        ${Endif}
+
+        ; Removed 6/26/19 - as of v 1.35, extension will prompt user and do this itself
+        ;${If} $IsUpdateMode != YES
+        ;    ; Add 'johnstoncode.svn-scm' to enabledProposedApi list in subversion exension, this enabled the file explorer decorations
+        ;    ; located in code installation resources/app/product.json
+        ;    Push '$INSTDIR\resources\app\product.json'   ; < v 1.32
+        ;    Push '"ms-vsliveshare.vsliveshare"]'
+        ;    Push '"ms-vsliveshare.vsliveshare", "johnstoncode.svn-scm"]'
+        ;    Call ReplaceInFile
+        ;    Push '$INSTDIR\resources\app\product.json'   ; >= V 1.32
+        ;    Push '"atlassian.atlascode"]'
+        ;    Push '"atlassian.atlascode", "johnstoncode.svn-scm"]'
+        ;    Call ReplaceInFile
+        ;${Endif}
         ${IfNot} ${FileExists} "$INSTDIR\data\extensions\spmeesseman.vscode-taskexplorer\extension.js"
             ; Install extensions
             ExecWait '"$INSTDIR\install_extensions.bat" --install-extension code'
