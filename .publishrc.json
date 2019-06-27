@@ -47,9 +47,9 @@
     "xRuns": [
     {
         "repoType":      "svn",
-        "repo":          "https://svn.development.pjats.com/repos/pja/code-package/trunk",
-        "homePage":      "https://projects.development.pjats.com/code-package",
-        "bugs":          "https://projects.development.pjats.com/code-package/ticket/1",
+        "repo":          "https://svn.development.pjats.com/pja/code-package/trunk",
+        "homePage":      "https://app1.development.pjats.com/projects",
+        "bugs":          "https://app1.development.pjats.com/projects",
         "textEditor":    "",
         "distRelease":   "Y",
         "githubRelease": "N",
