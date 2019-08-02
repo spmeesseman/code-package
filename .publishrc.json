@@ -1,5 +1,6 @@
 {
     "projectName":       "code-package",
+    "branch":            "master",
     "bugs":              "",
     "buildCommand": [
         "npm run build",
@@ -15,6 +16,11 @@
     "emailServer":       "10.0.7.50",
     "emailRecip":        "productrelease@pjats.com",
     "emailSender":       "productbuild@pjats.com",
+    "emailHrefs": [
+        "https://app1.development.pjats.com/svn/web/filedetails.php?repname=pja&path=%2Fcode-package%2Ftrunk%2FREADME.md&usemime=1|ReadMe File|Readme File - WebSVN",
+        "https://app1.development.pjats.com/projects/set_project.php?project=code-package&make_default=no&ref=roadmap_page.php|Project Roadmap|Roadmap - Projects Board",
+        "https://app1.development.pjats.com/projects/set_project.php?project=code-package&make_default=no&ref=changelog_page.php|Project Changelog|Changelog - Projects Board"
+    ],
     "githubRelease":     "Y",
     "githubAssets": [
         "install\\dist\\code-package-x64.exe"
@@ -22,9 +28,19 @@
     "githubUser":        "spmeesseman",
     "historyFile":       "doc\\history.txt",
     "historyHdrFile":    "install\\history-hdr.txt",
+    "historyHref":       "<a href=\"https://app1.development.pjats.com/svn/web/filedetails.php?repname=pja&path=%2Fcode-package%2Ftrunk%2Fdoc%2Fhistory.txt&usemime=1\">History File - WebSVN</a>",
     "historyLineLen":    80,
     "homePage":          "",
     "interactive":       "N",
+    "mantisbtRelease":   "N",
+    "mantisbtApiToken":  "${MANTISBT_API_TOKEN}",
+    "mantisbtPlugin":    "",
+    "mantisbtProject":   "",
+    "mantisbtUrl":       "https://app1.development.pjats.com/projects",
+    "mantisbtAssets": [
+        "doc\\history.txt|History File",
+        "install\\dist\\code-package-x64.exe|Windows Installer (x64)"
+    ],
     "npmPackDist":       "N",
     "npmRelease":        "N",
     "nugetRelease":      "N",
@@ -33,10 +49,13 @@
     "pathtoMainRoot":    "",
     "pathPreRoot":       "",
     "postBuildCommand":  "",
+    "repoType":          "git",
+    "repo":              "https://github.com/spmeesseman/pja/code-package.git",
     "skipCommit":        "N",
     "skipDeployPush":    "N",
+    "skipVersionEdits":  "Y",
     "testEmailRecip":    "smeesseman@pjats.com",
-    "textEditor":        "notepad++",
+    "textEditor":        "notepad",
     "vcTag":             "Y",
     "vcTagPrefix":       "",
     "versionFiles": [
@@ -48,11 +67,12 @@
     {
         "repoType":      "svn",
         "repo":          "https://svn.development.pjats.com/pja/code-package/trunk",
-        "homePage":      "https://app1.development.pjats.com/projects",
-        "bugs":          "https://app1.development.pjats.com/projects",
+        "homePage":      "https://app1.development.pjats.com/svn/web/listing.php?repname=pja&path=%2Fcode-package%2Ftrunk%2F",
+        "bugs":          "https://app1.development.pjats.com/projects/set_project.php?project=code-package&make_default=no&ref=bug_report_page.php",
         "textEditor":    "",
         "distRelease":   "Y",
         "githubRelease": "N",
-        "emailNotification": "Y"
+        "emailNotification": "Y",
+        "mantisbtRelease":   "Y"
     }]
 }
