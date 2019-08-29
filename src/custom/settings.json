@@ -5,6 +5,7 @@
     "material-icon-theme.folders.theme": "classic",
     "window.zoomLevel": -0.5,
     "editor.fontSize": 14,
+    "workbench.editor.enablePreview": false,
     "svn.defaultCheckoutDirectory": "c:\\Projects",
     "taskExplorer.enableSideBar": true,
     "taskExplorer.pathToAnsicon": "c:\\Code\\ansicon\\x64\\ansicon.exe",
