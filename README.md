@@ -18,11 +18,13 @@
 
 ## Description
 
-Bundles several 3rd party libraries and development tools to be used within the Visual Sudio Code IDE.  Install and go!
+Bundles several 3rd party libraries and development tools along with the latest version of Visual Studio Code at the time of installation.  The installation performs a *thumbdrive* installation type using the Visual Studio Code ZIP archive.
 
-## Installing Visual Studio Code Updates
+## Install
 
-This package downloads and installs the latest version VSCode at the time of installation.  This installation uses the standalone installation type with the VSCode ZIP archive.
+To install **code-package**, run the installer executable and select the desired packages for installation when prompted.  **Visual Studio Code** will be installed by default.
+
+## Visual Studio Code and Package Updates
 
 To update to the latest versions of VSCode, or any other included package that has been updated to a newer version, simply run the "Change..." installation option in the Windows Add/Remove Programs List.  Ensure that all instances of VSCode are shut down before proceeding.
 
@@ -36,20 +38,21 @@ Select "Visual Studio Code" for updating before proceeding.
 
 ![addremove-change-update](https://app1.development.pjats.com/svn/web/filedetails.php?repname=pja&path=/code-package/trunk/res/img/addremove-change-update.png&usemime=1)
 
-## Redistributed Software (included)
+## Redistributed Software
 
-The following software is redistributed locally by code-package:
+The following software is redistributed by code-package, downloaded and installed at runtime if the particular package has been selected for installation.
 
 |Package|Version|License|Required|
 |---|---|---|---|
-|Apache Ant|1.10.5|Apache 2.0|No|
-|Ansicon|1.88|Jason Hood|No|
+|Apache Ant|1.10.7|Apache 2.0|No|
+|Ansicon|1.89|Jason Hood|No|
 |Dotfuscator|5.26.0|GPL-compatible|No|
 |Gradle|5.3.1|GPL|No|
-|NodeJS|10.15.3|Node.js|Yes|
-|PHP|7.3.5|GPL-compatible|No|
+|NodeJS|10.16.3|Node.js|Yes|
+|PHP|7.3.9 (NTS)|GPL-compatible|No|
+|PHP Composer||GPL-compatible|No|
 |Python|3.7.3|GPL-compatible|No|
-|Tortoise SVN|1.11.1|GPLv2|No|
+|Tortoise SVN|1.12.2|GPLv2|No|
 
 ## Remote/Downloaded Software (non-redistributed)
 
