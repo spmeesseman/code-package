@@ -26,22 +26,22 @@ This package downloads and installs the latest version VSCode at the time of ins
 
 To update to the latest versions of VSCode, or any other included package that has been updated to a newer version, simply run the "Change..." installation option in the Windows Add/Remove Programs List.
 
-[![addremove-change](res/img/addremove-change.png)]
+![addremove-change](https://app1.development.pjats.com/svn/web/filedetails.php?repname=pja&path=/code-package/trunk/res/img/addremove-change.png&usemime=1)
 
 Click OK when prompted to update packages.
 
-[![addremove-change-prompt](res/img/addremove-change-prompt.png)]
+![addremove-change-prompt](https://app1.development.pjats.com/svn/web/filedetails.php?repname=pja&path=/code-package/trunk/res/img/addremove-change-prompt.png&usemime=1)
 
 Select "Visual Studio Code" for updating before proceeding.
 
-[![addremove-change-update](res/img/addremove-change-update.png)]
+![addremove-change-update](https://app1.development.pjats.com/svn/web/filedetails.php?repname=pja&path=/code-package/trunk/res/img/addremove-change-update.png&usemime=1)
 
 ## Redistributed Software (included)
 
 The following software is redistributed locally by code-package:
 
 |Package|Version|License|Required|
-|-|-|-|-|-|
+|---|---|---|---|
 |Apache Ant|1.10.5|Apache 2.0|No|
 |Ansicon|1.88|Jason Hood|No|
 |Dotfuscator|5.26.0|GPL-compatible|No|
