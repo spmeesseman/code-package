@@ -700,3 +700,60 @@ June 26th, 2019
     svn-scm extension to the proposed api list, since the extension itself 
     prompts the user to do this now on startup.
 
+
+Version 2.2.0
+September 7th, 2019
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB+                               *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+***    An Internet connection is required during installation to download and  *
+***    install Code extensions and required node modules.                      *
+***                                                                            *
+********************************************************************************
+
+1.  Documentation:  README
+
+    Update general information, add screenshots that are read from WebSVN as
+    opposed to static filesystem copies.
+
+2.  Feature:  Extensions
+
+    Add the following extensions to the default install:
+    
+        bmewburn.vscode-intelephense-client
+        brunnerh.file-properties-viewer
+        nobuhito.printcode
+        pdconsec.vscode-print
+        ruakr.ftp-kr
+        tomoki1207.pdf
+
+3 . Feature:  Packages
+
+    Bump the following packages to their latest versions:
+
+        Ansicon      1.88     1.89
+        Ant          1.10.3   1.10.7
+        NodeJS       10.15.3  10.16.3
+        PHP          7.3.5    7.3.9
+        TortoiseSVN  1.11.1   1.12.2
+        
+4.  Refactoring:  NodeJS
+
+    Modify global NodeJS installation, remove packages:
+
+        typescript
+        vsce
+
+5.  Refactoring:  Settings
+
+    Set default setting to disable opening files in preview mode.
+
