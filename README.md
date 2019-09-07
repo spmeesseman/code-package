@@ -5,10 +5,10 @@
 [![app-publisher](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-app--publisher-e10000.svg)](https://app1.development.pjats.com/projects/set_project.php?project=Gapp-publisher&make_default=no)
 
 [![authors](https://img.shields.io/badge/authors-scott%20meesseman-6F02B5.svg?logo=visual%20studio%20code)](https://github.com/perryjohnsoninc)
-[![MantisBT issues open](https://app1.development.pjats.com/projects/plugins/ApiExtend/api/issues/countbadge/GEMS2/open)](https://app1.development.pjats.com/projects/set_project.php?project=GEMS2&make_default=no&ref=plugin.php?page=Releases/releases)
-[![MantisBT issues closed](https://app1.development.pjats.com/projects/plugins/ApiExtend/api/issues/countbadge/GEMS2/closed)](https://app1.development.pjats.com/projects/set_project.php?project=GEMS2&make_default=no&ref=plugin.php?page=Releases/releases)
-[![MantisBT version current](https://app1.development.pjats.com/projects/plugins/ApiExtend/api/versionbadge/GEMS2/current)](https://app1.development.pjats.com/projects/set_project.php?project=GEMS2&make_default=no&ref=plugin.php?page=Releases/releases)
-[![MantisBT version next](https://app1.development.pjats.com/projects/plugins/ApiExtend/api/versionbadge/GEMS2/next)](https://app1.development.pjats.com/projects/set_project.php?project=GEMS2&make_default=no&ref=plugin.php?page=Releases/releases)
+[![MantisBT issues open](https://app1.development.pjats.com/projects/plugins/ApiExtend/api/issues/countbadge/code-package/open)](https://app1.development.pjats.com/projects/set_project.php?project=code-package&make_default=no&ref=plugin.php?page=Releases/releases)
+[![MantisBT issues closed](https://app1.development.pjats.com/projects/plugins/ApiExtend/api/issues/countbadge/code-package/closed)](https://app1.development.pjats.com/projects/set_project.php?project=code-package&make_default=no&ref=plugin.php?page=Releases/releases)
+[![MantisBT version current](https://app1.development.pjats.com/projects/plugins/ApiExtend/api/versionbadge/code-package/current)](https://app1.development.pjats.com/projects/set_project.php?project=code-package&make_default=no&ref=plugin.php?page=Releases/releases)
+[![MantisBT version next](https://app1.development.pjats.com/projects/plugins/ApiExtend/api/versionbadge/code-package/next)](https://app1.development.pjats.com/projects/set_project.php?project=code-package&make_default=no&ref=plugin.php?page=Releases/releases)
 
 - [Bundled Visual Studio Code Development Environment](#Bundled-Visual-Studio-Code-Development-Environment)
   - [Description](#Description)
