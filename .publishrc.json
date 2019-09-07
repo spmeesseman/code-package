@@ -80,9 +80,6 @@
         "repoType":          "svn",
         "repo":              "https://svn.development.pjats.com/pja/code-package/trunk",
         "textEditor":        "",
-        "buildCommand": [
-            "cmd /c src\\Build.bat",
-            "cmd /c install\\Build.bat"
-        ]
+        "buildCommand":      "cmd /c install\\Build.bat --pj"
     }]
 }
