@@ -1,7 +1,2 @@
-node_modules
 build
-CodePackage*
 .svn
-dist
-install/**/CodePackage*
-install/dist
