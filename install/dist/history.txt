@@ -1,0 +1,702 @@
+Visual Studio Code Package
+
+
+Version 1.0.0
+February 11th, 2019
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB                                *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+********************************************************************************
+
+1.  Initial Release
+
+
+Version 1.0.1
+February 28th, 2019
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB                                *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+********************************************************************************
+
+1.  Updated to Visual Studio Code 1.31.1.
+
+2.  The included 'jshint' extension has been replaced by the 'eslint' 
+    extension for JavaScript linting.
+
+    If upgrading to this version from a previous install, the 
+    previously installed 'jshint' can be disabled or uninstalled. If
+    uninstalling,  first remove jshint from the node package set by 
+    running the following command in the VSCode integrated terminal:
+
+        npm uninstall -g jshint
+
+3.  The Subversion extension is now automatically enabled in the file
+    browser as an 'Enabled Proposed API', allowing it to decorate the
+    file entries.
+
+
+Version 1.0.2
+March 4th, 2019
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB                                *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+********************************************************************************
+
+1.  Removed extensions:
+
+        Ant Task Runner
+        Ant Tree Viewer
+        Beautify
+
+    Added extensions:
+
+        Quick Task
+        Task Runner
+        Workspace Sorter
+
+2.  Included sample ESLint configuration file at the following path:
+
+        %CODE_HOME%\nodejs\node_modules\eslint\.eslintrc.json
+
+    To include ESLint linting in a JavaScript project, simply copy the
+    configuration file to the project root folder and restart Code.
+
+
+Version 1.0.3
+March 13th, 2019
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB                                *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+********************************************************************************
+
+1.  Updated the following Code package components:
+
+        Ansicon
+        
+            Previous version:    187
+            Updated version:     188
+
+        NodeJS
+        
+            Previous version:    10.15.1
+            Updated version:     10.15.3
+
+        Visual Studio Code 
+        
+            Previous version:    1.31.1 (January 2019 R2)
+            Updated version:     1.32.1 (February 2019 R2)
+
+2.  Added extensions:
+
+        Google Chrome Debugger
+        Microsoft Edge Debugger
+
+3.  Added custom extension:
+
+        johnstoncode.svn-scm
+
+    Compiled with the following extra context menu commands when right 
+    clicking a file in the File Explorer:
+
+        Commit Selected
+        
+4.  This installer installs a portable version, whereas all data will
+    be located within the installation folder as opposed to being 
+    spread out over various user spcific directories.  The structure
+    is as follows:
+
+        data\
+            extensions\
+            user_data\
+
+
+Version 1.0.4
+March 15th, 2019
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB                                *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+********************************************************************************
+
+1.  Updated the following Code package components:
+
+        Visual Studio Code 
+        
+            Previous version:    1.32.1 (February 2019 R2)
+            Updated version:     1.32.2 (February 2019 R3)
+
+2.  Updated the custom SVN SCM extenstion with the following file
+    explorer context menu item:
+
+        Diff with HEAD
+
+    The explorer context menu actions added to the file explorer by
+    the custom extension build are as follows:
+
+        Commit Selected (CTRL+C)
+        Open Changes with HEAD
+
+3.  The following node module is now installed:
+
+        vsce
+
+    This module allows for the packaging of VSCode extensions into 
+    VSIX installer file format.
+
+
+Version 1.0.5
+March 18th, 2019
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB+                               *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+***    An Internet connection is required during installation to download and  *
+***    install Code extensions and required node modules.                      *
+***                                                                            *
+********************************************************************************
+
+1.  Added Visual Studio Code extensions:
+
+        christian-kohler.npm-intellisense
+        davidanson.vscode-markdownlint
+        eg2.vscode-npm-script
+        spmeesseman.svn-scm-ext
+
+    Removed Visual Studio Code extension:
+
+        plylrnsdy.run-as
+
+2.  Updated the Visual Studio Code package component:
+
+        Previous version:    1.32.2 (February 2019 R3)
+        Updated version:     1.32.3 (February 2019 R4)
+
+3.  Installer will now prompt user for whether or not to install Tortoise SVN.
+
+4.  Uninstaller will now prompt user for whether or not to uninstall Visual 
+    Studio Code user settings.
+
+5.  Uninstaller will now prompt user for whether or not to uninstall Tortoise 
+    SVN.
+
+6.  Removed the .NET developer pack installation package.  All .NET reference
+    files are now installed directly to:
+
+        [installdir]\sdks\net35
+        [installdir]\sdks\net40
+        [installdir]\sdks\net452
+        [installdir]\sdks\net461
+        [installdir]\sdks\net472
+
+7.  The following node modules were not being installed correctly:
+
+        typescript
+        vsce
+
+    This has been fixed.
+
+8.  The following was not being added to the system enviroments PATH variable
+    by the installer:
+
+        [installdir]\nodejs\node_modules\typescript\bin
+
+    This has been fixed.
+
+
+Version 1.0.6
+April 5th, 2019
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB+                               *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+***    An Internet connection is required during installation to download and  *
+***    install Code extensions and required node modules.                      *
+***                                                                            *
+********************************************************************************
+
+1.  Added Visual Studio Code extensions:
+
+        beaugust.blamer-vs
+        donjayamanne.githistory
+        eamodio.gitlens
+        esbenp.prettier-vscode
+        ms-vscode.azure-account
+        ms-azuretools.vscode-azureappservice
+        ms-azuretools.vscode-azurestorage
+        spmeesseman.vscode-taskexplorer
+
+    Removed Visual Studio Code extension:
+
+        sanaajani.taskrunnercode
+        
+2.  Installer now detects if TortoiseSVN is already installed, and skips the
+    TortoiseSVN installation if present.
+
+3.  Installer now downloads the .NET Developer Pack before installing it, this
+    package is no longer included in the installer itself, reducing the size of
+    the installer by 110MB.
+
+4.  The .NET redist libraries are now packaged in the sdks directory for
+    convenience:
+
+        sdks/net35
+        sdks/net40
+        sdks/net456
+        sdks/net461
+        sdks/net472
+
+5.  The VSCode IDE has been updated to 1.33.0 (March).
+
+6.  Additional custom settings added that normally would need to be set 
+    manually.
+
+
+Version 1.0.7
+April 5th, 2019
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB+                               *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+***    An Internet connection is required during installation to download and  *
+***    install Code extensions and required node modules.                      *
+***                                                                            *
+********************************************************************************
+
+1.  Extension installation was broken in the last release, this has been fixed.
+
+2.  Installer now downloads the latest version of Visual Studio Code before 
+    installing it, this package is no longer included in the installer itself, 
+    reducing the size of the installer by 65MB.  
+    
+    The installer will always install the newest/latest release of VS Code, 
+    regardless of when the installation is performed.
+
+
+Version 1.1.0
+April 6th, 2019
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB+                               *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+***    An Internet connection is required during installation to download and  *
+***    install Code extensions and required node modules.                      *
+***                                                                            *
+********************************************************************************
+
+1.  Test Version.  Do not use.
+
+
+Version 1.2.1
+April 8th, 2019
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB+                               *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+***    An Internet connection is required during installation to download and  *
+***    install Code extensions and required node modules.                      *
+***                                                                            *
+********************************************************************************
+
+1.  Updated the following package components:
+
+        Git
+        
+            Previous version:    N/A
+            Updated version:     2.21.0
+
+        NSIS
+        
+            Previous version:    3.01
+            Updated version:     3.04
+
+        Python
+        
+            Previous version:    N/A
+            Updated version:     3.7.3
+
+    The Git package is downloaded by the installer.  The Python package is local 
+    in the installer.
+
+2.  Added Visual Studio Code extensions:
+
+        fabiospampinato.vscode-todo-plus
+        ms-python.python
+
+3.  Installer now prompts user to agree to Microsoft license prior to 
+    downloading and installing the following package components:
+
+        Visual Studio Code
+        .NET Targeting Pack 4.7.2
+
+    If the user rejects the license for VS Code, the installer exits without
+    performing an installation.
+
+4.  Uninstallation of both the .NET 4.72 SDK and Tortoise SVN were broken in the 
+    last release.
+    
+    This has been fixed.
+
+
+
+Version 1.3.0
+April 15th, 2019
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB+                               *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+***    An Internet connection is required during installation to download and  *
+***    install Code extensions and required node modules.                      *
+***                                                                            *
+********************************************************************************
+
+1.  Updated the following package components:
+
+        Code Insiders
+        
+            Previous version:    N/A
+            Updated version:     Always current
+
+        Gradle
+        
+            Previous version:    N/A
+            Updated version:     5.3.1
+            
+        NSIS
+        
+            Previous version:    3.04
+            Updated version:     3.04 (Large String Build)
+
+2.  Added Visual Studio Code extensions:
+
+        humao.rest-client
+        spmeesseman.vscode-vslauncher
+        tht13.html-preview-vscode
+        
+    Removed Visual Studio Code extensions:
+
+        lkytal.quicktask
+        ms-vscode.powershell
+
+3.  Previously the instalation used a "thumbdrive" setup where all extensions,
+    user settings, and cached data were kept in a data directory within the Code
+    installation directory.
+
+    This has been changed, this data will now be kept in the default VSCode 
+    locations in the Windows User directories:
+
+        {USERAPPDATA}\Roaming\Code
+        {USERPROFILE}\.vscode
+
+    This will allow multiple Code installs and side installs of Code Insiders to
+    all share installed extensions and user data.
+
+4.  Bug - If user does not choose to install Git or SVN, the uninstaller will
+    still prompt for those to be uninstalled.
+
+    This has been fixed.
+
+5.  Installer now prompts user if they would like a side installation of Code
+    Insiders Edition.
+
+    The version downloaded and installed will be the latest release at the time
+    of installation, and configured to side load along Code Stable.
+
+    The Insiders Edition is installed at:
+
+        {INSTALLDIR}\insiders
+
+6.  Added check to see if the Code Package is already installed when starting 
+    the installer, and prompts user to uninstall the currently installed version
+    before continuing.
+
+7.  Added checks before prompting to install 3rd party software during 
+    installation, where if current installations exist, those particular installs
+    are skipped without prompting.
+
+
+Version 1.3.2
+April 15th, 2019
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB+                               *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+***    An Internet connection is required during installation to download and  *
+***    install Code extensions and required node modules.                      *
+***                                                                            *
+********************************************************************************
+
+1.  Bug - Choosing to install Code Insider just installs another copy of the
+    stable verion to the insider folder.
+
+    This has been fixed.
+
+
+Version 2.0.2
+April 26th, 2019
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB+                               *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+***    An Internet connection is required during installation to download and  *
+***    install Code extensions and required node modules.                      *
+***                                                                            *
+********************************************************************************
+
+1.  Packages can now be selected individually for installation, update or for 
+    removal.
+
+    The currently available packages are listed below, along with their current 
+    versions:
+
+        Visual Studio Code Stable       : Always latest available
+        Visual Studio Code Insiders     : Always latest available
+        Apache Ant                      : 1.10.5
+        Ansicon for Apache Ant          : 1.88
+        Compiler Package                : C/C++ 9.0, C# 9.0, C# 15.0
+        DotNET Developer Pack           : 4.72
+        DotNET Framework Packages       : 3.5, 4.0, 4.52, 4.61, 4.72
+        Git for Windows                 : 2.21.0
+        Gradle Build Tool               : 5.3.1
+        NodeJS and Node Package Manager : 10.15.3
+        Python for Windows              : 3.7.3
+        TortoiseSVN and SVN Tools       : 1.11.1
+        Legacy Wix Package              : 2009
+        Legacy Atl/Mfc Package          : 2009
+        Legacy Windows SDK              : August 2009
+
+2.  A "Change" button in the Windows Add/Remove Programs list will allow to add, 
+    remove, or update individual packages on demand (i.e. easy VSCode updates).
+
+3.  The installer will detect when the application is already installed, and if
+    so will skip the prompt for the the installation directory, eliminating the 
+    chance to install to the wrong folder.
+
+
+Version 2.0.4
+May 15th, 2019
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB+                               *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+***    An Internet connection is required during installation to download and  *
+***    install Code extensions and required node modules.                      *
+***                                                                            *
+********************************************************************************
+
+1.  Build System - C#
+
+    The C# compiler package has been updated with missing build targets.
+
+2.  Build System - NSIS
+
+    Removed verbosity bump in the common.nsh include file.
+
+3.  Code Refactoring - Settings
+
+    Added some new common settings for Task Explorer:
+
+        Path to Gradle
+        Path to Make
+        Path to Python
+
+
+Version 2.1.0
+May 24th, 2019
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB+                               *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+***    An Internet connection is required during installation to download and  *
+***    install Code extensions and required node modules.                      *
+***                                                                            *
+********************************************************************************
+1.  Feature
+
+    Add the following extension to be installed:
+
+        yzhang.markdown-all-in-one
+
+2.  Feature
+
+    Add the following packages to the list of installable components:
+
+        Cygwin for Windows
+        PHP for Windows
+
+3.  Bug Fix
+
+    The installed August 2009 Windows SDK library files are corrupt, replace 
+    with non-corrupt versions.
+
+4.  Bug Fix
+
+    After running in "Update mode" for the first time from the Windows Add/
+    Remove Programs Lists "Change" button, the "Change" functionality no longer
+    works on subsequent use.
+
+
+Version 2.1.1
+June 26th, 2019
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB+                               *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+***    An Internet connection is required during installation to download and  *
+***    install Code extensions and required node modules.                      *
+***                                                                            *
+********************************************************************************
+
+1.  Build System:  App-Publisher
+
+    Update the .publishrc.json file to 1.5 style config.
+
+2.  Build System
+
+    Add zips for the vc15 compiler x86 and x64 packages.
+
+4.  Feature
+
+    Add extension to view file propertires from file explorer context menu.
+
+5.  Feature
+
+    Add extension for Java development.
+
+6.  Code Refactoring
+
+    Remove installer piece that modifies product.json file to add the johnston
+    svn-scm extension to the proposed api list, since the extension itself 
+    prompts the user to do this now on startup.
+
