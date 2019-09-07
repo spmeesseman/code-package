@@ -1,13 +1,40 @@
 # Bundled Visual Studio Code Development Environment
 
-[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
-[![app-publisher](https://app1.development.pjats.com/res/img/app-publisher-badge.svg)](https://npm.development.pjats.com/-/web/detail/@perryjohnson/app-publisher)
+[![app-type](https://img.shields.io/badge/category-dev%20env-blue.svg)](https://www.perryjohnson.com)
+[![app-lang](https://img.shields.io/badge/language-javascript%20c%23%20php%20python%20c-blue.svg)](https://www.perryjohnson.com)
+[![app-publisher](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-app--publisher-e10000.svg)](https://app1.development.pjats.com/projects/set_project.php?project=Gapp-publisher&make_default=no)
 
-> Bundles several 3rd party libraries and development tools to be used within the Visual Sudio Code IDE.  Install and go!
+[![authors](https://img.shields.io/badge/authors-scott%20meesseman-6F02B5.svg?logo=visual%20studio%20code)](https://github.com/perryjohnsoninc)
+[![MantisBT issues open](https://app1.development.pjats.com/projects/plugins/ApiExtend/api/issues/countbadge/GEMS2/open)](https://app1.development.pjats.com/projects/set_project.php?project=GEMS2&make_default=no&ref=plugin.php?page=Releases/releases)
+[![MantisBT issues closed](https://app1.development.pjats.com/projects/plugins/ApiExtend/api/issues/countbadge/GEMS2/closed)](https://app1.development.pjats.com/projects/set_project.php?project=GEMS2&make_default=no&ref=plugin.php?page=Releases/releases)
+[![MantisBT version current](https://app1.development.pjats.com/projects/plugins/ApiExtend/api/versionbadge/GEMS2/current)](https://app1.development.pjats.com/projects/set_project.php?project=GEMS2&make_default=no&ref=plugin.php?page=Releases/releases)
+[![MantisBT version next](https://app1.development.pjats.com/projects/plugins/ApiExtend/api/versionbadge/GEMS2/next)](https://app1.development.pjats.com/projects/set_project.php?project=GEMS2&make_default=no&ref=plugin.php?page=Releases/releases)
+
+- [Bundled Visual Studio Code Development Environment](#Bundled-Visual-Studio-Code-Development-Environment)
+  - [Description](#Description)
+  - [Installing Visual Studio Code Updates](#Installing-Visual-Studio-Code-Updates)
+  - [Redistributed Software (included)](#Redistributed-Software-included)
+  - [Remote/Downloaded Software (non-redistributed)](#RemoteDownloaded-Software-non-redistributed)
+
+## Description
+
+Bundles several 3rd party libraries and development tools to be used within the Visual Sudio Code IDE.  Install and go!
 
 ## Installing Visual Studio Code Updates
 
-This package downloads and installs the latest version VSCode at the time of installation, using the zip archive.  To update Visual Studio Code when new versions are released, simply extract the new version's zip archive over top of the base Code Package installation.  Do not use the VSCode executable installer.
+This package downloads and installs the latest version VSCode at the time of installation.  This installation uses the standalone installation type with the VSCode ZIP archive.
+
+To update to the latest versions of VSCode, or any other included package that has been updated to a newer version, simply run the "Change..." installation option in the Windows Add/Remove Programs List.
+
+[![addremove-change](res/img/addremove-change.png)]
+
+Click OK when prompted to update packages.
+
+[![addremove-change-prompt](res/img/addremove-change-prompt.png)]
+
+Select "Visual Studio Code" for updating before proceeding.
+
+[![addremove-change-update](res/img/addremove-change-update.png)]
 
 ## Redistributed Software (included)
 
