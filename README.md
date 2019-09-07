@@ -24,7 +24,7 @@ Bundles several 3rd party libraries and development tools to be used within the 
 
 This package downloads and installs the latest version VSCode at the time of installation.  This installation uses the standalone installation type with the VSCode ZIP archive.
 
-To update to the latest versions of VSCode, or any other included package that has been updated to a newer version, simply run the "Change..." installation option in the Windows Add/Remove Programs List.
+To update to the latest versions of VSCode, or any other included package that has been updated to a newer version, simply run the "Change..." installation option in the Windows Add/Remove Programs List.  Ensure that all instances of VSCode are shut down before proceeding.
 
 ![addremove-change](https://app1.development.pjats.com/svn/web/filedetails.php?repname=pja&path=/code-package/trunk/res/img/addremove-change.png&usemime=1)
 
