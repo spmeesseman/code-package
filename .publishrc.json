@@ -6,7 +6,7 @@
         "npm run build",
         "npm run build-pj-installer"
     ],
-    "changelogFile":     "CHANGELOG.md",
+    "changelogFile":     "",
     "deployCommand":     "",
     "distRelease":       "N",
     "distReleasePath":   "\\\\192.168.68.120\\d$\\softwareimages",
