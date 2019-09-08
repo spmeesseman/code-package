@@ -32,7 +32,7 @@
 ; Public URLs
 !define CodeDownloadUrl "https://update.code.visualstudio.com/latest/win32-x64-archive/stable"
 !define CodeInsidersDownloadUrl "https://update.code.visualstudio.com/latest/win32-x64-archive/insider"
-!define GitDownloadUrl "https://github.com/git-for-windows/git/releases/download/v2.21.0.windows.1/Git-2.21.0-64-bit.exe"
+!define GitDownloadUrl "https://github.com/git-for-windows/git/releases/download/v2.23.0.windows.1/Git-2.23.0-64-bit.exe"
 !define NugetCliUrl "https://dist.nuget.org/win-x86-commandline/v4.9.4/nuget.exe"
 !define Net472DownloadUrl "https://go.microsoft.com/fwlink/?LinkId=874338"
 !define CygwinDownloadUrl "https://www.cygwin.com/setup-x86_64.exe"
