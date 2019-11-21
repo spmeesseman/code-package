@@ -10,11 +10,12 @@
 [![MantisBT version current](https://app1.development.pjats.com/projects/plugins/ApiExtend/api/versionbadge/code-package/current)](https://app1.development.pjats.com/projects/set_project.php?project=code-package&make_default=no&ref=plugin.php?page=Releases/releases)
 [![MantisBT version next](https://app1.development.pjats.com/projects/plugins/ApiExtend/api/versionbadge/code-package/next)](https://app1.development.pjats.com/projects/set_project.php?project=code-package&make_default=no&ref=plugin.php?page=Releases/releases)
 
-- [Bundled Visual Studio Code Development Environment](#Bundled-Visual-Studio-Code-Development-Environment)
-  - [Description](#Description)
-  - [Installing Visual Studio Code Updates](#Installing-Visual-Studio-Code-Updates)
-  - [Redistributed Software (included)](#Redistributed-Software-included)
-  - [Remote/Downloaded Software (non-redistributed)](#RemoteDownloaded-Software-non-redistributed)
+- [Bundled Visual Studio Code Development Environment](#bundled-visual-studio-code-development-environment)
+  - [Description](#description)
+  - [Install](#install)
+  - [Visual Studio Code and Package Updates](#visual-studio-code-and-package-updates)
+  - [Redistributed Software](#redistributed-software)
+  - [Remote/Downloaded Software (non-redistributed)](#remotedownloaded-software-non-redistributed)
 
 ## Description
 
@@ -22,7 +23,7 @@ Bundles several 3rd party libraries and development tools along with the latest 
 
 ## Install
 
-To install **code-package**, run the installer executable and select the desired packages for installation when prompted.  **Visual Studio Code** will be installed by default.
+To install **code-package**, run the installer executable and select the desired packages for installation when prompted.  **Visual Studio Code** will be installed by default.  Unless you are licensed for Dotfuscator, uncheck the Dotfuscator option in the list of available packages before starting the installation.
 
 ## Visual Studio Code and Package Updates
 
