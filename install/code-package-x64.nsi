@@ -1739,7 +1739,7 @@ Function un.InstTypePageCreate
             StrCpy $InstallGit YES
         ${EndIf}
         ${If} $InstallDotfuscator == ""
-            StrCpy $InstallDotfuscator YES
+            StrCpy $InstallDotfuscator NO
         ${EndIf}
         ${If} $InstallNsis == ""
             StrCpy $InstallNsis YES
