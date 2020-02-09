@@ -212,7 +212,6 @@ Section "Install"
             ;Call AddToEnvVar
             Call WriteEnvVar
         ${Endif}
-
         ; Removed 6/26/19 - as of v 1.35, extension will prompt user and do this itself
         ;${If} $IsUpdateMode != YES
         ;    ; Add 'johnstoncode.svn-scm' to enabledProposedApi list in subversion exension, this enabled the file explorer decorations
@@ -254,16 +253,30 @@ Section "Install"
     ; VSCODE Insiders (latest/current version)
     ;
     ${If} $InstallInsiders == YES 
+        MessageBox MB_OKCANCEL "The latest version of Microsoft VS Code Insiders will be installed.$\n$\n  \
+                By continuing you are agreeing to Microsoft licensing terms." \
+                IDOK vscode2true
+            RMDir "$INSTDIR" ; Don't remove if not empty (/r)
+            DetailPrint "Code Insiders installation cancelled by user - exit installation"
+            Abort
+        vscode2true:
         DetailPrint "Downloading Visual Studio Code Insiders..."
         inetc::get ${CodeInsidersDownloadUrl} "$INSTDIR\VSCodeInsiders.zip"
         Pop $Status ; 'OK' when sucessful
         ${If} $Status == OK 
             ;ExecWait '"$INSTDIR\VSCode.exe" /SILENT /MERGETASKS="!runcode,addcontextmenufiles,addcontextmenufolders,associatewithfiles" /NORESTART /NOCANCEL /SUPPRESSMSGBOXES /DIR="$INSTDIR"'
-            ${If} $IsUpdateMode == YES ; remove current code insiders files
-                RMDir /r "$INSTDIR\insiders"
-            ${EndIf}
             CreateDirectory "$INSTDIR\insiders"
-	    CreateDirectory "$INSTDIR\insiders\data"
+	        ${If} $IsUpdateMode == YES ; remove current code files
+                RMDir /r "$INSTDIR\insiders\bin"
+                RMDir /r "$INSTDIR\insiders\locales"
+                RMDir /r "$INSTDIR\insiders\resources"
+                RMDir /r "$INSTDIR\insiders\tools"
+                Delete "$INSTDIR\insiders\*.dll"
+                Delete "$INSTDIR\insiders\*.pak"
+                Delete "$INSTDIR\insiders\*.bin"
+                Delete "$INSTDIR\insiders\Code - Insiders.*"
+            ${EndIf}
+            CreateDirectory "$INSTDIR\insiders\data"
             CreateDirectory "$INSTDIR\insiders\data\extensions"
             DetailPrint "Unpacking Visual Studio Code Insiders..."
             nsisunz::Unzip "$INSTDIR\VSCodeInsiders.zip" "$INSTDIR\insiders"
@@ -272,17 +285,26 @@ Section "Install"
             ${If} $IsUpdateMode != YES
                 CreateShortCut "$DESKTOP\Code Insiders.lnk" "$INSTDIR\insiders\Code - Insiders.exe"
             ${EndIf}
+            ${If} $IsUpdateMode != YES
+                CreateShortCut "$DESKTOP\Code Insiders.lnk" "$INSTDIR\insiders\Code - Insiders.exe"
+                Push "$INSTDIR\insiders\bin"
+                Call AddToPath
+                Push "CODE_INSIDERS_HOME"
+                Push "$INSTDIR\insiders"
+                ;Call AddToEnvVar
+                Call WriteEnvVar
+            ${Endif}
         ${Else}
             DetailPrint "Error  - $Status"
         ${EndIf}
-        ${If} $IsUpdateMode != YES
-            ; Add 'johnstoncode.svn-scm' to enabledProposedApi list in subversion exension, this enabled the file explorer decorations
-            ; located in code installation resources/app/product.json
-            Push '$INSTDIR\insiders\resources\app\product.json'   ; >= V 1.33
-            Push '"ms-vscode.vscode-remote-extensionpack"]'
-            Push '"ms-vscode.vscode-remote-extensionpack", "johnstoncode.svn-scm"]'
-            Call ReplaceInFile
-        ${Endif}
+        ;${If} $IsUpdateMode != YES
+        ;    ; Add 'johnstoncode.svn-scm' to enabledProposedApi list in subversion exension, this enabled the file explorer decorations
+        ;    ; located in code installation resources/app/product.json
+        ;    Push '$INSTDIR\insiders\resources\app\product.json'   ; >= V 1.33
+        ;    Push '"ms-vscode.vscode-remote-extensionpack"]'
+        ;    Push '"ms-vscode.vscode-remote-extensionpack", "johnstoncode.svn-scm"]'
+        ;    Call ReplaceInFile
+        ;${Endif}
         ${IfNot} ${FileExists} "$INSTDIR\data\extensions\spmeesseman.vscode-taskexplorer\extension.js"
             ; Install extensions
             File "/oname=$INSTDIR\insiders\install_extensions.bat" ..\build\install_extensions.bat
@@ -306,7 +328,6 @@ Section "Install"
             Call ReplaceInFile
         ${EndIf}
         settingsexist2:
-
     ${EndIf}
 
     ;
