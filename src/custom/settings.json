@@ -12,7 +12,7 @@
     "taskExplorer.pathToAnt": "c:\\Code\\ant\\bin\\ant.bat",
     "taskExplorer.pathToGradle": "c:\\Code\\gradle\\bin\\gradle.bat",
     "taskExplorer.pathToMake": "C:\\Code\\compilers\\c_c++\\9.0\\VC\\bin\\nmake.exe",
-    "taskExplorer.pathToNsis": "c:\\Code\\nsis\\nsis.exe",
+    "taskExplorer.pathToNsis": "c:\\Code\\nsis\\makensis.exe",
     "taskExplorer.pathToPython": "c:\\Code\\python\\python.exe",
     "python.pythonPath": "c:\\Code\\python\\python.exe",
     "php.validate.executablePath": "c:\\Code\\php\\php.exe",
