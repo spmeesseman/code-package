@@ -1,6 +1,6 @@
 {
     "projectName":       "code-package",
-    "version": "2.2.0",
+    "version": "2.3.0",
     "branch":            "trunk",
     "bugs":              "",
     "buildCommand": [

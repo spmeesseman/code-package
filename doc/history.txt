@@ -757,3 +757,53 @@ September 7th, 2019
 
     Set default setting to disable opening files in preview mode.
 
+
+Version 2.3.0
+February 12th, 2020
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB+                               *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+***    An Internet connection is required during installation to download and  *
+***    install Code extensions and required node modules.                      *
+***                                                                            *
+********************************************************************************
+
+1.  Documentation:  Readme
+    
+    Update info on installing without dotfuscator.
+
+2.  Feature
+    
+    Add the following extension to the list of installed defaults:
+    
+        alefragnani.rtf
+
+3.  Feature
+    
+    Update Git for Windows default install from 2.21.0 to 2.23.0.
+
+4.  Bug Fix
+    
+    Default settings file includes wrong path to NSIS executable.
+
+5.  Bug Fix
+    
+    When installing, the option for the 'Dotfuscator' package should be
+    defaulted to 'do not install' since it requires an activation key.
+
+6.  Bug Fix
+    
+    When updating the 'Code Insiders' package using the 'Change' functionality
+    in Control Panel, all extensions are deleted from the existing Insiders
+    install and the defaults are re-installed.  This does not occur when
+    updating the production version of VSCode.
+
