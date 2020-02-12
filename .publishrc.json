@@ -1,19 +1,31 @@
 {
     "projectName":       "code-package",
     "version": "2.2.0",
-    "branch":            "master",
+    "branch":            "trunk",
     "bugs":              "",
     "buildCommand": [
         "cmd /c src\\Build.bat",
         "cmd /c install\\Build.bat"
     ],
     "changelogFile":     "",
+    "commitMsgMap": {
+        "internal": {
+            "versionBump": "patch",
+            "formatText": "Internal Change",
+            "include": false,
+            "iconCls": "fa-building"
+        }
+    },
     "deployCommand":     "",
-    "distRelease":       "N",
+    "distRelease":       "Y", 
     "distReleasePath":   "\\\\192.168.68.120\\d$\\softwareimages",
+    "distReleasePreCommand": [],
+    "distReleasePostCommand": [],
     "distDocPath":       "",
     "dryRunVcRevert":    "Y",
-    "emailNotification": "N",
+    "emailNotification": "Y",
+    "emailMode":         "",
+    "emailPort":         25,
     "emailServer":       "10.0.7.50",
     "emailRecip":        "productrelease@pjats.com",
     "emailSender":       "productbuild@pjats.com",
@@ -22,42 +34,47 @@
         "https://app1.development.pjats.com/projects/set_project.php?project=code-package&make_default=no&ref=roadmap_page.php|Project Roadmap|Roadmap - Projects Board",
         "https://app1.development.pjats.com/projects/set_project.php?project=code-package&make_default=no&ref=changelog_page.php|Project Changelog|Changelog - Projects Board"
     ],
-    "githubRelease":     "Y",
-    "githubAssets": [
-        "install\\dist\\code-package-x64.exe"
-    ],
-    "githubUser":        "spmeesseman",
+    "githubRelease":     "N",
+    "githubAssets":      [],
+    "githubChglogEdit":  "N",
+    "githubUser":        "",
+    "githubReleasePreCommand": [],
+    "githubReleasePostCommand": [],
     "historyFile":       "doc\\history.txt",
     "historyHdrFile":    "install\\history-hdr.txt",
-    "historyHref":       "<a href=\"https://app1.development.pjats.com/svn/web/filedetails.php?repname=pja&path=%2Fcode-package%2Ftrunk%2Fdoc%2Fhistory.txt&usemime=1\">History File - WebSVN</a>",
     "historyLineLen":    80,
+    "historyHref":       "<a href=\"https://app1.development.pjats.com/svn/web/filedetails.php?repname=pja&path=%2Fcode-package%2Ftrunk%2Fdoc%2Fhistory.txt&usemime=1\">History File - WebSVN</a>",
     "homePage":          "",
     "interactive":       "N",
-    "mantisbtRelease":   "N",
-    "mantisbtApiToken": [
-        "${MANTISBT_API_TOKEN}",
-        "${MANTIS_API_TOKEN}"
-    ],
+    "mantisbtRelease":   "Y",
+    "mantisbtApiToken":  "${MANTISBT_API_TOKEN}",
+    "mantisbtChglogEdit":  "N",
     "mantisbtPlugin":    "",
     "mantisbtProject":   "",
-    "mantisbtUrl": [
-        "https://app1.development.pjats.com/projects",
-        "https://app1.spmeesseman.com/projects"
-    ],
+    "mantisbtUrl":       "https://app1.development.pjats.com/projects",
     "mantisbtAssets": [
         "doc\\history.txt|History File",
         "install\\dist\\code-package-x64.exe|Windows Installer (x64)"
     ],
+    "mantisReleasePreCommand": [],
+    "mantisReleasePostCommand": [],
     "npmPackDist":       "N",
+    "npmRegistry":       "",
     "npmRelease":        "N",
+    "npmScope":          "",
+    "npmReleasePreCommand": [],
+    "npmReleasePostCommand": [],
     "nugetRelease":      "N",
     "pathToDist":        "install\\dist",
     "pathtoRoot":        ".",
     "pathtoMainRoot":    "",
     "pathPreRoot":       "",
-    "postBuildCommand":  "",
-    "repoType":          "git",
-    "repo":              "https://github.com/spmeesseman/code-package.git",
+    "postBuildCommand":  [],
+    "preCommitCommand":  [],
+    "postCommitCommand": [],
+    "postReleaseCommand":"",
+    "repo":              "https://svn.development.pjats.com/pja/code-package/trunk",
+    "repoType":          "svn",
     "skipCommit":        "N",
     "skipDeployPush":    "N",
     "skipVersionEdits":  "Y",
@@ -65,21 +82,13 @@
     "textEditor":        "notepad",
     "vcTag":             "Y",
     "vcTagPrefix":       "",
+    "vcWebPath":         "https://app1.development.pjats.com/web/svn/filedetails.php%3Frepname=pja%26usemime=1%26path=",
     "versionFiles": [
         "install\\VSCode_64bit.nsi"
     ],
+    "versionFilesEditAlways": [],
+    "versionReplaceTags":     [],
+    "versionFilesScrollDown": [],
     "versionText":       "Version",
-    "writeLog":          "N",
-    "xRuns": [
-    {
-        "branch":            "trunk",
-        "distRelease":       "Y",
-        "emailNotification": "Y",
-        "githubRelease":     "N",
-        "mantisbtRelease":   "Y",
-        "repoType":          "svn",
-        "repo":              "https://svn.development.pjats.com/pja/code-package/trunk",
-        "textEditor":        "",
-        "buildCommand":      "cmd /c install\\Build.bat --pj"
-    }]
+    "writeLog":          "N"
 }
