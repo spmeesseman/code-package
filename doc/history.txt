@@ -807,3 +807,42 @@ February 12th, 2020
     install and the defaults are re-installed.  This does not occur when
     updating the production version of VSCode.
 
+
+Version 2.4.0
+April 11th, 2020
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB+                               *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+***    An Internet connection is required during installation to download and  *
+***    install Code extensions and required node modules.                      *
+***                                                                            *
+********************************************************************************
+
+1.  Feature
+    
+    Add the following extensions to the default list to be installed on new
+    'Code Package' installations:
+    
+        anseki.vscode-color
+        ms-azure-devops.azure-pipelines
+        oracle.oracledevtools
+        sandcastle.vscode-open
+        techer.open-in-browser
+        xyz.plsql-language
+        yzane.markdown-pdf
+        yzhang.markdown-all-in-one
+
+2.  Refactoring
+    
+    Update to latest development environment default settings for new
+    installations.
+
