@@ -5,7 +5,7 @@
     "bugs":              "",
     "buildCommand": [
         "cmd /c src\\Build.bat",
-        "cmd /c install\\Build.bat"
+        "cmd /c install\\Build.bat --pj"
     ],
     "changelogFile":     "",
     "commitMsgMap": {
