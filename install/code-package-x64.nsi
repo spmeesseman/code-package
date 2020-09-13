@@ -1311,9 +1311,7 @@ Function InstTypePageCreate
         ${If} $InstallGit == ""
             StrCpy $InstallGit YES
         ${EndIf}
-        ${If} $InstallDotfuscator == ""
-            StrCpy $InstallDotfuscator YES
-        ${EndIf}
+        StrCpy $InstallDotfuscator NO
         ${If} $InstallNsis == ""
             StrCpy $InstallNsis YES
         ${EndIf}
