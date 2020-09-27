@@ -1408,11 +1408,11 @@ Function InstTypePageCreate
 
     ${NSD_CreateCheckBox} 0 95u 45% 10u "Dotfuscator Community Edition"
     Pop $6
-    IfFileExists "$INSTDIR\dotfuscator\ce\DotfuscatorCLI.exe" 0 dotfuscatordone
-        ${If} $InstallsSaved != YES
+    # IfFileExists "$INSTDIR\dotfuscator\ce\DotfuscatorCLI.exe" 0 dotfuscatordone
+    #    ${If} $InstallsSaved != YES
             StrCpy $InstallDotfuscator NO
-        ${EndIf}
-    dotfuscatordone:
+    #    ${EndIf}
+    #dotfuscatordone:
     ${If} $InstallDotfuscator == YES
         ${NSD_Check} $6
     ${EndIf}
