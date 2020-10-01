@@ -846,3 +846,53 @@ April 11th, 2020
     Update to latest development environment default settings for new
     installations.
 
+
+Version 2.5.0
+September 26th, 2020
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB+                               *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+***    An Internet connection is required during installation to download and  *
+***    install Code extensions and required node modules.                      *
+***                                                                            *
+********************************************************************************
+
+1.  Feature:  Extensions
+    
+    Add extension:
+    
+        github.vscode-pull-request-github
+        ibm.output-colorizer
+        idleberg.nsl-assembler
+        idleberg.bridlensis
+        ms-vscode-remote.remote-ssh
+        softwaredotcom.swdc-vscode
+        visualstudioexptteam.vscodeintellicode
+        vscode-pdf
+
+2.  Bug Fix:  Extensions
+    
+    The C# extension has been renamed to:
+    
+        ms-dotnettools.csharp
+    
+    Installer is trying to install previously named extension, which no longer
+    exists.
+
+3.  Refactoring:  Installer
+    
+    Always default the 'Dotfuscator CE' install to 'Do Not Install'.
+
+4.  Refactoring:  SDKs
+
+    Update WIX Tools to 3.11.2
+
