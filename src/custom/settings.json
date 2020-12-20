@@ -6,7 +6,6 @@
     "window.zoomLevel": -0.5,
     "editor.fontSize": 14,
     "workbench.editor.enablePreview": false,
-    "editor.hover.enabled": false,
     "svn.defaultCheckoutDirectory": "c:\\Projects",
     "svn.gravatar.icon_url": "https://www.gravatar.com/avatar/<AUTHOR_MD5>.jpg?s=<SIZE>&d=https%3A%2F%2Fui-avatars.com%2Fapi%2F/<AUTHOR>/128",
     "taskExplorer.enableSideBar": true,
