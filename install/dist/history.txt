@@ -896,3 +896,44 @@ September 26th, 2020
 
     Update WIX Tools to 3.11.2
 
+
+Version 2.6.0
+February 5th, 2021
+-------------------------------------------------------------------------------
+********************************************************************************
+***                                                                            *
+*** Verify that the following requirements have been satisfied:                *
+***                                                                            *
+*** Requirements:                                                              *
+*** -------------                                                              *
+***    1.  Operating System            : Windows 7+                            *
+***    2.  CPU                         : 2.0+ GHz                              *
+***    3.  RAM                         : 1.0 GB+                               *
+***    4.  Disk                        : 1.5 GB+                               *
+***                                                                            *
+***    An Internet connection is required during installation to download and  *
+***    install Code extensions and required node modules.                      *
+***                                                                            *
+********************************************************************************
+
+1.  Feature:  Compilers
+    
+    Add Visual Studio MSBuild 16 build tools.
+
+2.  Feature:  NSIS
+    
+    Add ExecAwaitJob macro to fir running and waiting on executabales that launch
+    child processes.
+
+3.  Bug Fix:  PHP
+    
+    Installing to the root install directory, not a 'php' sub-directory.
+
+4.  Refactoring:  Settings
+    
+    Add additional directories to ignore for Task Explorer config.
+
+5.  Refactoring:  Settings
+    
+    Don't display all the hover tips in the editor.
+
