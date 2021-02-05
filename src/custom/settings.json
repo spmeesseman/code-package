@@ -55,6 +55,7 @@
         "**/test/**",
         "**/third_party/**",
         "**/vendor/**",
+        "**/dep/**"
     ],
     "taskExplorer.includeAnt": [
         "**/install/*.xml",
@@ -80,7 +81,12 @@
         "**/target/**",
         "**/test/**",
         "**/third_party/**",
-        "**/vendor/**"
+        "**/vendor/**",
+        "**/code-package/src/custom/**",
+        "**/code-package/src/python/**",
+        "**/code-package/script/**",
+        "**/sass/config.rb",
+        "**/dep/**"
     ],
     "todo.embedded.exclude": [
         "**/.*",
