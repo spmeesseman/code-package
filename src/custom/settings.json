@@ -86,7 +86,8 @@
         "**/code-package/src/python/**",
         "**/code-package/script/**",
         "**/sass/config.rb",
-        "**/dep/**"
+        "**/dep/**",
+        "**/extract-history.ps1"
     ],
     "todo.embedded.exclude": [
         "**/.*",

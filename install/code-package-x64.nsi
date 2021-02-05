@@ -1065,7 +1065,7 @@ Section "Uninstall"
     ;
     ${If} $InstallCompilers == YES 
         DetailPrint "Uninstalling Compilers Pack..."
-        ExecWait 'start /wait " " "$INSTDIR\vsbuildtools16.exe" uninstall --installPath "$INSTDIR\compilers\c#\16.0" --allWorkloads --passive --norestart'
+        ExecWait 'start /wait " " "$INSTDIR\vsbuildtools16.exe" uninstall --installPath "$INSTDIR\compilers\c#\16.0" --passive --norestart'
         RMDir /r "$INSTDIR\compilers"
     ${EndIf}
 
