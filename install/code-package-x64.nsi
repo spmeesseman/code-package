@@ -70,6 +70,7 @@
 !include "StrRep.nsh"
 !include "ReplaceInFile.nsh"
 !include "nsDialogs.nsh"
+!include "ExecWaitJob.nsh"
 
 ;*********************************************************************
 ;*                                                                   *
@@ -677,7 +678,11 @@ Section "Install"
         inetc::get ${CompilerCSharp16Url} "$INSTDIR\vsbuildtools16.exe"
         Pop $Status ; 'OK' when sucessful
         ${If} $Status == OK 
-            ExecWait 'start /wait " " "$INSTDIR\vsbuildtools16.exe" --installPath "$INSTDIR\compilers\c#\16.0" --allWorkloads -add Component.Android.SDK28 --add Microsoft.VisualStudio.Component.Roslyn.LanguageServices --passive --norestart --wait'
+            CreateDirectory "$INSTDIR\compilers\c#"
+            DetailPrint "Installing MSBuild 16 / C# Compiler Package...."
+            ;ExecWait 'cmd /c start /wait " " "$INSTDIR\vsbuildtools16.exe" --installPath "$INSTDIR\compilers\c#\16.0" --allWorkloads --add Component.Android.SDK28 --add Component.Android.SDK29 --add Microsoft.VisualStudio.Component.Roslyn.LanguageServices --passive --norestart --wait'
+            StrCpy $8 '"$INSTDIR\vsbuildtools16.exe" --installPath "$INSTDIR\compilers\c#\16.0" --allWorkloads --add Component.Android.SDK28 --add Component.Android.SDK29 --add Microsoft.VisualStudio.Component.Roslyn.LanguageServices --passive --norestart --wait'
+            !insertmacro ExecWaitJob r8
         ${Else}
             DetailPrint "Error  - $Status"
         ${EndIf}
@@ -1065,7 +1070,9 @@ Section "Uninstall"
     ;
     ${If} $InstallCompilers == YES 
         DetailPrint "Uninstalling Compilers Pack..."
-        ExecWait 'start /wait " " "$INSTDIR\vsbuildtools16.exe" uninstall --installPath "$INSTDIR\compilers\c#\16.0" --passive --norestart'
+        ;ExecWait 'cmd /c start /wait " " "$INSTDIR\vsbuildtools16.exe" uninstall --installPath "$INSTDIR\compilers\c#\16.0" --passive --norestart --wait'
+        StrCpy $8 '"$INSTDIR\vsbuildtools16.exe" uninstall --installPath "$INSTDIR\compilers\c#\16.0" --passive --norestart --wait'
+        !insertmacro ExecWaitJob r8
         RMDir /r "$INSTDIR\compilers"
     ${EndIf}
 
