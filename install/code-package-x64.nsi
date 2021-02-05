@@ -52,6 +52,7 @@
 !define CompilerCCPlusPlus9Url "${PackageBaseUrl}/compilers/C_C%2B%2B/9.0.zip?raw=true"
 !define CompilerCSharp8Url "${PackageBaseUrl}/compilers/C%23/8.0.zip?raw=true"
 !define CompilerCSharp15Url "${PackageBaseUrl}/compilers/C%23/15.0.zip?raw=true"
+!define CompilerCSharp16Url "${PackageBaseUrl}/compilers/C%23/vs_16_buildtools.exe?raw=true"
 !define LegacyWixUrl "${PackageBaseUrl}/sdks/wix.zip?raw=true"
 !define LegacyAtlMfcUrl "${PackageBaseUrl}/sdks/atlmfc.zip?raw=true"
 !define LegacyWindows2009Url "${PackageBaseUrl}/sdks/windows/august2009.zip?raw=true"
@@ -671,6 +672,15 @@ Section "Install"
         ${Else}
             DetailPrint "Error  - $Status"
         ${EndIf}
+
+        DetailPrint "Downloading C# Compiler 16.0 Package..."
+        inetc::get ${CompilerCSharp16Url} "$INSTDIR\vsbuildtools16.exe"
+        Pop $Status ; 'OK' when sucessful
+        ${If} $Status == OK 
+            ExecWait 'start /wait " " "$INSTDIR\vsbuildtools16.exe" --installPath "$INSTDIR\compilers\c#\16.0" --allWorkloads -add Component.Android.SDK28 --add Microsoft.VisualStudio.Component.Roslyn.LanguageServices --passive --norestart --wait'
+        ${Else}
+            DetailPrint "Error  - $Status"
+        ${EndIf}
     ${EndIf}
 
     ;
@@ -1055,6 +1065,7 @@ Section "Uninstall"
     ;
     ${If} $InstallCompilers == YES 
         DetailPrint "Uninstalling Compilers Pack..."
+        ExecWait 'start /wait " " "$INSTDIR\vsbuildtools16.exe" uninstall --installPath "$INSTDIR\compilers\c#\16.0" --allWorkloads --passive --norestart'
         RMDir /r "$INSTDIR\compilers"
     ${EndIf}
 
@@ -1417,7 +1428,7 @@ Function InstTypePageCreate
         ${NSD_Check} $6
     ${EndIf}
 
-    ${NSD_CreateCheckBox} 0 110u 45% 10u "C#/C/C++ Compiler Package"
+    ${NSD_CreateCheckBox} 0 110u 45% 10u "C#/C/C++ Compiler Packages"
     Pop $R5
     IfFileExists "$INSTDIR\compilers\c#\15.0\Bin\MSBuild.exe" 0 compilersdone
         ${If} $InstallsSaved != YES
