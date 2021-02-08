@@ -47,9 +47,8 @@ The following software is redistributed by code-package, downloaded and installe
 |---|---|---|---|
 |Apache Ant|1.10.7|Apache 2.0|No|
 |Ansicon|1.89|Jason Hood|No|
-|Dotfuscator|5.26.0|GPL-compatible|No|
 |Gradle|5.3.1|GPL|No|
-|NodeJS|10.16.3|Node.js|Yes|
+|NodeJS|10.22.1|Node.js|Yes|
 |PHP|7.3.9 (NTS)|GPL-compatible|No|
 |PHP Composer||GPL-compatible|No|
 |Python|3.7.3|GPL-compatible|No|
