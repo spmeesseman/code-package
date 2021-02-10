@@ -9,7 +9,7 @@
 !define APPLICATION_NAME     "Code Package"
 
 ; Define build level
-!define BUILD_LEVEL          "2.4.1"
+!define BUILD_LEVEL          "2.6.1"
 
 ; Define install file name
 !define INSTALL_FILE_NAME    "code-package-x64.exe"
