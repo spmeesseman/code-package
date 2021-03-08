@@ -1,6 +1,10 @@
 {
     "workbench.colorTheme": "Default Light+",
     "workbench.iconTheme": "material-icon-theme",
+    "markdown.preview.lineHeight": 1.8,
+    "markdown.styles": [
+        "https://pjaproduction-2.pjats.com/resources/server/markdown/css/spm.css"
+    ],
     "material-icon-theme.folders.color": "#d8c034",
     "material-icon-theme.folders.theme": "classic",
     "window.zoomLevel": -0.5,
@@ -8,6 +12,7 @@
     "workbench.editor.enablePreview": false,
     "svn.defaultCheckoutDirectory": "c:\\Projects",
     "svn.gravatar.icon_url": "https://www.gravatar.com/avatar/<AUTHOR_MD5>.jpg?s=<SIZE>&d=https%3A%2F%2Fui-avatars.com%2Fapi%2F/<AUTHOR>/128",
+    "svn.refresh.remoteChanges": false,
     "taskExplorer.enableSideBar": true,
     "taskExplorer.pathToAnsicon": "c:\\Code\\ansicon\\x64\\ansicon.exe",
     "taskExplorer.pathToAnt": "c:\\Code\\ant\\bin\\ant.bat",
