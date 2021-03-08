@@ -4,7 +4,7 @@
     "branch":            "trunk",
     "bugs":              "",
     "buildCommand": [
-        "cmd /c src\\Build.bat",
+        "cmd /c src\\Build.bat --pj",
         "cmd /c install\\Build.bat --pj"
     ],
     "changelogFile":     "",
@@ -84,7 +84,8 @@
     "vcTagPrefix":       "",
     "vcWebPath":         "https://app1.development.pjats.com/web/svn/filedetails.php%3Frepname=pja%26usemime=1%26path=",
     "versionFiles": [
-        "install\\VSCode_64bit.nsi"
+        "install\\code-package-x64.nsi",
+        "install\\code-package-pjats-x64.nsi"
     ],
     "versionFilesEditAlways": [],
     "versionReplaceTags":     [],
