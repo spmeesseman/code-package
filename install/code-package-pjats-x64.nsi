@@ -32,6 +32,7 @@
 ; Public URLs
 !define CodeDownloadUrl "https://update.code.visualstudio.com/latest/win32-x64-archive/stable"
 !define GitDownloadUrl "https://github.com/git-for-windows/git/releases/download/v2.23.0.windows.1/Git-2.23.0-64-bit.exe"
+!define NugetCliUrl "https://dist.nuget.org/win-x86-commandline/v4.9.4/nuget.exe"
 ; Repo URLs
 !define PackageBaseUrl "https://github.com/spmeesseman/code-package/blob/master/src"
 !define TortoiseUrl "${PackageBaseUrl}/tortoisesvn/tortoisesvn.msi?raw=true"
@@ -858,7 +859,6 @@ Function InstTypePageCreate
         ${If} $InstallGit == ""
             StrCpy $InstallGit YES
         ${EndIf}
-        StrCpy $InstallDotfuscator NO
         ${If} $InstallNsis == ""
             StrCpy $InstallNsis YES
         ${EndIf}

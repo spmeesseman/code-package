@@ -21,8 +21,7 @@ if "%1" == "--edit-files" (
     rem Edit the Setup script
     if "%pj%" == "--pj" (
         notepad code-package-pjats-x64.nsi
-    )
-    else (
+    ) else (
         notepad code-package-x64.nsi
     )
 )
@@ -42,7 +41,6 @@ if not exist ..\build\nsis\  (
 rem Compile the Setup script
 if "%pj%" == "--pj" (
     ..\build\nsis\makensis code-package-pjats-x64.nsi
-)
-else (
+) else (
     ..\build\nsis\makensis code-package-x64.nsi
 )

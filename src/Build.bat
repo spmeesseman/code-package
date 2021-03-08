@@ -33,7 +33,7 @@ if "%pj%" == "" (
     mkdir %OutputDirectory%\python
     mkdir %OutputDirectory%\tmp
     ..\script\7za.exe e -tzip python/python.zip -o%OutputDirectory%\tmp -r -spf
-    move %OutputDirectory%\tmp\python\python37._pth %OutputDirectory%\python\python37._pth.save
+    move /Y %OutputDirectory%\tmp\python\python37._pth %OutputDirectory%\python\python37._pth.save
     copy /Y python\python37._pth %OutputDirectory%\python
     copy /Y python\install_pip.bat %OutputDirectory%\python
     copy /Y python\get-pip.py %OutputDirectory%\python
@@ -47,4 +47,9 @@ rem *                                                                    *
 rem **********************************************************************
 
 xcopy custom\* %OutputDirectory% /s /i /y
-
+if "%pj%" == "--pj" (
+    del /Q %OutputDirectory%\settings.json
+    move /Y %OutputDirectory%\settings.pjats.json %OutputDirectory%\settings.json
+) else (
+    del /Q %OutputDirectory%\settings.pjats.json
+)
