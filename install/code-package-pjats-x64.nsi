@@ -448,9 +448,9 @@ Section "Install"
         ${If} $Status == OK 
             CreateDirectory "$INSTDIR\compilers\c#"
             DetailPrint "Installing MSBuild 16 / C# Compiler Package...."
-            ;ExecWait 'cmd /c start /wait " " "$INSTDIR\vsbuildtools16.exe" --installPath "$INSTDIR\compilers\c#\16.0" --allWorkloads --add Component.Android.SDK28 --add Component.Android.SDK29 --add Microsoft.VisualStudio.Component.Roslyn.LanguageServices --passive --norestart --wait'
             StrCpy $8 '"$INSTDIR\vsbuildtools16.exe" --installPath "$INSTDIR\compilers\c#\16.0" --allWorkloads --add Component.Android.SDK28 --add Component.Android.SDK29 --add Microsoft.VisualStudio.Component.Roslyn.LanguageServices --passive --norestart --wait'
             !insertmacro ExecWaitJob r8
+            SetRebootFlag true
         ${Else}
             DetailPrint "Error  - $Status"
         ${EndIf}
@@ -599,6 +599,11 @@ Section "Install"
         ${EndIf}
     ${EndIf}
 
+    IfRebootFlag 0 noreboot
+    MessageBox MB_YESNO "A reboot is required to finish the installation. Do you wish to reboot now?" IDNO noreboot
+        Reboot
+    noreboot:
+
 SectionEnd
 
 
@@ -690,7 +695,7 @@ Section "Uninstall"
     ;
     ${If} $InstallTortoise == YES 
         DetailPrint "Uninstalling TortoiseSVN..."
-        ExecWait 'msiexec /x "$INSTDIR\TortoiseSVN-1.11.1.28492-x64-svn-1.11.1.msi" /passive REBOOT=ReallySuppress MSIRESTARTMANAGERCONTROL=Disable'
+        ExecWait 'msiexec /x "$INSTDIR\TortoiseSetup.msi" /passive REBOOT=ReallySuppress MSIRESTARTMANAGERCONTROL=Disable'
         RMDir /r "$INSTDIR\tortoisesvn"
         Delete /REBOOTOK "$INSTDIR\TortoiseSetup.msi"
     ${EndIf}
@@ -738,7 +743,6 @@ Section "Uninstall"
     ;
     ${If} $InstallCompilers == YES 
         DetailPrint "Uninstalling Compilers Pack..."
-        ;ExecWait 'cmd /c start /wait " " "$INSTDIR\vsbuildtools16.exe" uninstall --installPath "$INSTDIR\compilers\c#\16.0" --passive --norestart --wait'
         StrCpy $8 '"$INSTDIR\vsbuildtools16.exe" uninstall --installPath "$INSTDIR\compilers\c#\16.0" --passive --norestart --wait'
         !insertmacro ExecWaitJob r8
         RMDir /r "$INSTDIR\compilers"
