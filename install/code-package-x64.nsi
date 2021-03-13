@@ -343,6 +343,7 @@ Section "Install"
             ${If} $IsUpdateMode == YES ; remove current files
                 ; Remove global node modules gracefully
                 ExecWait '"$INSTDIR\install_node_modules.bat" uninstall'
+                ExecWait '"$INSTDIR\install_node_modules_g.bat" uninstall'
                 RMDir /r "$INSTDIR\nodejs"
             ${EndIf}
             DetailPrint "Unpacking NodeJS and NPM..."
@@ -351,10 +352,9 @@ Section "Install"
             Delete "$INSTDIR\NodeJs.zip"
             ; INSTALL GLOBAL NODE MODULES
             ExecWait '"$INSTDIR\install_node_modules.bat" install'
+            ExecWait '"$INSTDIR\install_node_modules_g.bat" install'
             ${If} $IsUpdateMode != YES
                 Push "$INSTDIR\nodejs"
-                Call AddToPath
-                Push "$INSTDIR\nodejs\node_modules\typescript\bin"
                 Call AddToPath
             ${Endif}
         ${Else}
@@ -967,9 +967,8 @@ Section "Uninstall"
     ${If} $InstallNodeJs == YES 
         DetailPrint "Uninstalling NodeJs/NPM..."
         ExecWait '"$INSTDIR\install_node_modules.bat" uninstall'
+        ExecWait '"$INSTDIR\install_node_modules_g.bat" uninstall'
         Push "$INSTDIR\nodejs"
-        Call un.RemoveFromPath
-        Push "$INSTDIR\nodejs\node_modules\typescript\bin"
         Call un.RemoveFromPath
         RMDir /r "$INSTDIR\nodejs"
     ${EndIf}
